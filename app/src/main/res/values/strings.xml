@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LaulAid_TChartskt</string>
+    <string name="httpText" />
 </resources>
