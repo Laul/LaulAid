@@ -27,7 +27,7 @@ import org.json.JSONArray
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import java.time.*
+import java.time.LocalDateTime
 import android.net.Uri
 import android.provider.Settings
 import android.view.Menu
@@ -51,6 +51,7 @@ import com.google.android.gms.fitness.result.SessionReadResponse
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -110,7 +111,6 @@ class MainActivity : AppCompatActivity() {
         Fitness.getHistoryClient(this, getGoogleAccount())
             .readData(readRequest)
             .addOnSuccessListener({ gresponse ->
-                // Use response data here
                 printData(gresponse)
             })
             .addOnFailureListener({ e -> Log.d("GFIT", "OnFailure()", e) })
@@ -122,39 +122,28 @@ class MainActivity : AppCompatActivity() {
         // [START build_update_data_request]
         // Set a start and end time for the data that fits within the time range
         // of the original insertion.
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        val now1 = Date()
-        calendar.time = now1
-        val endTime = calendar.timeInMillis
-        calendar.add(Calendar.MINUTE, -50)
-        val startTime = calendar.timeInMillis
 
         // Create a data source
-        val gFitGluco_dsource = DataSource.Builder()
+        val gFitGlucodsource = DataSource.Builder()
             .setAppPackageName(this)
             .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
             .setType(DataSource.TYPE_RAW)
             .build()
 
-//        // Create a datapoint
-//        val gFitGluco_dpoint = DataPoint.builder(gFitGluco_dsource)
-//            .setTimestamp(endTime, TimeUnit.MILLISECONDS)
-//            .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, 5.0f) // 90 mg/dL
-//            .setField(HealthFields.FIELD_TEMPORAL_RELATION_TO_MEAL, HealthFields.FIELD_TEMPORAL_RELATION_TO_MEAL_BEFORE_MEAL)
-//            .build()
+        val gFitGlucodpoint = DataPoint.builder(gFitGlucodsource)
+            .setTimestamp(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+            .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, 5.0f)
+            .build()
 
         // Add datapoint to dataset
-        val gFitGluco_dset = DataSet.builder(gFitGluco_dsource)
-            .add(DataPoint.builder(gFitGluco_dsource)
-                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, 5.0f)
-                .setField(Field.FIELD_MEAL_TYPE, Field.MEAL_TYPE_BREAKFAST)
-                .setTimestamp(now.getMillis(), TimeUnit.MILLISECONDS)
-                .build()
-            ).build()
+        val gFitGlucodset = DataSet.builder(gFitGlucodsource)
+            .add(gFitGlucodpoint)
+            .build()
 
         // Request dataset update
         val request = DataUpdateRequest.Builder()
-            .setDataSet(gFitGluco_dset)
+            .setDataSet(gFitGlucodset)
+            .setTimeInterval(System.currentTimeMillis() - 1000, System.currentTimeMillis(), TimeUnit.MILLISECONDS)
             .build()
 
         return Fitness.getHistoryClient(this, getGoogleAccount())
