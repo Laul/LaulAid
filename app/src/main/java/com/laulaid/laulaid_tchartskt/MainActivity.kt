@@ -54,6 +54,7 @@ import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.function.IntToDoubleFunction
 import kotlin.collections.ArrayList
 
 
@@ -73,13 +74,6 @@ class MainActivity : AppCompatActivity() {
     private var mRequestQueue: RequestQueue? = null
     private var mStringRequest: StringRequest? = null
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
-
-
-    // Defines the start and end of the period of interest in this example.
-    private val periodStartMillis = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-        .parse(PERIOD_START_DATE_TIME).time
-    private val periodEndMillis = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-        .parse(PERIOD_END_DATE_TIME).time
 
 
     val fitnessOptions = FitnessOptions.builder()
@@ -116,34 +110,38 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener({ e -> Log.d("GFIT", "OnFailure()", e) })
     }
 
-    private fun updateFitnessData(): Task<Void> {
-        Log.i(TAG, "Creating a new data update request.")
+    private fun updateFitnessData(jsonstring: String): Task<Void> {
 
-        // [START build_update_data_request]
-        // Set a start and end time for the data that fits within the time range
-        // of the original insertion.
-
-        // Create a data source
         val gFitGlucodsource = DataSource.Builder()
             .setAppPackageName(this)
             .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
             .setType(DataSource.TYPE_RAW)
             .build()
 
-        val gFitGlucodpoint = DataPoint.builder(gFitGlucodsource)
-            .setTimestamp(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
-            .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, 5.0f)
-            .build()
-
-        // Add datapoint to dataset
+        // Create dataset
         val gFitGlucodset = DataSet.builder(gFitGlucodsource)
-            .add(gFitGlucodpoint)
-            .build()
+        val json = JSONArray(jsonstring)
+        val minDate = json.getJSONObject(json.length()-1).getLong("date")
+        val maxDate = json.getJSONObject(0).getLong("date")
+
+        for (i in 0 until json.length()){
+            val measure = json.getJSONObject(i)
+            val date = measure.getLong("date")
+            val sgv = measure.getInt("sgv")
+
+            // Add new datapoint to dataset
+            gFitGlucodset.add(DataPoint.builder(gFitGlucodsource)
+                .setTimestamp(date, TimeUnit.MILLISECONDS)
+                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, sgv/18.0f)
+                .build()
+            )
+        }
+
 
         // Request dataset update
         val request = DataUpdateRequest.Builder()
-            .setDataSet(gFitGlucodset)
-            .setTimeInterval(System.currentTimeMillis() - 1000, System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+            .setDataSet(gFitGlucodset.build())
+            .setTimeInterval(minDate, maxDate, TimeUnit.MILLISECONDS)
             .build()
 
         return Fitness.getHistoryClient(this, getGoogleAccount())
@@ -204,9 +202,6 @@ class MainActivity : AppCompatActivity() {
         btnRequest = findViewById(R.id.buttonRequest2) as Button?
         btnRequest!!.setOnClickListener { sendAndRequestResponse() }
 
-
-
-
     }
 
     private fun sendAndRequestResponse() {
@@ -221,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Add blood glucose data to GFit
-        updateFitnessData()
+        //updateFitnessData()
 
 
         //RequestQueue initialized
@@ -232,44 +227,13 @@ class MainActivity : AppCompatActivity() {
             Request.Method.GET, url,
             { response ->run{
                 // convertJsonToChartData(response)
-                convertJsonToHelloChartData(response)
+                updateFitnessData(response)
             }
             }) { error ->
             Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
                 .show() //display the response on screen
             }
         mRequestQueue!!.add(mStringRequest)
-
-    }
-    /*companion object {
-        private val TAG: String =
-            volleybasicexample.abhiandroid.com.volleybasicexample.MainActivity::class.java.getName()
-    }*/
-
-
-    private fun convertJsonToChartData(jsonstring: String){
-        val json = JSONArray(jsonstring)
-
-        val keys = ArrayList<String>(1)
-        keys.add("y")
-
-        val names = ArrayList<String>(1)
-        names.add("sgv")
-
-        val colors = ArrayList<Int>(1)
-        colors.add(Color.parseColor("#3DC23F"))
-
-        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
-
-        for (i in 0 until json.length()){
-            val measure = json.getJSONObject(i)
-            val date = measure.getLong("date")
-            val sgv = measure.getInt("sgv")
-            data.add(ChartItem(date,arrayListOf<Int>(sgv)))
-        }
-
-        // val chart = this@MainActivity.findViewById<TChart>(R.id.tchart)
-        // chart.setData(ChartData(keys, names, colors, data))
 
     }
 
@@ -280,6 +244,8 @@ class MainActivity : AppCompatActivity() {
         val data = ArrayList<Int>(json.length())
         for (i in 0 until json.length()){
             val measure = json.getJSONObject(i)
+            val date = measure.getLong("date")
+
             val sgv = measure.getInt("sgv")
             data.add(sgv)
         }
