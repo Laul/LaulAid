@@ -5,10 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 
-// Charting
-import com.klim.tcharts.TChart
-import com.klim.tcharts.entities.ChartData
-import com.klim.tcharts.entities.ChartItem
 
 //HTTPRequests
 import android.widget.Button
@@ -24,50 +20,28 @@ import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import org.json.JSONArray
 
 // GFit
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
 import java.time.LocalDateTime
-import android.net.Uri
-import android.provider.Settings
-import android.view.Menu
-import android.view.MenuItem
-import androidx.core.app.ActivityCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 // Fit
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.request.DataReadRequest
-import com.google.android.gms.fitness.FitnessActivities
 import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.*
 import com.google.android.gms.fitness.data.HealthDataTypes
-import com.google.android.gms.fitness.data.HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL
 import com.google.android.gms.fitness.request.DataUpdateRequest
-import com.google.android.gms.fitness.request.SessionInsertRequest
-import com.google.android.gms.fitness.request.SessionReadRequest
 import com.google.android.gms.fitness.result.DataReadResponse
-import com.google.android.gms.fitness.result.SessionReadResponse
 import com.google.android.gms.tasks.Task
-import com.google.android.material.snackbar.Snackbar
-import java.text.SimpleDateFormat
 import java.time.ZoneId
-import java.util.*
 import java.util.concurrent.TimeUnit
-import java.util.function.IntToDoubleFunction
 import kotlin.collections.ArrayList
 
 
 // GFit - Parameters variables
 const val TAG = "LaulAidTAG"
 
-// For the purposes of this sample, a hard-coded period of time is defined, covering the nights of
-// sleep that will be written and read.
-const val PERIOD_START_DATE_TIME = "2022-03-03T12:00:00Z"
-const val PERIOD_END_DATE_TIME = "2022-03-04T12:00:00Z"
 
-
-
+// Main
 class MainActivity : AppCompatActivity() {
     // HTTP request variables
     private var btnRequest: Button? = null
@@ -78,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     val fitnessOptions = FitnessOptions.builder()
         .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+        .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
         .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_READ)
         .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_WRITE)
         .build()
@@ -90,24 +65,59 @@ class MainActivity : AppCompatActivity() {
      */
     private fun getGoogleAccount() = GoogleSignIn.getAccountForExtension(this, fitnessOptions)
 
-    private fun accessGoogleFit() {
+    // GFit connection to retrieve steps data
+    private fun getSteps(startTime:Long, endTime: Long ){
+        val datasource = DataSource.Builder()
+            .setAppPackageName("com.google.android.gms")
+            .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
+            .setType(DataSource.TYPE_DERIVED)
+            .setStreamName("estimated_steps")
+            .build()
+
+        val request = DataReadRequest.Builder()
+            .aggregate(datasource)
+            .bucketByTime(1, TimeUnit.DAYS)
+            .setTimeRange(startTime, endTime, TimeUnit.SECONDS)
+            .build()
+
+        Fitness.getHistoryClient(this, GoogleSignIn.getAccountForExtension(this, fitnessOptions))
+            .readData(request)
+            .addOnSuccessListener { response -> parseSteps(response)}
+    }
+
+    /* GFit connection to retrieve steps data
+    @param response: Google fit response
+    */
+    private fun parseSteps(response:DataReadResponse ) {
+        // Get steps per day for last 7 days
+        val data = ArrayList<Int>(7)
+
+        for (dataSet in response.buckets.flatMap { it.dataSets }) {
+            for (dp in dataSet.dataPoints) {
+                for (field in dp.dataType.fields) {
+                    Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
+                    val step = dp.getValue(field).asInt()
+                    data.add(step)
+                }
+            }
+        }
+        displayGraph(data, AAChartType.Bar)
+    }
+
+        private fun accessGoogleFit() {
         val end = LocalDateTime.now()
         val start = end.minusYears(1)
         val endSeconds = end.atZone(ZoneId.systemDefault()).toEpochSecond()
         val startSeconds = start.atZone(ZoneId.systemDefault()).toEpochSecond()
 
+        // gluco
         val readRequest = DataReadRequest.Builder()
             .aggregate(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
             .setTimeRange(startSeconds, endSeconds, TimeUnit.SECONDS)
             .bucketByTime(1, TimeUnit.DAYS)
             .build()
 
-        Fitness.getHistoryClient(this, getGoogleAccount())
-            .readData(readRequest)
-            .addOnSuccessListener({ gresponse ->
-                printData(gresponse)
-            })
-            .addOnFailureListener({ e -> Log.d("GFIT", "OnFailure()", e) })
+
     }
 
     private fun updateFitnessData(jsonstring: String): Task<Void> {
@@ -154,52 +164,13 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    /**
-     * Logs a record of the query result. It's possible to get more constrained data sets by
-     * specifying a data source or data type, but for demonstrative purposes here's how one would
-     * dump all the data. In this sample, logging also prints to the device screen, so we can see
-     * what the query returns, but your app should not log fitness information as a privacy
-     * consideration. A better option would be to dump the data you receive to a local data
-     * directory to avoid exposing it to other applications.
-     */
-    private fun printData(dataReadResult: DataReadResponse) {
-        // [START parse_read_data_result]
-        // If the DataReadRequest object specified aggregated data, dataReadResult will be returned
-        // as buckets containing DataSets, instead of just DataSets.
-        if (dataReadResult.buckets.isNotEmpty()) {
-            Log.e(TAG, "Number of returned buckets of DataSets is: " + dataReadResult.buckets.size)
-            for (bucket in dataReadResult.buckets) {
-                bucket.dataSets.forEach { dumpDataSet(it) }
-            }
-        } else if (dataReadResult.dataSets.isNotEmpty()) {
-            Log.e(TAG, "Number of returned DataSets is: " + dataReadResult.dataSets.size)
-            dataReadResult.dataSets.forEach { dumpDataSet(it) }
-        }
-        // [END parse_read_data_result]
-    }
-
-    // [START parse_dataset]
-    private fun dumpDataSet(dataSet: DataSet) {
-        Log.i(TAG, "Data returned for Data type: ${dataSet.dataType.name}")
-
-        for (dp in dataSet.dataPoints) {
-            Log.i(TAG, "Data point:")
-            Log.i(TAG, "\tType: ${dp.dataType.name}")
-            Log.i(TAG, "\tStart: ${dp.getStartTime(TimeUnit.MILLISECONDS)}")
-            Log.i(TAG, "\tEnd: ${dp.getEndTime(TimeUnit.MILLISECONDS)}")
-            dp.dataType.fields.forEach {
-                Log.i(TAG, "\tField: ${it.name} Value: ${dp.getValue(it)}")
-            }
-        }
-    }
-    // [END parse_dataset]
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         btnRequest = findViewById(R.id.buttonRequest2) as Button?
+
         btnRequest!!.setOnClickListener { sendAndRequestResponse() }
 
     }
@@ -212,7 +183,7 @@ class MainActivity : AppCompatActivity() {
                 getGoogleAccount(),
                 fitnessOptions)
         } else {
-            accessGoogleFit()
+            getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
         }
 
         // Add blood glucose data to GFit
@@ -226,7 +197,7 @@ class MainActivity : AppCompatActivity() {
         mStringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->run{
-                // convertJsonToChartData(response)
+                convertJsonToHelloChartData(response)
                 updateFitnessData(response)
             }
             }) { error ->
@@ -269,4 +240,27 @@ class MainActivity : AppCompatActivity() {
         aaChartView.aa_drawChartWithChartModel(aaChartModel)
     }
 
-}
+    private fun displayGraph(data:ArrayList<Int>, type:AAChartType){
+
+        val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view)
+        val aaChartModel : AAChartModel = AAChartModel()
+            .chartType(type)
+            .title("title")
+            .subtitle("subtitle")
+            .backgroundColor("#4b2b7f")
+            .dataLabelsEnabled(true)
+            .series(arrayOf(
+                AASeriesElement()
+                    .name("Steps")
+                    .data(data.toArray())
+
+            )
+            )
+        //The chart view object calls the instance object of AAChartModel and draws the final graphic
+        aaChartView.aa_drawChartWithChartModel(aaChartModel)
+    }
+
+
+
+    }
+
