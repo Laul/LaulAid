@@ -65,9 +65,16 @@
             android:orientation="vertical">
 
             <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                android:id="@+id/aa_chart_view"
+                android:id="@+id/aa_chart_view_step"
                 android:layout_width="match_parent"
-                android:layout_height="442dp">
+                android:layout_height="278dp">
+
+            </com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
+
+            <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
+                android:id="@+id/aa_chart_view_gluco"
+                android:layout_width="match_parent"
+                android:layout_height="301dp">
 
             </com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
         </LinearLayout>

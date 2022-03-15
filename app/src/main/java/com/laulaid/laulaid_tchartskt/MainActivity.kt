@@ -1,6 +1,6 @@
 package com.laulaid.laulaid_tchartskt
 
-import android.graphics.Color
+// General android
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -65,10 +65,13 @@ class MainActivity : AppCompatActivity() {
      */
     private fun getGoogleAccount() = GoogleSignIn.getAccountForExtension(this, fitnessOptions)
 
-    // GFit connection to retrieve steps data
+    /** GFit connection to retrieve steps data
+     * @param startTime: start of timerange - typically minus 7 days relative to end time
+     * @param endTime: end of timerange - typically current day
+     */
     private fun getSteps(startTime:Long, endTime: Long ){
         val datasource = DataSource.Builder()
-            .setAppPackageName("com.google.android.gms")
+            .setAppPackageName(this)
             .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
             .setType(DataSource.TYPE_DERIVED)
             .setStreamName("estimated_steps")
@@ -85,10 +88,14 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { response -> parseSteps(response)}
     }
 
-    /* GFit connection to retrieve steps data
-    @param response: Google fit response
-    */
+    /** GFit connection to parse and format steps data and send to display function
+     * @param response: Google fit response
+     */
     private fun parseSteps(response:DataReadResponse ) {
+        // Set chart type and view ID
+        val dataType = AAChartType.Bar
+        val dataViewID = findViewById<AAChartView>(R.id.aa_chart_view_step)
+
         // Get steps per day for last 7 days
         val data = ArrayList<Int>(7)
 
@@ -101,31 +108,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        displayGraph(data, AAChartType.Bar)
+        displayGraph(data, dataType)
     }
 
-        private fun accessGoogleFit() {
-        val end = LocalDateTime.now()
-        val start = end.minusYears(1)
-        val endSeconds = end.atZone(ZoneId.systemDefault()).toEpochSecond()
-        val startSeconds = start.atZone(ZoneId.systemDefault()).toEpochSecond()
 
-        // gluco
-        val readRequest = DataReadRequest.Builder()
-            .aggregate(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
-            .setTimeRange(startSeconds, endSeconds, TimeUnit.SECONDS)
-            .bucketByTime(1, TimeUnit.DAYS)
-            .build()
-
-
-    }
-
+    /** Push gluco data from XDrip to GFit
+     * @param jsonstring: json content from XDrip
+     */
     private fun updateFitnessData(jsonstring: String): Task<Void> {
 
         val gFitGlucodsource = DataSource.Builder()
             .setAppPackageName(this)
             .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
             .setType(DataSource.TYPE_RAW)
+            .setStreamName("estimated_steps")
             .build()
 
         // Create dataset
@@ -147,7 +143,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-
         // Request dataset update
         val request = DataUpdateRequest.Builder()
             .setDataSet(gFitGlucodset.build())
@@ -163,18 +158,20 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
+    /** Button callback
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         btnRequest = findViewById(R.id.buttonRequest2) as Button?
-
         btnRequest!!.setOnClickListener { sendAndRequestResponse() }
 
     }
 
+
+    /** Request access to GFit
+     */
     private fun sendAndRequestResponse() {
         if (!GoogleSignIn.hasPermissions(getGoogleAccount(), fitnessOptions)) {
             GoogleSignIn.requestPermissions(
@@ -183,33 +180,39 @@ class MainActivity : AppCompatActivity() {
                 getGoogleAccount(),
                 fitnessOptions)
         } else {
-            getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
+            getSteps(LocalDateTime.now().minusDays(10).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond())
         }
 
         // Add blood glucose data to GFit
         //updateFitnessData()
-
-
-        //RequestQueue initialized
-        mRequestQueue = Volley.newRequestQueue(this)
-
-        //String Request initialized
-        mStringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->run{
-                convertJsonToHelloChartData(response)
-                updateFitnessData(response)
-            }
-            }) { error ->
-            Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
-                .show() //display the response on screen
-            }
-        mRequestQueue!!.add(mStringRequest)
+//
+//
+//        //RequestQueue initialized
+//        mRequestQueue = Volley.newRequestQueue(this)
+//
+//        //String Request initialized
+//        mStringRequest = StringRequest(
+//            Request.Method.GET, url,
+//            { response ->run{
+//                convertJson(response)
+//                updateFitnessData(response)
+//            }
+//            }) { error ->
+//            Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
+//                .show() //display the response on screen
+//            }
+//        mRequestQueue!!.add(mStringRequest)
 
     }
 
-    private fun convertJsonToHelloChartData(jsonstring: String){
 
+    /** Convert Json from XDrip into a gluco data from XDrip to GFit
+     * @param jsonstring: json content from XDrip
+     */
+    private fun convertJson(jsonstring: String){
+        // Set chart type and view ID
+        val dataType = AAChartType.Line
+        val dataViewID = 2
 
         val json = JSONArray(jsonstring)
         val data = ArrayList<Int>(json.length())
@@ -221,30 +224,14 @@ class MainActivity : AppCompatActivity() {
             data.add(sgv)
         }
 
-
-        val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view)
-        val aaChartModel : AAChartModel = AAChartModel()
-            .chartType(AAChartType.Area)
-            .title("title")
-            .subtitle("subtitle")
-            .backgroundColor("#4b2b7f")
-            .dataLabelsEnabled(true)
-            .series(arrayOf(
-                AASeriesElement()
-                    .name("Tokyo")
-                    .data(data.toArray())
-
-            )
-            )
-        //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        aaChartView.aa_drawChartWithChartModel(aaChartModel)
+    // displayGraph(data,  AAChartType.Line, dataViewID)
     }
 
-    private fun displayGraph(data:ArrayList<Int>, type:AAChartType){
+    private fun displayGraph(data:ArrayList<Int>, dataType:AAChartType ){
+        val id= findViewById(R.id.aa_chart_view_step) as AAChartView
 
-        val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view)
         val aaChartModel : AAChartModel = AAChartModel()
-            .chartType(type)
+            .chartType(dataType)
             .title("title")
             .subtitle("subtitle")
             .backgroundColor("#4b2b7f")
@@ -257,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             )
             )
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        aaChartView.aa_drawChartWithChartModel(aaChartModel)
+        id.aa_drawChartWithChartModel(aaChartModel)
     }
 
 
