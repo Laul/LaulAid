@@ -1,6 +1,5 @@
 package com.laulaid.laulaid_tchartskt
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -89,6 +88,10 @@ class MainActivity : AppCompatActivity() {
     @param response: Google fit response
     */
     private fun parseSteps(response:DataReadResponse ) {
+        // set variables for display
+        val dataType = AAChartType.Bar
+        val dataViewID = findViewById<AAChartView>(R.id.aa_chart_view_step)
+
         // Get steps per day for last 7 days
         val data = ArrayList<Int>(7)
 
@@ -101,10 +104,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        displayGraph(data, AAChartType.Bar)
+        displayGraph(data, dataType, dataViewID)
     }
 
-        private fun accessGoogleFit() {
+    private fun accessGoogleFit() {
         val end = LocalDateTime.now()
         val start = end.minusYears(1)
         val endSeconds = end.atZone(ZoneId.systemDefault()).toEpochSecond()
@@ -120,7 +123,64 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun updateFitnessData(jsonstring: String): Task<Void> {
+/*
+
+    */
+/** GFit connection to retrieve glucose data (already pushed from XDrip to GFit)
+     * @param startTime: start of timerange - typically minus 24 hours relative to end time
+     * @param endTime: end of timerange - typically current time
+     *//*
+
+    private fun getGluco(starttime: Long) {
+        val datasource = DataSource.Builder()
+            .setAppPackageName(this)
+            .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
+            .setType(DataSource.TYPE_RAW)
+            .setStreamName("Glucose")
+            .build()
+
+        val request = DataReadRequest.Builder()
+            .aggregate(datasource)
+            .aggregate(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
+
+            .bucketByTime(1, TimeUnit.DAYS)
+            .build()
+
+        Fitness.getHistoryClient(this, GoogleSignIn.getAccountForExtension(this, fitnessOptions))
+            .readData(request)
+            .addOnSuccessListener { response -> parseGluco(response)}
+    }
+
+    */
+/** GFit connection to parse and format glucose data and send to display function
+     * @param response: Google fit response
+     *//*
+
+    private fun parseGluco(response:DataReadResponse ) {
+        // Set chart type and view ID
+        val dataType = AAChartType.Line
+        val dataViewID = findViewById<AAChartView>(R.id.aa_chart_view_gluco)
+
+        // Get steps per day for last 7 days
+        val data = ArrayList<Int>(24)
+
+        for (dataSet in response.buckets.flatMap { it.dataSets }) {
+            for (dp in dataSet.dataPoints) {
+                for (field in dp.dataType.fields) {
+                    Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
+                    val step = dp.getValue(field).asInt()
+                    data.add(step)
+                }
+            }
+        }
+        displayGraph(data, dataType, dataViewID)
+    }
+
+*/
+
+
+
+    private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
 
         val gFitGlucodsource = DataSource.Builder()
             .setAppPackageName(this)
@@ -139,6 +199,7 @@ class MainActivity : AppCompatActivity() {
             val date = measure.getLong("date")
             val sgv = measure.getInt("sgv")
 
+
             // Add new datapoint to dataset
             gFitGlucodset.add(DataPoint.builder(gFitGlucodsource)
                 .setTimestamp(date, TimeUnit.MILLISECONDS)
@@ -146,7 +207,6 @@ class MainActivity : AppCompatActivity() {
                 .build()
             )
         }
-
 
         // Request dataset update
         val request = DataUpdateRequest.Builder()
@@ -176,6 +236,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendAndRequestResponse() {
+        // Request GFit connection and permissions
         if (!GoogleSignIn.hasPermissions(getGoogleAccount(), fitnessOptions)) {
             GoogleSignIn.requestPermissions(
                 this, // your activity
@@ -186,10 +247,7 @@ class MainActivity : AppCompatActivity() {
             getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
         }
 
-        // Add blood glucose data to GFit
-        //updateFitnessData()
-
-
+        // Request XDrip connection and permissions
         //RequestQueue initialized
         mRequestQueue = Volley.newRequestQueue(this)
 
@@ -197,8 +255,8 @@ class MainActivity : AppCompatActivity() {
         mStringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->run{
-                convertJsonToHelloChartData(response)
-                updateFitnessData(response)
+                parseGluco(response)
+                //updateFitnessData(response)
             }
             }) { error ->
             Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
@@ -208,43 +266,28 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun convertJsonToHelloChartData(jsonstring: String){
-
+    private fun parseGluco(jsonstring: String){
 
         val json = JSONArray(jsonstring)
         val data = ArrayList<Int>(json.length())
         for (i in 0 until json.length()){
             val measure = json.getJSONObject(i)
             val date = measure.getLong("date")
-
             val sgv = measure.getInt("sgv")
             data.add(sgv)
         }
 
-
-        val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view)
-        val aaChartModel : AAChartModel = AAChartModel()
-            .chartType(AAChartType.Area)
-            .title("title")
-            .subtitle("subtitle")
-            .backgroundColor("#4b2b7f")
-            .dataLabelsEnabled(true)
-            .series(arrayOf(
-                AASeriesElement()
-                    .name("Tokyo")
-                    .data(data.toArray())
-
-            )
-            )
-        //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        aaChartView.aa_drawChartWithChartModel(aaChartModel)
+        // set variables for display
+        val dataType = AAChartType.Line
+        val dataViewID = findViewById<AAChartView>(R.id.aa_chart_view_gluco)
+        displayGraph(data, dataType, dataViewID)
     }
 
-    private fun displayGraph(data:ArrayList<Int>, type:AAChartType){
+    private fun displayGraph(data:ArrayList<Int>, dataType:AAChartType, dataViewID: AAChartView){
 
-        val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view)
+        // val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view1)
         val aaChartModel : AAChartModel = AAChartModel()
-            .chartType(type)
+            .chartType(dataType)
             .title("title")
             .subtitle("subtitle")
             .backgroundColor("#4b2b7f")
@@ -257,7 +300,7 @@ class MainActivity : AppCompatActivity() {
             )
             )
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        aaChartView.aa_drawChartWithChartModel(aaChartModel)
+        dataViewID.aa_drawChartWithChartModel(aaChartModel)
     }
 
 
