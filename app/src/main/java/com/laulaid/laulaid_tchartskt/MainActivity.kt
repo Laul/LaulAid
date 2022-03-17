@@ -1,5 +1,6 @@
 package com.laulaid.laulaid_tchartskt
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -31,6 +32,9 @@ import com.google.android.gms.fitness.data.HealthDataTypes
 import com.google.android.gms.fitness.request.DataUpdateRequest
 import com.google.android.gms.fitness.result.DataReadResponse
 import com.google.android.gms.tasks.Task
+import com.klim.tcharts.TChart
+import com.klim.tcharts.entities.ChartData
+import com.klim.tcharts.entities.ChartItem
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -89,44 +93,63 @@ class MainActivity : AppCompatActivity() {
     */
     private fun parseSteps(response:DataReadResponse ) {
         // set variables for display
-        val dataType = AAChartType.Bar
-        val dataViewID = findViewById<AAChartView>(R.id.aa_chart_view_step)
+        val dataViewID = findViewById<TChart>(R.id.graph_steps)
         val dataTitle = "Steps"
+        val keys = ArrayList<String>(1)
+        keys.add("y")
+
+        val names = ArrayList<String>(1)
+        names.add("sgv")
+
+        val colors = ArrayList<Int>(1)
+        colors.add(Color.parseColor("#F5576C"))
 
         // Get steps per day for last 7 days
-        val data = ArrayList<Int>(7)
+        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
 
+        var i: Long = 1
         for (dataSet in response.buckets.flatMap { it.dataSets }) {
             for (dp in dataSet.dataPoints) {
                 for (field in dp.dataType.fields) {
                     Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
                     val step = dp.getValue(field).asInt()
-                    data.add(step)
+                    data.add(ChartItem(i, arrayListOf(step)))
+                    i++
                 }
             }
         }
-        displayGraph(data, dataType, dataViewID, dataTitle )
+        displayGraph(data, dataViewID, dataTitle, keys, names, colors)
+
     }
 
     /* Steps data parsing + formatting to display graph
      @param response: Google fit response
     */
     private fun parseGluco(jsonstring: String){
+        // set variables for display
+        val dataViewID = findViewById<TChart>(R.id.graph_gluco)
+        val dataTitle = "Blood Glucose"
 
+        val keys = ArrayList<String>(1)
+        keys.add("y")
+
+        val names = ArrayList<String>(1)
+        names.add("sgv")
+
+        val colors = ArrayList<Int>(1)
+        colors.add(Color.parseColor("#3DC23F"))
+
+        // parse gluco data
         val json = JSONArray(jsonstring)
-        val data = ArrayList<Int>(json.length())
-        for (i in 0 until json.length()){
+        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
+        for (i in 0 until json.length()) {
             val measure = json.getJSONObject(i)
             val date = measure.getLong("date")
             val sgv = measure.getInt("sgv")
-            data.add(sgv)
+            data.add(ChartItem(date, arrayListOf(sgv)))
         }
 
-        // set variables for display
-        val dataType = AAChartType.Scatter
-        val dataViewID = findViewById<AAChartView>(R.id.aa_chart_view_gluco)
-        val dataTitle = "Blood Glucose"
-        displayGraph(data, dataType, dataViewID,dataTitle )
+        displayGraph(data, dataViewID, dataTitle, keys, names, colors)
     }
 
     private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
@@ -172,17 +195,16 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnRequest = findViewById(R.id.buttonRequest2) as Button?
-
+        // Button callback
+        btnRequest = findViewById<Button>(R.id.buttonRequest2)
         btnRequest!!.setOnClickListener { sendAndRequestResponse() }
 
     }
+
 
     private fun sendAndRequestResponse() {
         // Request GFit connection and permissions
@@ -200,12 +222,14 @@ class MainActivity : AppCompatActivity() {
         //RequestQueue initialized
         mRequestQueue = Volley.newRequestQueue(this)
 
+
         //String Request initialized
         mStringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->run{
                 parseGluco(response)
                 pushGlucoToGFit(response)
+
             }
             }) { error ->
             Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
@@ -217,28 +241,13 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun displayGraph(data:ArrayList<Int>, dataType:AAChartType, dataViewID: AAChartView, dataTitle: String){
-
-        // val aaChartView = findViewById<AAChartView>(R.id.aa_chart_view1)
-        val aaChartModel : AAChartModel = AAChartModel()
-            .chartType(dataType)
-            .title(dataTitle)
-            .subtitle("subtitle")
-            .backgroundColor("#4b2b7f")
-
-            .dataLabelsEnabled(true)
-            .series(arrayOf(
-                AASeriesElement()
-                    .name("Steps")
-                    .data(data.toArray())
-                )
-            )
+    private fun displayGraph(data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
 
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        dataViewID.aa_drawChartWithChartModel(aaChartModel)
-    }
-
-
+        dataViewID.setData(ChartData(keys, names, colors, data))
 
     }
+
+
+}
 

@@ -37,15 +37,51 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                android:id="@+id/aa_chart_view_step"
-                android:layout_width="match_parent"
-                android:layout_height="279dp"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
 
-            <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                android:id="@+id/aa_chart_view_gluco"
+
+            <com.klim.tcharts.TChart
+                android:id="@+id/graph_gluco"
                 android:layout_width="match_parent"
-                android:layout_height="297dp"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
+                android:layout_height="240dp"
+                android:layout_marginTop="8dp"
+                android:padding="16dp"
+                app:backgroundColor="#FFFFFF"
+                app:detailDivisionColor="#efeff0"
+                app:detailLabelsFontColor="#506372"
+                app:detailLineSelectedPosition="#73C9D8E3"
+                app:infoWindowBackground="#FFFFFFFF"
+                app:infoWindowShadowColor="#5C000000"
+                app:infoWindowTitleColor="#222222"
+                app:navBordersColor="#477DA9CA"
+                app:navViewFillColor="#BAF5F8F9"
+                app:showTitle="true"
+                app:title="Title"
+                app:titleFontColor="#3896D4"
+                app:titleFontSize="16dp"
+                />
+
+            <com.klim.tcharts.TChart
+                android:id="@+id/graph_steps"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_marginTop="8dp"
+                android:padding="16dp"
+                app:backgroundColor="#FFFFFF"
+                app:detailDivisionColor="#efeff0"
+                app:detailLabelsFontColor="#506372"
+                app:detailLineSelectedPosition="#73C9D8E3"
+                app:infoWindowBackground="#FFFFFFFF"
+                app:infoWindowShadowColor="#5C000000"
+                app:infoWindowTitleColor="#222222"
+                app:navBordersColor="#477DA9CA"
+                app:navViewFillColor="#BAF5F8F9"
+                app:showTitle="true"
+                app:title="Title"
+                app:titleFontColor="#3896D4"
+                app:titleFontSize="16dp"
+                />
+
+
         </LinearLayout>
 
     </ScrollView>
