@@ -1,28 +1,27 @@
 package com.laulaid.laulaid_tchartskt
 
+// General
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 
-//HTTPRequests
+// HTTPRequests
 import android.widget.Button
 import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import org.json.JSONArray
 
 // GFit
-import java.time.LocalDateTime
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-
-// Fit
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.FitnessOptions
@@ -31,13 +30,16 @@ import com.google.android.gms.fitness.data.HealthDataTypes
 import com.google.android.gms.fitness.request.DataUpdateRequest
 import com.google.android.gms.fitness.result.DataReadResponse
 import com.google.android.gms.tasks.Task
-import com.klim.tcharts.TChart
+
+// Charting
+//chart - Detailed views
 import com.klim.tcharts.entities.ChartData
 import com.klim.tcharts.entities.ChartItem
-import java.time.ZoneId
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-
+//chart - main view
+import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
+import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
+import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
+import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 
 // GFit - Parameters variables
 const val TAG = "LaulAidTAG"
@@ -50,7 +52,6 @@ class MainActivity : AppCompatActivity() {
     private var mRequestQueue: RequestQueue? = null
     private var mStringRequest: StringRequest? = null
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
-
 
     val fitnessOptions = FitnessOptions.builder()
         .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
@@ -143,36 +144,36 @@ class MainActivity : AppCompatActivity() {
         }
         displayGraph_preview(data1, dataType, dataViewID1, dataTitle)
     }
-
-    /* Steps data parsing + formatting to display graph
-     @param response: Google fit response
-    */
-    private fun parseGluco(jsonstring: String){
-        // set variables for display
-        val dataViewID = findViewById<TChart>(R.id.graph_gluco)
-        val dataTitle = "Blood Glucose"
-
-        val keys = ArrayList<String>(1)
-        keys.add("y")
-
-        val names = ArrayList<String>(1)
-        names.add("sgv")
-
-        val colors = ArrayList<Int>(1)
-        colors.add(Color.parseColor("#3DC23F"))
-
-        // parse gluco data
-        val json = JSONArray(jsonstring)
-        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
-        for (i in 0 until json.length()) {
-            val measure = json.getJSONObject(i)
-            val date = measure.getLong("date")
-            val sgv = measure.getInt("sgv")
-            data.add(ChartItem(date, arrayListOf(sgv)))
-        }
-
-        displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
-    }
+//
+//    /* Gluco data parsing + formatting to display graph
+//     @param response: XDrip json response
+//    */
+//    private fun parseGluco(jsonstring: String){
+//        // set variables for display
+//        val dataViewID = findViewById<TChart>(R.id.graph_steps)
+//        val dataTitle = "Blood Glucose"
+//
+//        val keys = ArrayList<String>(1)
+//        keys.add("y")
+//
+//        val names = ArrayList<String>(1)
+//        names.add("sgv")
+//
+//        val colors = ArrayList<Int>(1)
+//        colors.add(Color.parseColor("#3DC23F"))
+//
+//        // parse gluco data
+//        val json = JSONArray(jsonstring)
+//        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
+//        for (i in 0 until json.length()) {
+//            val measure = json.getJSONObject(i)
+//            val date = measure.getLong("date")
+//            val sgv = measure.getInt("sgv")
+//            data.add(ChartItem(date, arrayListOf(sgv)))
+//        }
+//
+//        displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
+//    }
 
     private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
 
@@ -221,9 +222,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Google fit
+        sendAndRequestResponse()
+
+        // XDRip
+        HealthData.connectXDrip(url, this)
+
         // Button callback
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
         btnRequest!!.setOnClickListener { sendAndRequestResponse() }
+//
+//
+//        btnRequest = findViewById<Button>(R.id.btn_steps)
+//        btnRequest!!.setOnClickListener { sendAndRequestResponse() }
+
+
+        val buttonClick = findViewById<Button>(R.id.btn_steps)
+        buttonClick.setOnClickListener {
+            val intent = Intent(this, BloodGlucoseActivity::class.java)
+            startActivity(intent)
+        }
+
 
     }
 
@@ -239,36 +258,36 @@ class MainActivity : AppCompatActivity() {
         } else {
             getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
         }
-
-        // Request XDrip connection and permissions
-        //RequestQueue initialized
-        mRequestQueue = Volley.newRequestQueue(this)
-
-
-        //String Request initialized
-        mStringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->run{
-                parseGluco(response)
-                pushGlucoToGFit(response)
-
-            }
-            }) { error ->
-            Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
-                .show() //display the response on screen
-            }
-        mRequestQueue!!.add(mStringRequest)
-
-    }
-
-
-
-    private fun displayGraph_advanced(data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
-
-        //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        dataViewID.setData(ChartData(keys, names, colors, data))
+//
+//        // Request XDrip connection and permissions
+//        //RequestQueue initialized
+//        mRequestQueue = Volley.newRequestQueue(this)
+//
+//
+//        //String Request initialized
+//        mStringRequest = StringRequest(
+//            Request.Method.GET, url,
+//            { response ->run{
+//                parseGluco(response)
+//                pushGlucoToGFit(response)
+//
+//            }
+//            }) { error ->
+//            Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
+//                .show() //display the response on screen
+//            }
+//        mRequestQueue!!.add(mStringRequest)
 
     }
+//
+//
+//
+//    private fun displayGraph_advanced(data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
+//
+//        //The chart view object calls the instance object of AAChartModel and draws the final graphic
+//        dataViewID.setData(ChartData(keys, names, colors, data))
+//
+//    }
 
 
     private fun displayGraph_preview(data: ArrayList<Int>,dataType: AAChartType,dataViewID: AAChartView, dataTitle:String) {
