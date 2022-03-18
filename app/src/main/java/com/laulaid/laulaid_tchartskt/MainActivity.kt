@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 
-
 //HTTPRequests
 import android.widget.Button
 import android.widget.Toast
@@ -128,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         // Set chart type and view ID
         val dataType = AAChartType.Column
         val dataViewID1 = findViewById<AAChartView>(R.id.graph_preview_steps)
+        val dataTitle = "Steps"
 
         // Get steps per day for last 7 days
         val data1 = ArrayList<Int>(7)
@@ -141,8 +141,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        displayGraph_preview(data1, dataType, dataViewID1)
+        displayGraph_preview(data1, dataType, dataViewID1, dataTitle)
     }
 
     /* Steps data parsing + formatting to display graph
@@ -272,23 +271,19 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun displayGraph_preview(
-        data: ArrayList<Int>,
-        dataType: AAChartType,
-        dataViewID: AAChartView
-    ) {
+    private fun displayGraph_preview(data: ArrayList<Int>,dataType: AAChartType,dataViewID: AAChartView, dataTitle:String) {
 
         val aaChartModel: AAChartModel = AAChartModel()
             .chartType(dataType)
-            .title("title")
-            .subtitle("subtitle")
-            .backgroundColor("#4b2b7f")
+            .title("i")
+            .subtitle("")
+            .backgroundColor("white")
             .dataLabelsEnabled(true)
 
             .series(
                 arrayOf(
                     AASeriesElement()
-//                       name("Steps")
+                        .name(dataTitle)
                         .data(data.toArray())
 
                 )
