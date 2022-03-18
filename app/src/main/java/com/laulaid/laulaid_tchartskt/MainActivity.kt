@@ -92,7 +92,10 @@ class MainActivity : AppCompatActivity() {
     @param response: Google fit response
     */
     private fun parseSteps(response:DataReadResponse ) {
-        // set variables for display
+/* Preview page using AAChart lib -> keep TChart for ref.
+
+       // set variables for display
+
         val dataViewID = findViewById<TChart>(R.id.graph_steps)
         val dataTitle = "Steps"
         val keys = ArrayList<String>(1)
@@ -118,8 +121,28 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        displayGraph(data, dataViewID, dataTitle, keys, names, colors)
+        displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
+*/
 
+
+        // Set chart type and view ID
+        val dataType = AAChartType.Column
+        val dataViewID1 = findViewById<AAChartView>(R.id.graph_preview_steps)
+
+        // Get steps per day for last 7 days
+        val data1 = ArrayList<Int>(7)
+
+        for (dataSet in response.buckets.flatMap { it.dataSets }) {
+            for (dp in dataSet.dataPoints) {
+                for (field in dp.dataType.fields) {
+                    Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
+                    val step = dp.getValue(field).asInt()
+                    data1.add(step)
+                }
+            }
+        }
+
+        displayGraph_preview(data1, dataType, dataViewID1)
     }
 
     /* Steps data parsing + formatting to display graph
@@ -149,7 +172,7 @@ class MainActivity : AppCompatActivity() {
             data.add(ChartItem(date, arrayListOf(sgv)))
         }
 
-        displayGraph(data, dataViewID, dataTitle, keys, names, colors)
+        displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
     }
 
     private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
@@ -241,11 +264,37 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun displayGraph(data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
+    private fun displayGraph_advanced(data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
 
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
         dataViewID.setData(ChartData(keys, names, colors, data))
 
+    }
+
+
+    private fun displayGraph_preview(
+        data: ArrayList<Int>,
+        dataType: AAChartType,
+        dataViewID: AAChartView
+    ) {
+
+        val aaChartModel: AAChartModel = AAChartModel()
+            .chartType(dataType)
+            .title("title")
+            .subtitle("subtitle")
+            .backgroundColor("#4b2b7f")
+            .dataLabelsEnabled(true)
+
+            .series(
+                arrayOf(
+                    AASeriesElement()
+//                       name("Steps")
+                        .data(data.toArray())
+
+                )
+            )
+        //The chart view object calls the instance object of AAChartModel and draws the final graphic
+        dataViewID.aa_drawChartWithChartModel(aaChartModel)
     }
 
 

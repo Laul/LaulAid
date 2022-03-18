@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">LaulAid_TChartskt</string>
+    <string name="app_name">LaulAid</string>
+    <string name="title_activity_bloodglucose">BloodGlucoseActivity</string>
+    <string name="title_activity_steps">StepsActivity</string>
+
     <string name="httpText" />
 </resources>

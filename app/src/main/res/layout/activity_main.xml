@@ -10,19 +10,13 @@
 
     <Button
         android:id="@+id/buttonRequest2"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="50dp"
         android:background="#414af4"
-        android:text="Click Here To Send HTTP Request To Server And See Response Displayed As Toast"
+        android:text="Get Data"
         android:textColor="#ffffff" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="@string/httpText" />
 
     <ScrollView
         android:id="@+id/scroll"
@@ -38,12 +32,10 @@
             android:orientation="vertical">
 
 
-
             <com.klim.tcharts.TChart
                 android:id="@+id/graph_gluco"
                 android:layout_width="match_parent"
-                android:layout_height="240dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="113dp"
                 android:padding="16dp"
                 app:backgroundColor="#FFFFFF"
                 app:detailDivisionColor="#efeff0"
@@ -57,14 +49,43 @@
                 app:showTitle="true"
                 app:title="Title"
                 app:titleFontColor="#3896D4"
-                app:titleFontSize="16dp"
-                />
+                app:titleFontSize="16dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btn_steps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Steps"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
+                    android:id="@+id/graph_preview_steps"
+                    android:layout_width="331dp"
+                    android:layout_height="145dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
+
+                <EditText
+                    android:id="@+id/editTextTextPersonName"
+                    android:layout_width="99dp"
+                    android:layout_height="98dp"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:text="Steps_current"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/btn_steps" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.klim.tcharts.TChart
                 android:id="@+id/graph_steps"
-                android:layout_width="match_parent"
-                android:layout_height="240dp"
-                android:layout_marginTop="8dp"
+                android:layout_width="322dp"
+                android:layout_height="166dp"
                 android:padding="16dp"
                 app:backgroundColor="#FFFFFF"
                 app:detailDivisionColor="#efeff0"
@@ -78,8 +99,7 @@
                 app:showTitle="true"
                 app:title="Title"
                 app:titleFontColor="#3896D4"
-                app:titleFontSize="16dp"
-                />
+                app:titleFontSize="16dp" />
 
 
         </LinearLayout>
