@@ -1,45 +1,36 @@
 package com.laulaid.laulaid_tchartskt
 
 // General
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
-import android.content.Intent
-import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.util.Log
 
 // HTTPRequests
-import android.widget.Button
-import android.widget.Toast
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import org.json.JSONArray
 
 // GFit
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.fitness.Fitness
-import com.google.android.gms.fitness.request.DataReadRequest
-import com.google.android.gms.fitness.FitnessOptions
-import com.google.android.gms.fitness.data.*
-import com.google.android.gms.fitness.data.HealthDataTypes
-import com.google.android.gms.fitness.request.DataUpdateRequest
-import com.google.android.gms.fitness.result.DataReadResponse
-import com.google.android.gms.tasks.Task
 
 // Charting
 //chart - Detailed views
-import com.klim.tcharts.entities.ChartData
-import com.klim.tcharts.entities.ChartItem
 //chart - main view
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.StringRequest
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.fitness.Fitness
+import com.google.android.gms.fitness.FitnessOptions
+import com.google.android.gms.fitness.data.*
+import com.google.android.gms.fitness.request.DataReadRequest
+import com.google.android.gms.fitness.request.DataUpdateRequest
+import com.google.android.gms.fitness.result.DataReadResponse
+import com.google.android.gms.tasks.Task
+import org.json.JSONArray
+import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 // GFit - Parameters variables
 const val TAG = "LaulAidTAG"
@@ -60,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_WRITE)
         .build()
 
+
     /**
      * Gets a Google account for use in creating the Fitness client. This is achieved by either
      * using the last signed-in account, or if necessary, prompting the user to sign in.
@@ -69,10 +61,10 @@ class MainActivity : AppCompatActivity() {
     private fun getGoogleAccount() = GoogleSignIn.getAccountForExtension(this, fitnessOptions)
 
     // GFit connection to retrieve steps data
-    private fun getSteps(startTime:Long, endTime: Long ){
+    private fun getSteps(Type:DataType, startTime:Long, endTime: Long ){
         val datasource = DataSource.Builder()
             .setAppPackageName("com.google.android.gms")
-            .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
+            .setDataType(Type)
             .setType(DataSource.TYPE_DERIVED)
             .setStreamName("estimated_steps")
             .build()
@@ -80,18 +72,18 @@ class MainActivity : AppCompatActivity() {
         val request = DataReadRequest.Builder()
             .aggregate(datasource)
             .bucketByTime(1, TimeUnit.DAYS)
-            .setTimeRange(startTime, endTime, TimeUnit.SECONDS)
+            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
             .build()
 
         Fitness.getHistoryClient(this, GoogleSignIn.getAccountForExtension(this, fitnessOptions))
             .readData(request)
-            .addOnSuccessListener { response -> parseSteps(response)}
+            .addOnSuccessListener { response -> parseSteps(response, Type)}
     }
 
     /** Steps data parsing + formatting to display graph
     @param response: Google fit response
     */
-    private fun parseSteps(response:DataReadResponse ) {
+    private fun parseSteps(response:DataReadResponse, Type:DataType ) {
 /* Preview page using AAChart lib -> keep TChart for ref.
 
        // set variables for display
@@ -125,25 +117,37 @@ class MainActivity : AppCompatActivity() {
 */
 
 
+
         // Set chart type and view ID
         val dataType = AAChartType.Column
-        val dataViewID1 = findViewById<AAChartView>(R.id.graph_preview_steps)
-        val dataTitle = "Steps"
+        var dataViewID = findViewById<com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>(com.laulaid.laulaid_tchartskt.R.id.graph_preview_steps)
+        var dataTitle = "Steps"
+        if (Type === DataType.TYPE_HEART_RATE_BPM){
+            dataViewID = findViewById<com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>(com.laulaid.laulaid_tchartskt.R.id.graph_preview_heartrate)
+            dataTitle = "Heart Rate (BPM)"
+        }
+
 
         // Get steps per day for last 7 days
-        val data1 = ArrayList<Int>(7)
+        val data = ArrayList<Int>(7)
 
         for (dataSet in response.buckets.flatMap { it.dataSets }) {
             for (dp in dataSet.dataPoints) {
                 for (field in dp.dataType.fields) {
                     Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
                     val step = dp.getValue(field).asInt()
-                    data1.add(step)
+                    data.add(step)
                 }
             }
         }
-        displayGraph_preview(data1, dataType, dataViewID1, dataTitle)
+
+
+        displayGraph_preview(data, dataType, dataViewID, dataTitle)
     }
+
+
+
+
 //
 //    /* Gluco data parsing + formatting to display graph
 //     @param response: XDrip json response
@@ -226,7 +230,7 @@ class MainActivity : AppCompatActivity() {
         sendAndRequestResponse()
 
         // XDRip
-        HealthData.connectXDrip(url, this)
+        DataHealth.connectXDrip(url, this)
 
         // Button callback
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
@@ -235,6 +239,7 @@ class MainActivity : AppCompatActivity() {
 //
 //        btnRequest = findViewById<Button>(R.id.btn_steps)
 //        btnRequest!!.setOnClickListener { sendAndRequestResponse() }
+        // getGlucoGFit(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
 
 
         val buttonClick = findViewById<Button>(R.id.btn_steps)
@@ -256,7 +261,21 @@ class MainActivity : AppCompatActivity() {
                 getGoogleAccount(),
                 fitnessOptions)
         } else {
-            getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
+
+
+            val (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(7)
+
+            // Timeline: Current day
+            getSteps(DataType.TYPE_STEP_COUNT_DELTA,Time_End, Time_Now)
+            getSteps(DataType.TYPE_HEART_RATE_BPM,Time_End, Time_Now)
+
+            // Timeline: previous week
+            getSteps(DataType.TYPE_STEP_COUNT_DELTA,Time_Start, Time_End)
+            getSteps(DataType.TYPE_HEART_RATE_BPM,Time_Start, Time_End)
+//            getSteps(Time_Start, Time_End)
+//            getSteps(1647489600, 1647576000)
+            //getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
+//            getGlucoGFit(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
         }
 //
 //        // Request XDrip connection and permissions

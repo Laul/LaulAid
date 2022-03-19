@@ -7,11 +7,35 @@
     android:orientation="vertical"
     tools:context=".BloodGlucoseActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Activity" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="75dp">
 
+        <TextView
+            android:layout_width="245dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="25dp"
+            android:text="Bloog Glucose"
+            android:textAlignment="textStart"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@+id/bSearch"
+            app:layout_constraintTop_toTopOf="@+id/bSearch" />
+
+        <Button
+            android:id="@+id/bSearch"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:drawableLeft="@android:drawable/ic_menu_more"
+            android:padding="12dp"
+            android:rotation="90"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:backgroundTint="@color/backgroundColor"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.klim.tcharts.TChart
         android:id="@+id/graph_gluco"

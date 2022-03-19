@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
 
     <Button
         android:id="@+id/buttonRequest2"
-        android:layout_width="150dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginStart="75dp"
+        android:layout_marginEnd="75dp"
         android:background="#414af4"
         android:text="Get Data"
-        android:textColor="#ffffff" />
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toTopOf="@+id/scroll"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.454"
+        app:layout_constraintStart_toStartOf="@+id/scroll"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/scroll"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/background"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonRequest2">
 
 
         <LinearLayout
@@ -32,10 +41,9 @@
             android:orientation="vertical">
 
 
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="200dp">
 
                 <Button
                     android:id="@+id/btn_steps"
@@ -48,25 +56,40 @@
 
                 <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
                     android:id="@+id/graph_preview_steps"
-                    android:layout_width="331dp"
-                    android:layout_height="145dp"
+                    android:layout_width="350dp"
+                    android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
 
-                <EditText
-                    android:id="@+id/editTextTextPersonName"
-                    android:layout_width="99dp"
-                    android:layout_height="98dp"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:text="Steps_current"
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="250dp">
+
+                <Button
+                    android:id="@+id/btn_heartrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Heart Rate [BPM]"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/btn_steps" />
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
+                    android:id="@+id/graph_preview_heartrate"
+                    android:layout_width="350dp"
+                    android:layout_height="match_parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.klim.tcharts.TChart
                 android:id="@+id/graph_steps"
-                android:layout_width="322dp"
+                android:layout_width="350dp"
                 android:layout_height="166dp"
                 android:padding="16dp"
                 app:backgroundColor="#FFFFFF"
@@ -89,4 +112,4 @@
     </ScrollView>
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,7 +24,7 @@ import com.google.android.gms.tasks.Task
 
 
 
-class HealthData {
+class DataHealth {
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
     companion object {
