@@ -15,11 +15,7 @@ class BloodGlucoseActivity : AppCompatActivity() {
 
          val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
-
-//        displayChartWithPreview(HealthData.getGlucoData(jsonstring))
-//        displayChartWithPreview(HealthData.connectXDrip(this))
-
-        displayChartWithPreview(HealthData.connectXDrip("http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10", this ))
+        displayChartWithPreview(HealthData.data)
 
     }
 
@@ -27,6 +23,8 @@ class BloodGlucoseActivity : AppCompatActivity() {
 //        data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
 //        dataViewID
+        // val data = HealthData.connectXDrip("http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10", this )
+
         val dataTitle = "Blood Glucose"
 
         val keys = ArrayList<String>(1)
