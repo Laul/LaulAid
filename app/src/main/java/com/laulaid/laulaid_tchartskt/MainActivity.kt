@@ -84,39 +84,6 @@ class MainActivity : AppCompatActivity() {
     @param response: Google fit response
     */
     private fun parseSteps(response:DataReadResponse, Type:DataType ) {
-/* Preview page using AAChart lib -> keep TChart for ref.
-
-       // set variables for display
-
-        val dataViewID = findViewById<TChart>(R.id.graph_steps)
-        val dataTitle = "Steps"
-        val keys = ArrayList<String>(1)
-        keys.add("y")
-
-        val names = ArrayList<String>(1)
-        names.add("sgv")
-
-        val colors = ArrayList<Int>(1)
-        colors.add(Color.parseColor("#F5576C"))
-
-        // Get steps per day for last 7 days
-        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
-
-        var i: Long = 1
-        for (dataSet in response.buckets.flatMap { it.dataSets }) {
-            for (dp in dataSet.dataPoints) {
-                for (field in dp.dataType.fields) {
-                    Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
-                    val step = dp.getValue(field).asInt()
-                    data.add(ChartItem(i, arrayListOf(step)))
-                    i++
-                }
-            }
-        }
-        displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
-*/
-
-
 
         // Set chart type and view ID
         val dataType = AAChartType.Column
@@ -126,7 +93,6 @@ class MainActivity : AppCompatActivity() {
             dataViewID = findViewById<com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>(com.laulaid.laulaid_tchartskt.R.id.graph_preview_heartrate)
             dataTitle = "Heart Rate (BPM)"
         }
-
 
         // Get steps per day for last 7 days
         val data = ArrayList<Int>(7)
@@ -144,40 +110,6 @@ class MainActivity : AppCompatActivity() {
 
         displayGraph_preview(data, dataType, dataViewID, dataTitle)
     }
-
-
-
-
-//
-//    /* Gluco data parsing + formatting to display graph
-//     @param response: XDrip json response
-//    */
-//    private fun parseGluco(jsonstring: String){
-//        // set variables for display
-//        val dataViewID = findViewById<TChart>(R.id.graph_steps)
-//        val dataTitle = "Blood Glucose"
-//
-//        val keys = ArrayList<String>(1)
-//        keys.add("y")
-//
-//        val names = ArrayList<String>(1)
-//        names.add("sgv")
-//
-//        val colors = ArrayList<Int>(1)
-//        colors.add(Color.parseColor("#3DC23F"))
-//
-//        // parse gluco data
-//        val json = JSONArray(jsonstring)
-//        val data: ArrayList<ChartItem> = ArrayList<ChartItem>()
-//        for (i in 0 until json.length()) {
-//            val measure = json.getJSONObject(i)
-//            val date = measure.getLong("date")
-//            val sgv = measure.getInt("sgv")
-//            data.add(ChartItem(date, arrayListOf(sgv)))
-//        }
-//
-//        displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
-//    }
 
     private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
 
@@ -232,25 +164,16 @@ class MainActivity : AppCompatActivity() {
         // XDRip
         DataHealth.connectXDrip(url, this)
 
-        // Button callback
+        // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
         btnRequest!!.setOnClickListener { sendAndRequestResponse() }
-//
-//
-//        btnRequest = findViewById<Button>(R.id.btn_steps)
-//        btnRequest!!.setOnClickListener { sendAndRequestResponse() }
-        // getGlucoGFit(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
-
 
         val buttonClick = findViewById<Button>(R.id.btn_steps)
         buttonClick.setOnClickListener {
             val intent = Intent(this, BloodGlucoseActivity::class.java)
             startActivity(intent)
         }
-
-
     }
-
 
     private fun sendAndRequestResponse() {
         // Request GFit connection and permissions
@@ -261,8 +184,6 @@ class MainActivity : AppCompatActivity() {
                 getGoogleAccount(),
                 fitnessOptions)
         } else {
-
-
             val (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(7)
 
             // Timeline: Current day
@@ -272,41 +193,10 @@ class MainActivity : AppCompatActivity() {
             // Timeline: previous week
             getSteps(DataType.TYPE_STEP_COUNT_DELTA,Time_Start, Time_End)
             getSteps(DataType.TYPE_HEART_RATE_BPM,Time_Start, Time_End)
-//            getSteps(Time_Start, Time_End)
-//            getSteps(1647489600, 1647576000)
             //getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
 //            getGlucoGFit(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
         }
-//
-//        // Request XDrip connection and permissions
-//        //RequestQueue initialized
-//        mRequestQueue = Volley.newRequestQueue(this)
-//
-//
-//        //String Request initialized
-//        mStringRequest = StringRequest(
-//            Request.Method.GET, url,
-//            { response ->run{
-//                parseGluco(response)
-//                pushGlucoToGFit(response)
-//
-//            }
-//            }) { error ->
-//            Toast.makeText(getApplicationContext(), "Response :$error", Toast.LENGTH_LONG)
-//                .show() //display the response on screen
-//            }
-//        mRequestQueue!!.add(mStringRequest)
-
     }
-//
-//
-//
-//    private fun displayGraph_advanced(data:ArrayList<ChartItem>, dataViewID: TChart, dataTitle: String, keys:List<String>, names:List<String>, colors:ArrayList<Int>){
-//
-//        //The chart view object calls the instance object of AAChartModel and draws the final graphic
-//        dataViewID.setData(ChartData(keys, names, colors, data))
-//
-//    }
 
 
     private fun displayGraph_preview(data: ArrayList<Int>,dataType: AAChartType,dataViewID: AAChartView, dataTitle:String) {
