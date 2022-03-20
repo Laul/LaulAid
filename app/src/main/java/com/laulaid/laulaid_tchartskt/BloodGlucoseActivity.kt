@@ -3,6 +3,7 @@ package com.laulaid.laulaid_tchartskt
 import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import com.klim.tcharts.TChart
 import com.klim.tcharts.entities.ChartData
 import com.klim.tcharts.entities.ChartItem
@@ -14,7 +15,7 @@ class BloodGlucoseActivity : AppCompatActivity() {
 
          val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
-        displayChartWithPreview(DataHealth.data)
+        displayChartWithPreview(DataHealth.dataDetailedView)
 
     }
 

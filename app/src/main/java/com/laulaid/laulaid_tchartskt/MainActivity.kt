@@ -44,12 +44,13 @@ class MainActivity : AppCompatActivity() {
     private var mStringRequest: StringRequest? = null
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
-    val fitnessOptions = FitnessOptions.builder()
-        .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-        .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-        .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_READ)
-        .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_WRITE)
-        .build()
+//    companion object {
+//        val fitnessOptions = FitnessOptions.builder()
+//            .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+//            .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+//            .addDataType(HealthDataTypes.TYPE_BLOOD_PRESSURE, FitnessOptions.ACCESS_READ)
+//            .build()
+//    }
 
 
     /**
@@ -58,57 +59,66 @@ class MainActivity : AppCompatActivity() {
      * `getAccountForExtension` is recommended over `getLastSignedInAccount` as the latter can
      * return `null` if there has been no sign in before.
      */
-    private fun getGoogleAccount() = GoogleSignIn.getAccountForExtension(this, fitnessOptions)
+    private fun getGoogleAccount() = GoogleSignIn.getAccountForExtension(this, DataHealth.fitnessOptions)
 
     // GFit connection to retrieve steps data
-    private fun getSteps(Type:DataType, startTime:Long, endTime: Long ){
+    private fun getSteps(dataHealth: DataHealth, duration: Int){
+        var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
+
         val datasource = DataSource.Builder()
             .setAppPackageName("com.google.android.gms")
-            .setDataType(Type)
-            .setType(DataSource.TYPE_DERIVED)
-            .setStreamName("estimated_steps")
+            .setDataType(dataHealth.gFitDataType)
+            .setType(dataHealth.gFitDataSource)
+            .setStreamName(dataHealth.gFitStreamName)
+            .build()
+//
+//        // Request for current (non completed) time (i.e. current day, current hour, etc)
+//        val requestCurrentTime = DataReadRequest.Builder()
+//            .aggregate(datasource)
+//            .bucketByTime(1, dataHealth.gFitBucketTime)
+//            .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
+//            .build()
+//        Fitness.getHistoryClient(this, GoogleSignIn.getAccountForExtension(this, DataHealth.fitnessOptions))
+//            .readData(requestCurrentTime)
+//            .addOnSuccessListener { response -> parseSteps(response, dataHealth)}
+
+        // Request for completed time (i.e. last days, last hours, etc.)
+//        val requestCompletedTimes = DataReadRequest.Builder()
+//            .aggregate(datasource)
+//            .bucketByTime(1, dataHealth.gFitBucketTime)
+//            .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
+//            .build()
+
+        val requestCompletedTimes = DataReadRequest.Builder()
+            .read(dataHealth.gFitDataType)
+            .bucketByTime(1, dataHealth.gFitBucketTime)
+            .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
             .build()
 
-        val request = DataReadRequest.Builder()
-            .aggregate(datasource)
-            .bucketByTime(1, TimeUnit.DAYS)
-            .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-            .build()
-
-        Fitness.getHistoryClient(this, GoogleSignIn.getAccountForExtension(this, fitnessOptions))
-            .readData(request)
-            .addOnSuccessListener { response -> parseSteps(response, Type)}
+        Fitness.getHistoryClient(this, GoogleSignIn.getAccountForExtension(this, DataHealth.fitnessOptions))
+            .readData(requestCompletedTimes)
+            .addOnSuccessListener { response -> parseSteps(response, dataHealth)}
     }
 
     /** Steps data parsing + formatting to display graph
     @param response: Google fit response
     */
-    private fun parseSteps(response:DataReadResponse, Type:DataType ) {
+    private fun parseSteps(response:DataReadResponse, dataHealth: DataHealth) {
 
-        // Set chart type and view ID
-        val dataType = AAChartType.Column
-        var dataViewID = findViewById<com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>(com.laulaid.laulaid_tchartskt.R.id.graph_preview_steps)
-        var dataTitle = "Steps"
-        if (Type === DataType.TYPE_HEART_RATE_BPM){
-            dataViewID = findViewById<com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>(com.laulaid.laulaid_tchartskt.R.id.graph_preview_heartrate)
-            dataTitle = "Heart Rate (BPM)"
-        }
-
-        // Get steps per day for last 7 days
-        val data = ArrayList<Int>(7)
+        val data = ArrayList<Float>(7)
 
         for (dataSet in response.buckets.flatMap { it.dataSets }) {
             for (dp in dataSet.dataPoints) {
                 for (field in dp.dataType.fields) {
                     Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
-                    val step = dp.getValue(field).asInt()
+                    val step = dp.getValue(field).asFloat()
                     data.add(step)
                 }
             }
         }
 
 
-        displayGraph_preview(data, dataType, dataViewID, dataTitle)
+        displayGraph_preview(data, dataHealth.aaChartType, dataHealth.aaChartViewID, dataHealth.chartTitle)
     }
 
     private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
@@ -162,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         sendAndRequestResponse()
 
         // XDRip
-        DataHealth.connectXDrip(url, this)
+        // DataHealth.connectXDrip(url, this)
 
         // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
@@ -177,29 +187,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendAndRequestResponse() {
         // Request GFit connection and permissions
-        if (!GoogleSignIn.hasPermissions(getGoogleAccount(), fitnessOptions)) {
+        if (!GoogleSignIn.hasPermissions(getGoogleAccount(), DataHealth.fitnessOptions)) {
             GoogleSignIn.requestPermissions(
                 this, // your activity
                 1, // e.g. 1
                 getGoogleAccount(),
-                fitnessOptions)
+                DataHealth.fitnessOptions)
         } else {
-            val (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(7)
+//            var DataHealth_steps = DataHealth("Steps", this)
+//            getSteps(DataHealth_steps, 7)
 
-            // Timeline: Current day
-            getSteps(DataType.TYPE_STEP_COUNT_DELTA,Time_End, Time_Now)
-            getSteps(DataType.TYPE_HEART_RATE_BPM,Time_End, Time_Now)
-
-            // Timeline: previous week
-            getSteps(DataType.TYPE_STEP_COUNT_DELTA,Time_Start, Time_End)
-            getSteps(DataType.TYPE_HEART_RATE_BPM,Time_Start, Time_End)
-            //getSteps(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
-//            getGlucoGFit(LocalDateTime.now().minusDays(7).atZone(ZoneId.systemDefault()).toEpochSecond(),LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond())
+            var DataHealth_BP = DataHealth("Blood Pressure", this)
+            getSteps(DataHealth_BP, 7)
         }
     }
 
 
-    private fun displayGraph_preview(data: ArrayList<Int>,dataType: AAChartType,dataViewID: AAChartView, dataTitle:String) {
+    private fun displayGraph_preview(data: ArrayList<Float>,dataType: AAChartType,dataViewID: AAChartView, dataTitle:String) {
 
         val aaChartModel: AAChartModel = AAChartModel()
             .chartType(dataType)

@@ -15,11 +15,7 @@ class DataGeneral {
             cal.set(Calendar.SECOND, 0)
             cal.set(Calendar.MILLISECOND, 0)
             val TimeEndInMilli =  cal.timeInMillis
-            val TimeStartInMilli = TimeEndInMilli - (duration*24*60*60*1000)
-
-
-            Log.i(TAG, "/t Now: ${TimeNowInMilli} /t Start: ${TimeStartInMilli} /t End:${TimeEndInMilli}")
-
+            val TimeStartInMilli = TimeEndInMilli - ((duration+1)*24*60*60*1000)
             return listOf(TimeNowInMilli, TimeStartInMilli, TimeEndInMilli)
         }
 
