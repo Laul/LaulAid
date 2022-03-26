@@ -93,10 +93,12 @@ class MainActivity : AppCompatActivity() {
         // Create 1 instance of DataHealth for each type of data in GFit
         var DataHealth_BP = DataHealth("Blood Pressure", this)
         var DataHealth_steps = DataHealth("Steps", this)
-        var DataHealth_HR = DataHealth("Steps", this)
+        var DataHealth_HR = DataHealth("Heart Rate", this)
 
         // Google fit
         DataHealth_steps.connectGFit( this)
+        DataHealth_BP.connectGFit( this)
+        DataHealth_HR.connectGFit( this)
 
         // XDRip
         // DataHealth.connectXDrip(url, this)

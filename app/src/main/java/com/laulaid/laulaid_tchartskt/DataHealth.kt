@@ -22,10 +22,10 @@ import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessOptions
-import com.google.android.gms.fitness.data.DataSource
+import com.google.android.gms.fitness.data.*
 import com.google.android.gms.fitness.data.DataSource.TYPE_DERIVED
-import com.google.android.gms.fitness.data.DataType
-import com.google.android.gms.fitness.data.HealthDataTypes
+import com.google.android.gms.fitness.data.DataType.TYPE_HEART_RATE_BPM
+import com.google.android.gms.fitness.data.DataType.TYPE_STEP_COUNT_DELTA
 import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_PRESSURE
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.result.DataReadResponse
@@ -58,18 +58,36 @@ class DataHealth(string: String, context: Context) {
         fun parseGFitData(InitData: Boolean, response: DataReadResponse, dataHealth: DataHealth){
 
             // If 1st call: clear data since a new call
-            if (InitData==true){dataHealth.data.clear()}
+            if (InitData==true){
+                dataHealth.data.clear()
+                for (i in 0 until dataHealth.datasize){
+                    dataHealth.data.add(ArrayList<Float>(dataHealth.duration))
+                }
+            }
+
 
             for (dataSet in response.buckets.flatMap { it.dataSets }) {
-                for (dp in dataSet.dataPoints) {
-                    for (field in dp.dataType.fields) {
-                        Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
-                        val step = dp.getValue(field).asInt()
-                        dataHealth.data.add(step.toFloat())
+
+                if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
+                    for (dp in dataSet.dataPoints) {
+                        dataHealth.data[0].add(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())
+                    }
+                }
+
+                else if (dataSet.dataType==TYPE_BLOOD_PRESSURE){
+                    for (dp in dataSet.dataPoints) {
+                        dataHealth.data[0].add(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())
+                        dataHealth.data[1].add(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat())
+                    }
+                }
+
+                else if (dataSet.dataType==TYPE_HEART_RATE_BPM){
+                    for (dp in dataSet.dataPoints) {
+                        dataHealth.data[0].add(dp.getValue(Field.FIELD_BPM).asFloat())
                     }
                 }
             }
-            if (InitData==false){dataHealth.displayGraph_preview()}
+            if (!InitData){dataHealth.displayGraph_preview()}
 
         }
     }
@@ -86,7 +104,8 @@ class DataHealth(string: String, context: Context) {
     var gFitDataSource: Int = 0
     lateinit var gFitBucketTime: TimeUnit
     lateinit var gFitStreamName: String
-    var data = ArrayList<Float>(duration)
+    var data = ArrayList<ArrayList<Float>>()
+    var datasize = 1
 
     init {
         if (string === "Steps") {
@@ -106,15 +125,21 @@ class DataHealth(string: String, context: Context) {
             gFitDataSource = DataSource.TYPE_RAW
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
+            datasize = 2
         }
         if (string === "Heart Rate") {
             aaChartViewID =
                 (context as Activity).findViewById<AAChartView>(R.id.graph_preview_heartrate)
             aaChartType = AAChartType.Spline
-            gFitDataType = HealthDataTypes.TYPE_BLOOD_PRESSURE
+            gFitDataType = DataType.TYPE_HEART_RATE_BPM
             gFitDataSource = DataSource.TYPE_RAW
             gFitBucketTime = TimeUnit.DAYS
-            gFitStreamName = "Blood Pressure"
+            gFitStreamName = "Heart Rate"
+        }
+
+        // Create as many series of data as in the datafields from GFit
+        for (i in 0 until datasize){
+            data.add(ArrayList<Float>(duration))
         }
     }
 
@@ -171,30 +196,25 @@ class DataHealth(string: String, context: Context) {
 
     fun displayGraph_preview() {
 
+        var dataserie = ArrayList<AASeriesElement>()
+        for (i in 0 until data.size){
+            dataserie.add(AASeriesElement()
+                .name(title)
+                .data(data[i].toArray()))
+        }
+
         val aaChartModel: AAChartModel = AAChartModel()
             .chartType(aaChartType)
             .title(title)
-            .subtitle("subtitle")
             .backgroundColor("white")
             .dataLabelsEnabled(true)
 
-            .series(
-                arrayOf(
-                    AASeriesElement()
-                        .color(Color.BLUE)
-                        .name(title)
-                        .data(data.toArray())
-                )
-            )
+            .series(dataserie.toArray())
+
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
         aaChartViewID.aa_drawChartWithChartModel(aaChartModel)
 
-
-
     }
-
-
-
 
     private fun getGoogleAccount(context: Context) =
         GoogleSignIn.getAccountForExtension(context, fitnessOptions)
