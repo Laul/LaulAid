@@ -15,8 +15,10 @@ import com.android.volley.toolbox.Volley
 import com.android.volley.RequestQueue
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
+import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
+import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessOptions
@@ -24,6 +26,7 @@ import com.google.android.gms.fitness.data.DataSource
 import com.google.android.gms.fitness.data.DataSource.TYPE_DERIVED
 import com.google.android.gms.fitness.data.DataType
 import com.google.android.gms.fitness.data.HealthDataTypes
+import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_PRESSURE
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.result.DataReadResponse
 import org.json.JSONArray
@@ -44,17 +47,38 @@ class DataHealth(string: String, context: Context) {
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
             .addDataType(HealthDataTypes.TYPE_BLOOD_PRESSURE, FitnessOptions.ACCESS_READ)
             .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_READ)
             .build()
 
-    }
+        /** Steps data parsing + formatting to display graph
+        @param response: Google fit response
+         */
+        fun parseGFitData(InitData: Boolean, response: DataReadResponse, dataHealth: DataHealth){
 
+            // If 1st call: clear data since a new call
+            if (InitData==true){dataHealth.data.clear()}
+
+            for (dataSet in response.buckets.flatMap { it.dataSets }) {
+                for (dp in dataSet.dataPoints) {
+                    for (field in dp.dataType.fields) {
+                        Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
+                        val step = dp.getValue(field).asInt()
+                        dataHealth.data.add(step.toFloat())
+                    }
+                }
+            }
+            if (InitData==false){dataHealth.displayGraph_preview()}
+
+        }
+    }
 
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
+    // Data Initialization
     var context = context
-    var chartTitle = string
+    var title = string
     lateinit var aaChartViewID: AAChartView
     lateinit var aaChartType: AAChartType
     var duration: Int = 7
@@ -62,6 +86,7 @@ class DataHealth(string: String, context: Context) {
     var gFitDataSource: Int = 0
     lateinit var gFitBucketTime: TimeUnit
     lateinit var gFitStreamName: String
+    var data = ArrayList<Float>(duration)
 
     init {
         if (string === "Steps") {
@@ -81,60 +106,94 @@ class DataHealth(string: String, context: Context) {
             gFitDataSource = DataSource.TYPE_RAW
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
-
+        }
+        if (string === "Heart Rate") {
+            aaChartViewID =
+                (context as Activity).findViewById<AAChartView>(R.id.graph_preview_heartrate)
+            aaChartType = AAChartType.Spline
+            gFitDataType = HealthDataTypes.TYPE_BLOOD_PRESSURE
+            gFitDataSource = DataSource.TYPE_RAW
+            gFitBucketTime = TimeUnit.DAYS
+            gFitStreamName = "Blood Pressure"
         }
     }
 
-    // GFit connection to retrieve steps data
+    // GFit connection to retrieve fit data
     fun getGFitData(duration: Int) {
         var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
-        Log.i(TAG, "lkesjhdgbvwhbe")
-        val datasource = DataSource.Builder()
-            .setAppPackageName("com.google.android.gms")
-            .setDataType(this.gFitDataType)
-            .setType(this.gFitDataSource)
-            .setStreamName(this.gFitStreamName)
-            .build()
 
-        val requestCurrentTimes = DataReadRequest.Builder()
+        Log.i(TAG, "getGFitData")
+
+        // Request for current (non completed) day / hour
+        var ReqCurrentTimes = DataReadRequest.Builder()
             .read(gFitDataType)
             .bucketByTime(1, gFitBucketTime)
             .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
             .build()
 
-        val requestCompletedTimes = DataReadRequest.Builder()
+        // Default request using ".read" - For steps, we need to use ".aggregate"
+        // Request for past (completed) days / hours
+        var ReqCompletedTimes = DataReadRequest.Builder()
             .read(gFitDataType)
             .bucketByTime(1, gFitBucketTime)
             .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
             .build()
 
-        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
-            .readData(requestCompletedTimes)
-            .addOnSuccessListener { response -> parseSteps(response, this)}
-    }
+        if (title == "Steps") {
+            // Request for current (non completed) day / hour
+            ReqCurrentTimes = DataReadRequest.Builder()
+                .aggregate(gFitDataType)
+                .bucketByTime(1, gFitBucketTime)
+                .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
+                .build()
 
-
-
-    /** Steps data parsing + formatting to display graph
-    @param response: Google fit response
-     */
-    fun parseSteps(response: DataReadResponse, dataHealth: DataHealth) {
-
-        val data = ArrayList<Float>(7)
-
-        for (dataSet in response.buckets.flatMap { it.dataSets }) {
-            for (dp in dataSet.dataPoints) {
-                for (field in dp.dataType.fields) {
-                    Log.i(TAG,"\tField: ${field.name.toString()} Value: ${dp.getValue(field)}")
-                    val step = dp.getValue(field).asFloat()
-                    data.add(step)
-                }
-            }
+            // Request for past (completed) days / hours
+            ReqCompletedTimes = DataReadRequest.Builder()
+                .aggregate(gFitDataType)
+                .bucketByTime(1, gFitBucketTime)
+                .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
+                .build()
         }
 
+        // History request and go to parse data
+        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
+            .readData(ReqCurrentTimes)
+            .addOnSuccessListener { response -> parseGFitData(true, response, this)}
+            .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
 
-//        displayGraph_preview(data, dataHealth.aaChartType, dataHealth.aaChartViewID, dataHealth.chartTitle)
+        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
+            .readData(ReqCompletedTimes)
+            .addOnSuccessListener { response -> parseGFitData(false, response, this)}
+            .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
+
     }
+
+
+    fun displayGraph_preview() {
+
+        val aaChartModel: AAChartModel = AAChartModel()
+            .chartType(aaChartType)
+            .title(title)
+            .subtitle("subtitle")
+            .backgroundColor("white")
+            .dataLabelsEnabled(true)
+
+            .series(
+                arrayOf(
+                    AASeriesElement()
+                        .color(Color.BLUE)
+                        .name(title)
+                        .data(data.toArray())
+                )
+            )
+        //The chart view object calls the instance object of AAChartModel and draws the final graphic
+        aaChartViewID.aa_drawChartWithChartModel(aaChartModel)
+
+
+
+    }
+
+
 
 
     private fun getGoogleAccount(context: Context) =
@@ -154,8 +213,6 @@ class DataHealth(string: String, context: Context) {
 //            getSteps(DataHealth_steps, 7)
 
         }
-
-
     }
 
     fun connectXDrip(url: String, context: Context) {
@@ -184,7 +241,7 @@ class DataHealth(string: String, context: Context) {
     /* Gluco data parsing + formatting to display graph
      @param response: XDrip json response
     */
-    fun getGlucoData(jsonstring: String) {
+    fun getGlucoData(jsonstring: String){
         // set variables for display
         // val dataViewID = findViewById<TChart>(R.id.graph_steps)
 
@@ -202,6 +259,5 @@ class DataHealth(string: String, context: Context) {
 
         // displayGraph_advanced(data, dataViewID, dataTitle, keys, names, colors)
     }
-
 
 }

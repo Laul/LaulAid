@@ -44,65 +44,47 @@ class MainActivity : AppCompatActivity() {
     private var mStringRequest: StringRequest? = null
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
-//    companion object {
-//        val fitnessOptions = FitnessOptions.builder()
-//            .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-//            .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-//            .addDataType(HealthDataTypes.TYPE_BLOOD_PRESSURE, FitnessOptions.ACCESS_READ)
+    //    private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
+//
+//        val gFitGlucodsource = DataSource.Builder()
+//            .setAppPackageName(this)
+//            .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
+//            .setType(DataSource.TYPE_RAW)
 //            .build()
+//
+//        // Create dataset
+//        val gFitGlucodset = DataSet.builder(gFitGlucodsource)
+//        val json = JSONArray(jsonstring)
+//        val minDate = json.getJSONObject(json.length()-1).getLong("date")
+//        val maxDate = json.getJSONObject(0).getLong("date")
+//
+//        for (i in 0 until json.length()){
+//            val measure = json.getJSONObject(i)
+//            val date = measure.getLong("date")
+//            val sgv = measure.getInt("sgv")
+//
+//
+//            // Add new datapoint to dataset
+//            gFitGlucodset.add(DataPoint.builder(gFitGlucodsource)
+//                .setTimestamp(date, TimeUnit.MILLISECONDS)
+//                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, sgv/18.0f)
+//                .build()
+//            )
+//        }
+//
+//        // Request dataset update
+//        val request = DataUpdateRequest.Builder()
+//            .setDataSet(gFitGlucodset.build())
+//            .setTimeInterval(minDate, maxDate, TimeUnit.MILLISECONDS)
+//            .build()
+//
+//        return Fitness.getHistoryClient(this, getGoogleAccount())
+//            .updateData(request)
+//            .addOnSuccessListener { Log.i(TAG, "Data update was successful.") }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "There was a problem updating the dataset.", e)
+//            }
 //    }
-
-
-    /**
-     * Gets a Google account for use in creating the Fitness client. This is achieved by either
-     * using the last signed-in account, or if necessary, prompting the user to sign in.
-     * `getAccountForExtension` is recommended over `getLastSignedInAccount` as the latter can
-     * return `null` if there has been no sign in before.
-     */
-    private fun getGoogleAccount() = GoogleSignIn.getAccountForExtension(this, DataHealth.fitnessOptions)
-
-    private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
-
-        val gFitGlucodsource = DataSource.Builder()
-            .setAppPackageName(this)
-            .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
-            .setType(DataSource.TYPE_RAW)
-            .build()
-
-        // Create dataset
-        val gFitGlucodset = DataSet.builder(gFitGlucodsource)
-        val json = JSONArray(jsonstring)
-        val minDate = json.getJSONObject(json.length()-1).getLong("date")
-        val maxDate = json.getJSONObject(0).getLong("date")
-
-        for (i in 0 until json.length()){
-            val measure = json.getJSONObject(i)
-            val date = measure.getLong("date")
-            val sgv = measure.getInt("sgv")
-
-
-            // Add new datapoint to dataset
-            gFitGlucodset.add(DataPoint.builder(gFitGlucodsource)
-                .setTimestamp(date, TimeUnit.MILLISECONDS)
-                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, sgv/18.0f)
-                .build()
-            )
-        }
-
-        // Request dataset update
-        val request = DataUpdateRequest.Builder()
-            .setDataSet(gFitGlucodset.build())
-            .setTimeInterval(minDate, maxDate, TimeUnit.MILLISECONDS)
-            .build()
-
-        return Fitness.getHistoryClient(this, getGoogleAccount())
-            .updateData(request)
-            .addOnSuccessListener { Log.i(TAG, "Data update was successful.") }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "There was a problem updating the dataset.", e)
-            }
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,6 +93,7 @@ class MainActivity : AppCompatActivity() {
         // Create 1 instance of DataHealth for each type of data in GFit
         var DataHealth_BP = DataHealth("Blood Pressure", this)
         var DataHealth_steps = DataHealth("Steps", this)
+        var DataHealth_HR = DataHealth("Steps", this)
 
         // Google fit
         DataHealth_steps.connectGFit( this)
@@ -122,6 +105,8 @@ class MainActivity : AppCompatActivity() {
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
         btnRequest!!.setOnClickListener { DataHealth_steps.connectGFit( this) }
 
+        Log.i(TAG,"\tdata: ${DataHealth_steps.data}")
+
         val buttonClick = findViewById<Button>(R.id.btn_steps)
         buttonClick.setOnClickListener {
             val intent = Intent(this, BloodGlucoseActivity::class.java)
@@ -129,26 +114,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayGraph_preview(data: ArrayList<Float>,dataType: AAChartType,dataViewID: AAChartView, dataTitle:String) {
-
-        val aaChartModel: AAChartModel = AAChartModel()
-            .chartType(dataType)
-            .title("i")
-            .subtitle("hgfd")
-            .backgroundColor("white")
-            .dataLabelsEnabled(true)
-
-            .series(
-                arrayOf(
-                    AASeriesElement()
-                        .name(dataTitle)
-                        .data(data.toArray())
-
-                )
-            )
-        //The chart view object calls the instance object of AAChartModel and draws the final graphic
-        dataViewID.aa_drawChartWithChartModel(aaChartModel)
-    }
 
 
 }
