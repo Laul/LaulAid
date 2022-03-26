@@ -10,8 +10,8 @@
 
     <Button
         android:id="@+id/buttonRequest2"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
+        android:layout_width="135dp"
+        android:layout_height="44dp"
         android:layout_marginStart="75dp"
         android:layout_marginEnd="75dp"
         android:background="#414af4"
@@ -45,21 +45,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
 
-                <Button
-                    android:id="@+id/btn_steps"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Steps"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
+<!--                <Button-->
+<!--                    android:id="@+id/btn_steps"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Steps"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent" />-->
 
                 <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
                     android:id="@+id/graph_preview_steps"
-                    android:layout_width="350dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -68,18 +69,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp">
 
-                <Button
-                    android:id="@+id/btn_bloodpressure"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Blood Pressure"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+<!--                <Button-->
+<!--                    android:id="@+id/btn_bloodpressure"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Blood Pressure"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent" />-->
 
 
                 <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
                     android:id="@+id/graph_preview_bloodpressure"
-                    android:layout_width="350dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -91,18 +92,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp">
 
-                <Button
-                    android:id="@+id/btn_heartrate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Heart Rate [BPM]"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+<!--                <Button-->
+<!--                    android:id="@+id/btn_heartrate"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Heart Rate [BPM]"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent" />-->
 
 
                 <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
                     android:id="@+id/graph_preview_heartrate"
-                    android:layout_width="350dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -110,24 +111,24 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.klim.tcharts.TChart
-                android:id="@+id/graph_steps"
-                android:layout_width="350dp"
-                android:layout_height="166dp"
-                android:padding="16dp"
-                app:backgroundColor="#FFFFFF"
-                app:detailDivisionColor="#efeff0"
-                app:detailLabelsFontColor="#506372"
-                app:detailLineSelectedPosition="#73C9D8E3"
-                app:infoWindowBackground="#FFFFFFFF"
-                app:infoWindowShadowColor="#5C000000"
-                app:infoWindowTitleColor="#222222"
-                app:navBordersColor="#477DA9CA"
-                app:navViewFillColor="#BAF5F8F9"
-                app:showTitle="true"
-                app:title="Title"
-                app:titleFontColor="#3896D4"
-                app:titleFontSize="16dp" />
+<!--            <com.klim.tcharts.TChart-->
+<!--                android:id="@+id/graph_steps"-->
+<!--                android:layout_width="350dp"-->
+<!--                android:layout_height="166dp"-->
+<!--                android:padding="16dp"-->
+<!--                app:backgroundColor="#FFFFFF"-->
+<!--                app:detailDivisionColor="#efeff0"-->
+<!--                app:detailLabelsFontColor="#506372"-->
+<!--                app:detailLineSelectedPosition="#73C9D8E3"-->
+<!--                app:infoWindowBackground="#FFFFFFFF"-->
+<!--                app:infoWindowShadowColor="#5C000000"-->
+<!--                app:infoWindowTitleColor="#222222"-->
+<!--                app:navBordersColor="#477DA9CA"-->
+<!--                app:navViewFillColor="#BAF5F8F9"-->
+<!--                app:showTitle="true"-->
+<!--                app:title="Title"-->
+<!--                app:titleFontColor="#3896D4"-->
+<!--                app:titleFontSize="16dp" />-->
 
 
         </LinearLayout>

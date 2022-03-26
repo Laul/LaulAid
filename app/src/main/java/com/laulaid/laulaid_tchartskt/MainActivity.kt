@@ -109,11 +109,12 @@ class MainActivity : AppCompatActivity() {
 
         Log.i(TAG,"\tdata: ${DataHealth_steps.data}")
 
-        val buttonClick = findViewById<Button>(R.id.btn_steps)
-        buttonClick.setOnClickListener {
-            val intent = Intent(this, BloodGlucoseActivity::class.java)
-            startActivity(intent)
-        }
+        // Show detailed view
+//        val buttonClick = findViewById<Button>(R.id.btn_steps)
+//        buttonClick.setOnClickListener {
+//            val intent = Intent(this, BloodGlucoseActivity::class.java)
+//            startActivity(intent)
+//        }
     }
 
 
