@@ -41,4 +41,49 @@ class BloodGlucoseActivity : AppCompatActivity() {
 //    }
 
     }
+
+
+
+
+    //    private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
+//
+//        val gFitGlucodsource = DataSource.Builder()
+//            .setAppPackageName(this)
+//            .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
+//            .setType(DataSource.TYPE_RAW)
+//            .build()
+//
+//        // Create dataset
+//        val gFitGlucodset = DataSet.builder(gFitGlucodsource)
+//        val json = JSONArray(jsonstring)
+//        val minDate = json.getJSONObject(json.length()-1).getLong("date")
+//        val maxDate = json.getJSONObject(0).getLong("date")
+//
+//        for (i in 0 until json.length()){
+//            val measure = json.getJSONObject(i)
+//            val date = measure.getLong("date")
+//            val sgv = measure.getInt("sgv")
+//
+//
+//            // Add new datapoint to dataset
+//            gFitGlucodset.add(DataPoint.builder(gFitGlucodsource)
+//                .setTimestamp(date, TimeUnit.MILLISECONDS)
+//                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, sgv/18.0f)
+//                .build()
+//            )
+//        }
+//
+//        // Request dataset update
+//        val request = DataUpdateRequest.Builder()
+//            .setDataSet(gFitGlucodset.build())
+//            .setTimeInterval(minDate, maxDate, TimeUnit.MILLISECONDS)
+//            .build()
+//
+//        return Fitness.getHistoryClient(this, getGoogleAccount())
+//            .updateData(request)
+//            .addOnSuccessListener { Log.i(TAG, "Data update was successful.") }
+//            .addOnFailureListener { e ->
+//                Log.e(TAG, "There was a problem updating the dataset.", e)
+//            }
+//    }
 }

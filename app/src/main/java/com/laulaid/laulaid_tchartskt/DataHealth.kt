@@ -91,8 +91,6 @@ class DataHealth(string: String, context: Context) {
         }
     }
 
-    private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
-
     // Data Initialization
     var context = context
 
@@ -117,7 +115,12 @@ class DataHealth(string: String, context: Context) {
 
     init {
 
-
+        if (string === "Blood Glucose") {
+            aaChartViewID =
+                (context as Activity).findViewById<AAChartView>(R.id.graph_preview_bloodglucose)
+            aaChartType = AAChartType.Spline
+            val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
+        }
         if (string === "Steps") {
             aaChartViewID =
                 (context as Activity).findViewById<AAChartView>(R.id.graph_preview_steps)
@@ -151,6 +154,25 @@ class DataHealth(string: String, context: Context) {
         // Create as many series of data as in the datafields from GFit
         for (i in 0 until datasize){
             data.add(ArrayList<Float>(duration))
+        }
+    }
+
+    private fun getGoogleAccount(context: Context) =
+        GoogleSignIn.getAccountForExtension(context, fitnessOptions)
+
+    fun connectGFit(context: Activity) {
+        if (!GoogleSignIn.hasPermissions(getGoogleAccount(context), fitnessOptions)) {
+            GoogleSignIn.requestPermissions(
+                context, // your activity
+                1, // e.g. 1
+                getGoogleAccount(context),
+                fitnessOptions
+            )
+        } else {
+            this.getGFitData(7)
+//            var DataHealth_steps = DataHealth("Steps", this)
+//            getSteps(DataHealth_steps, 7)
+
         }
     }
 
@@ -233,25 +255,6 @@ class DataHealth(string: String, context: Context) {
     fun displayGraphDetailed(){
     }
 
-    private fun getGoogleAccount(context: Context) =
-        GoogleSignIn.getAccountForExtension(context, fitnessOptions)
-
-    fun connectGFit(context: Activity) {
-        if (!GoogleSignIn.hasPermissions(getGoogleAccount(context), fitnessOptions)) {
-            GoogleSignIn.requestPermissions(
-                context, // your activity
-                1, // e.g. 1
-                getGoogleAccount(context),
-                fitnessOptions
-            )
-        } else {
-            this.getGFitData(7)
-//            var DataHealth_steps = DataHealth("Steps", this)
-//            getSteps(DataHealth_steps, 7)
-
-        }
-    }
-
     fun connectXDrip(url: String, context: Context) {
         var mRequestQueue: RequestQueue? = null
         var mStringRequest: StringRequest? = null
@@ -266,7 +269,8 @@ class DataHealth(string: String, context: Context) {
             Request.Method.GET, url,
             { response ->
                 run {
-                    getGlucoData(response)
+                    Log.i(TAG, "XDRip connection OK")
+//                    getGlucoData(response)
                     // pushGlucoToGFit(response)
                 }
             }) { error ->
