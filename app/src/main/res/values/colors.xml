@@ -13,6 +13,14 @@
     <color name="colorPrimary">#517DA2</color>
     <color name="colorPrimaryDark">#426382</color>
     <color name="background">#f0f0f0</color>
-    <color name="textColor">#373737</color>
+
+    // Custom colors Laulaid
+    <color name="textColor">#56203D</color>
+    <color name="backgroundColor">#CCDAD1</color>
+
+    <color name="secondaryColor">#D199B6</color>
+    <color name="thirdColor">#EDADC7</color>
+
+
 
 </resources>

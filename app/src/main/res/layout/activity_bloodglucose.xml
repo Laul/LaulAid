@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BloodGlucoseActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="75dp">
+
+        <TextView
+            android:layout_width="245dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="25dp"
+            android:text="Bloog Glucose"
+            android:textAlignment="textStart"
+            android:gravity="center"
+            app:layout_constraintStart_toEndOf="@+id/bSearch"
+            app:layout_constraintTop_toTopOf="@+id/bSearch" />
+
+        <Button
+            android:id="@+id/bSearch"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:drawableLeft="@android:drawable/ic_menu_more"
+            android:padding="12dp"
+            android:rotation="90"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:backgroundTint="@color/backgroundColor"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.klim.tcharts.TChart
+        android:id="@+id/graph_gluco"
+        android:layout_width="match_parent"
+        android:layout_height="712dp"
+        android:padding="16dp"
+        app:backgroundColor="#FFFFFF"
+        app:detailDivisionColor="#efeff0"
+        app:detailLabelsFontColor="#506372"
+        app:detailLineSelectedPosition="#73C9D8E3"
+        app:infoWindowBackground="#FFFFFFFF"
+        app:infoWindowShadowColor="#5C000000"
+        app:infoWindowTitleColor="#222222"
+        app:navBordersColor="#477DA9CA"
+        app:navViewFillColor="#BAF5F8F9"
+        app:showTitle="true"
+        app:title="Title"
+        app:titleFontColor="#3896D4"
+        app:titleFontSize="16dp" />
+
+
+</LinearLayout>
