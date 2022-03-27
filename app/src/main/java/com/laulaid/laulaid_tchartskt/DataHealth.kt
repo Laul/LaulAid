@@ -198,8 +198,6 @@ class DataHealth(string: String, context: Context) {
     fun getGFitData(duration: Int) {
         var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
 
-        Log.i(TAG, "getGFitData")
-
         // Request for current (non completed) day / hour
         var ReqCurrentTimes = DataReadRequest.Builder()
             .read(gFitDataType)

@@ -40,6 +40,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+
+            <co.csadev.kellocharts.view.LineChartView
+                android:id="@+id/chart"
+                android:layout_width="match_parent"
+                android:layout_height="164dp" />
+
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
