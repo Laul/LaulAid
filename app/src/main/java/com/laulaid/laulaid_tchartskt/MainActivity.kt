@@ -44,53 +44,13 @@ class MainActivity : AppCompatActivity() {
     private var mStringRequest: StringRequest? = null
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
-    //    private fun pushGlucoToGFit(jsonstring: String): Task<Void> {
-//
-//        val gFitGlucodsource = DataSource.Builder()
-//            .setAppPackageName(this)
-//            .setDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE)
-//            .setType(DataSource.TYPE_RAW)
-//            .build()
-//
-//        // Create dataset
-//        val gFitGlucodset = DataSet.builder(gFitGlucodsource)
-//        val json = JSONArray(jsonstring)
-//        val minDate = json.getJSONObject(json.length()-1).getLong("date")
-//        val maxDate = json.getJSONObject(0).getLong("date")
-//
-//        for (i in 0 until json.length()){
-//            val measure = json.getJSONObject(i)
-//            val date = measure.getLong("date")
-//            val sgv = measure.getInt("sgv")
-//
-//
-//            // Add new datapoint to dataset
-//            gFitGlucodset.add(DataPoint.builder(gFitGlucodsource)
-//                .setTimestamp(date, TimeUnit.MILLISECONDS)
-//                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, sgv/18.0f)
-//                .build()
-//            )
-//        }
-//
-//        // Request dataset update
-//        val request = DataUpdateRequest.Builder()
-//            .setDataSet(gFitGlucodset.build())
-//            .setTimeInterval(minDate, maxDate, TimeUnit.MILLISECONDS)
-//            .build()
-//
-//        return Fitness.getHistoryClient(this, getGoogleAccount())
-//            .updateData(request)
-//            .addOnSuccessListener { Log.i(TAG, "Data update was successful.") }
-//            .addOnFailureListener { e ->
-//                Log.e(TAG, "There was a problem updating the dataset.", e)
-//            }
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // Create 1 instance of DataHealth for each type of data in GFit
+        var DataHealth_BG = DataHealth("Blood Glucose", this)
         var DataHealth_BP = DataHealth("Blood Pressure", this)
         var DataHealth_steps = DataHealth("Steps", this)
         var DataHealth_HR = DataHealth("Heart Rate", this)
@@ -101,7 +61,9 @@ class MainActivity : AppCompatActivity() {
         DataHealth_HR.connectGFit( this)
 
         // XDRip
-        // DataHealth.connectXDrip(url, this)
+
+        DataHealth_BG.connectXDrip(url, this)
+
 
         // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
