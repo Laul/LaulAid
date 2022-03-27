@@ -34,6 +34,10 @@ import java.util.concurrent.TimeUnit
 
 
 class DataHealth(string: String, context: Context) {
+
+    /** Companion object to access variables and function of the class outside
+     * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
+     */
     companion object {
         var dataDetailedView = ArrayList<ChartItem>()
         val fitnessOptions = FitnessOptions.builder()
@@ -46,7 +50,9 @@ class DataHealth(string: String, context: Context) {
             .build()
 
         /** Steps data parsing + formatting to display graph
+        @param InitData: Flag to reset data container
         @param response: Google fit response
+        @param dataHealth: structure containing all class variables to display graphs
          */
         fun parseGFitData(InitData: Boolean, response: DataReadResponse, dataHealth: DataHealth){
             lateinit var Timestamp : String
@@ -61,9 +67,10 @@ class DataHealth(string: String, context: Context) {
                 }
             }
 
-
+            // Check each bucket to retrieve data
             for (dataSet in response.buckets.flatMap { it.dataSets }) {
 
+                // Steps
                 if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
                     for (dp in dataSet.dataPoints) {
                         dataHealth.data[0].add(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())
@@ -71,6 +78,7 @@ class DataHealth(string: String, context: Context) {
                     }
                 }
 
+                // Blood Pressure
                 else if (dataSet.dataType==TYPE_BLOOD_PRESSURE){
                     for (dp in dataSet.dataPoints) {
                         dataHealth.data[0].add(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())
@@ -79,6 +87,7 @@ class DataHealth(string: String, context: Context) {
                     }
                 }
 
+                // Heart Rate
                 else if (dataSet.dataType==TYPE_HEART_RATE_BPM){
                     for (dp in dataSet.dataPoints) {
                         dataHealth.data[0].add(dp.getValue(Field.FIELD_BPM).asFloat())
@@ -86,6 +95,8 @@ class DataHealth(string: String, context: Context) {
                     }
                 }
             }
+
+            // Display graph callback only if all data have been aggregated (completed vs non completed days)
             if (!InitData){dataHealth.displayGraphPreview()}
 
         }
@@ -93,6 +104,8 @@ class DataHealth(string: String, context: Context) {
 
     private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
 
+    /** Class variables per catgeory: general, charting, data structure, GoogleFit variables,etc. )
+     */
     // Data Initialization
     var context = context
 
@@ -115,8 +128,8 @@ class DataHealth(string: String, context: Context) {
     lateinit var gFitBucketTime: TimeUnit
     lateinit var gFitStreamName: String
 
+    // Variables initialization for each data type:
     init {
-
 
         if (string === "Steps") {
             aaChartViewID =
@@ -142,7 +155,7 @@ class DataHealth(string: String, context: Context) {
         if (string === "Heart Rate") {
             aaChartViewID =
                 (context as Activity).findViewById<AAChartView>(R.id.graph_preview_heartrate)
-            aaChartType = AAChartType.Spline
+            aaChartType = AAChartType.Line
             gFitDataType = DataType.TYPE_HEART_RATE_BPM
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Heart Rate"
@@ -154,7 +167,34 @@ class DataHealth(string: String, context: Context) {
         }
     }
 
-    // GFit connection to retrieve fit data
+    /** GFit permissions verification and dispatch
+    @param context: App Context (typically main activity)
+     */
+    fun connectGFit(context: Activity) {
+        // If no permission -> request permission to the user
+        if (!GoogleSignIn.hasPermissions(getGoogleAccount(context), fitnessOptions)) {
+            GoogleSignIn.requestPermissions(
+                context, // your activity
+                1, // e.g. 1
+                getGoogleAccount(context),
+                fitnessOptions
+            )
+        }
+        // If permission -> get Data
+        else {
+            this.getGFitData(duration)
+        }
+    }
+
+    /** GFit connection request based on fitness option list
+    @param context: App Context (typically main activity)
+     */
+    private fun getGoogleAccount(context: Context) =
+        GoogleSignIn.getAccountForExtension(context, fitnessOptions)
+
+    /** GFit connection to retrieve fit data
+    @param duration: duration to cover (default: last 7 days)
+     */
     fun getGFitData(duration: Int) {
         var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
 
@@ -192,7 +232,6 @@ class DataHealth(string: String, context: Context) {
         }
 
         // History request and go to parse data
-
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
             .readData(ReqCompletedTimes)
             .addOnSuccessListener { response -> parseGFitData(false, response, this)}
@@ -202,12 +241,12 @@ class DataHealth(string: String, context: Context) {
             .readData(ReqCurrentTimes)
             .addOnSuccessListener { response -> parseGFitData(true, response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
-
-
     }
 
+    /** Display preview graphs on main using AAChart Lib
+     */
     fun displayGraphPreview() {
-
+        // Create data series to display
         var dataserie = ArrayList<AASeriesElement>()
         for (i in 0 until data.size){
             dataserie.add(AASeriesElement()
@@ -215,6 +254,7 @@ class DataHealth(string: String, context: Context) {
                 .data(data[i].toArray()))
         }
 
+        // Create chart using dataserie and other UI variables
         val aaChartModel: AAChartModel = AAChartModel()
             .chartType(aaChartType)
             .title(aaChartTitle)
@@ -227,30 +267,14 @@ class DataHealth(string: String, context: Context) {
 
         //The chart view object calls the instance object of AAChartModel and draws the final graphic
         aaChartViewID.aa_drawChartWithChartModel(aaChartModel)
-
     }
+
+
+
 
     fun displayGraphDetailed(){
     }
 
-    private fun getGoogleAccount(context: Context) =
-        GoogleSignIn.getAccountForExtension(context, fitnessOptions)
-
-    fun connectGFit(context: Activity) {
-        if (!GoogleSignIn.hasPermissions(getGoogleAccount(context), fitnessOptions)) {
-            GoogleSignIn.requestPermissions(
-                context, // your activity
-                1, // e.g. 1
-                getGoogleAccount(context),
-                fitnessOptions
-            )
-        } else {
-            this.getGFitData(7)
-//            var DataHealth_steps = DataHealth("Steps", this)
-//            getSteps(DataHealth_steps, 7)
-
-        }
-    }
 
     fun connectXDrip(url: String, context: Context) {
         var mRequestQueue: RequestQueue? = null
