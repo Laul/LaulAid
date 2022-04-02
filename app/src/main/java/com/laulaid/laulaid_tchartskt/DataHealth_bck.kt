@@ -1,24 +1,16 @@
 package com.laulaid.laulaid_tchartskt
 
 // General
+import android.app.Activity
+import android.util.Log
+import android.content.Context
 
 
 // HTTP Request
-
-// charting
-
-// General
-import android.app.Activity
-import android.content.Context
-import android.util.Log
-import co.csadev.kellocharts.model.*
-import co.csadev.kellocharts.util.ChartUtils
-import co.csadev.kellocharts.view.AbstractChartView
-import co.csadev.kellocharts.view.ColumnChartView
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.android.volley.RequestQueue
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
@@ -32,12 +24,16 @@ import com.google.android.gms.fitness.data.DataType.TYPE_STEP_COUNT_DELTA
 import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_PRESSURE
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.result.DataReadResponse
-import com.klim.tcharts.entities.ChartItem
 import org.json.JSONArray
+
+// charting
+import com.klim.tcharts.entities.ChartItem
+
+// General
 import java.util.concurrent.TimeUnit
 
 
-class DataHealth(string: String, context: Context) {
+class DataHealth_bck(string: String, context: Context) {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
@@ -58,47 +54,32 @@ class DataHealth(string: String, context: Context) {
         @param response: Google fit response
         @param dataHealth: structure containing all class variables to display graphs
          */
-        fun parseGFitData(response: DataReadResponse, dataHealth: DataHealth){
+        fun parseGFitData(InitData: Boolean, response: DataReadResponse, dataHealth: DataHealth_bck){
             lateinit var Timestamp : String
 
-            val numSubcolumns = 1
-            val numColumns = 1
-            // Column can have many subcolumns, here I use 4 subcolumn in each of 8 columns.
+            // If 1st call: clear data since a new call
+            if (InitData==true){
+                dataHealth.data.clear()
+                dataHealth.dataXAxis.clear()
 
-
-                for (dataSet in response.buckets.flatMap { it.dataSets }) {
-
-                    // Steps
-                    if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
-                        for (dp in dataSet.dataPoints) {
-
-//                            dataHealth.kData.add(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))
-                            dataHealth.kXAxisValuesMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-//                            dataHealth.dataXAxis.add(DataGeneral.getDate(dp.getTimestamp(TimeUnit.MILLISECONDS).toLong(),"EEE" ).toString())
-                            dataHealth.kCol.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))))
-
-                        }
-                    }
-
+                for (i in 0 until dataHealth.datasize){
+                    dataHealth.data.add(ArrayList<Float>(dataHealth.duration))
                 }
-
-
-
-            dataHealth.displayGraphPreview_K()
+            }
 
             // Check each bucket to retrieve data
             for (dataSet in response.buckets.flatMap { it.dataSets }) {
-//
-//                // Steps
-//                if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
-//                    for (dp in dataSet.dataPoints) {
-//                        dataHealth.data[0].add(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())
-//                        dataHealth.dataXAxis.add(DataGeneral.getDate(dp.getTimestamp(TimeUnit.MILLISECONDS).toLong(),"dd/MM" ).toString())
-//                    }
-//                }
+
+                // Steps
+                if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
+                    for (dp in dataSet.dataPoints) {
+                        dataHealth.data[0].add(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())
+                        dataHealth.dataXAxis.add(DataGeneral.getDate(dp.getTimestamp(TimeUnit.MILLISECONDS).toLong(),"dd/MM" ).toString())
+                    }
+                }
 
                 // Blood Pressure
-                if (dataSet.dataType==TYPE_BLOOD_PRESSURE){
+                else if (dataSet.dataType==TYPE_BLOOD_PRESSURE){
                     for (dp in dataSet.dataPoints) {
                         dataHealth.data[0].add(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())
                         dataHealth.data[1].add(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat())
@@ -116,7 +97,7 @@ class DataHealth(string: String, context: Context) {
             }
 
             // Display graph callback only if all data have been aggregated (completed vs non completed days)
-            dataHealth.displayGraphPreview()
+            if (!InitData){dataHealth.displayGraphPreview()}
 
         }
     }
@@ -135,21 +116,10 @@ class DataHealth(string: String, context: Context) {
     var aaChartLegend = false
     var aaChartLabels = true
 
-    lateinit var kChartViewID: AbstractChartView
-
-
-    // Data structure - AAChart
+    // Data structure
     var datasize = 1
     var data = ArrayList<ArrayList<Float>>()
-    var kXAxisValuesMillis = ArrayList<Long>()
     var dataXAxis= ArrayList<String>()
-
-    // Data Structure - KelloCharts
-    lateinit var kData : MutableList<SubcolumnValue>
-    val kCol = ArrayList<Column>()
-    var kXAxisValues = ArrayList<AxisValue>()
-    var kXAxis = Axis()
-
 
     //GFit variables
     var duration: Int = 6
@@ -162,11 +132,6 @@ class DataHealth(string: String, context: Context) {
     init {
 
         if (string === "Steps") {
-            // KelloChart
-            kChartViewID =(context as Activity).findViewById<ColumnChartView>(R.id.chart2)
-            kData = ArrayList()
-            kXAxis.name = string
-
             aaChartViewID =
                 (context as Activity).findViewById<AAChartView>(R.id.graph_preview_steps)
             aaChartType = AAChartType.Column
@@ -177,10 +142,6 @@ class DataHealth(string: String, context: Context) {
 
         }
         if (string === "Blood Pressure") {
-            kChartViewID =(context as Activity).findViewById<ColumnChartView>(R.id.chart2)
-
-            kChartViewID =(context as Activity).findViewById<AAChartView>(R.id.chart2) as ColumnChartView
-            kData = ArrayList()
             aaChartViewID =
                 (context as Activity).findViewById<AAChartView>(R.id.graph_preview_bloodpressure)
             aaChartType = AAChartType.Line
@@ -192,8 +153,6 @@ class DataHealth(string: String, context: Context) {
             datasize = 2
         }
         if (string === "Heart Rate") {
-            kChartViewID =(context as Activity).findViewById<AAChartView>(R.id.chart2) as ColumnChartView
-            kData = ArrayList()
             aaChartViewID =
                 (context as Activity).findViewById<AAChartView>(R.id.graph_preview_heartrate)
             aaChartType = AAChartType.Line
@@ -270,28 +229,15 @@ class DataHealth(string: String, context: Context) {
                 .build()
         }
 
-
-        data.clear()
-        dataXAxis.clear()
-        kXAxisValuesMillis.clear()
-        kCol.clear()
-
-        kData.clear()
-
-        for (i in 0 until datasize){
-            data.add(ArrayList<Float>(duration))
-        }
-
         // History request and go to parse data
-        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
+        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth_bck.fitnessOptions))
             .readData(ReqCompletedTimes)
-            .addOnSuccessListener { response -> parseGFitData(response, this)}
+            .addOnSuccessListener { response -> parseGFitData(false, response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
 
-
-        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
+        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth_bck.fitnessOptions))
             .readData(ReqCurrentTimes)
-            .addOnSuccessListener { response -> parseGFitData(response, this)}
+            .addOnSuccessListener { response -> parseGFitData(true, response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
     }
 
@@ -321,48 +267,7 @@ class DataHealth(string: String, context: Context) {
         aaChartViewID.aa_drawChartWithChartModel(aaChartModel)
     }
 
-    fun displayGraphPreview_K() {
-        //        var colvalues = arrayListOf(PointValue(0, 2), PointValue(1, 4), PointValue(2, 3), PointValue(3, 4))
-//        val col = Column(colvalues)
-//        val cols = arrayListOf(col)
-//        val coldata =  ColumnChartData(cols)
-//        chartCol.columnChartData = coldata
 
-
-//        kDataXAxis.add(AxisValue(i, label = formatMinutes(tempoRange - i)))
-//        KChartViewID.columnChartData.setlabel()
-        kXAxisValues.clear()
-
-        if (kXAxisValuesMillis.size != 0) {
-
-            val dateComparator = Comparator { col1, col2 ->
-                (kXAxisValuesMillis[kCol.indexOf(col1)] - kXAxisValuesMillis[kCol.indexOf(col2)]).toInt()
-            }
-
-            var kColSorted = kCol.sortedWith(dateComparator) as MutableList<Column>
-
-            kXAxisValuesMillis.sort()
-
-            var kXAxisValuesSorted = ArrayList<String>()
-            kXAxisValuesMillis.forEach {
-                kXAxisValuesSorted.add(DataGeneral.getDate(it, "EEE").toString())
-            }
-
-            for (i in 0 until kXAxisValuesSorted.size) {
-                kXAxisValues.add(AxisValue(i, kXAxisValuesSorted[i]))
-            }
-            kXAxis.values = kXAxisValues
-
-            // Display Graph
-            if (kXAxisValuesSorted.size > 1){
-                if (kChartViewID is ColumnChartView) {
-                    var kChart = ColumnChartData(kColSorted, false, false)
-                    kChart.axisXBottom = kXAxis
-                    (kChartViewID as ColumnChartView).columnChartData = kChart
-                }
-            }
-        }
-    }
 
 
     fun displayGraphDetailed(){

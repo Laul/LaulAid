@@ -17,9 +17,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import co.csadev.kellocharts.model.Line
-import co.csadev.kellocharts.model.LineChartData
-import co.csadev.kellocharts.model.PointValue
+import co.csadev.kellocharts.model.*
+import co.csadev.kellocharts.util.ChartUtils
 import co.csadev.kellocharts.view.*
 import com.android.volley.Request
 import com.android.volley.RequestQueue
@@ -63,7 +62,8 @@ class MainActivity : AppCompatActivity() {
 
         // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
-        btnRequest!!.setOnClickListener { connectXDrip(url, this)}
+        btnRequest!!.setOnClickListener { DataHealth_steps.connectGFit( this)}
+//        btnRequest!!.setOnClickListener { connectXDrip(url, this)}
 
 
         // Show detailed view
@@ -74,20 +74,43 @@ class MainActivity : AppCompatActivity() {
 //        }
 //
 
-
-        var chartid = findViewById<View>(R.id.chart) as LineChartView
-
-        var values = arrayListOf(PointValue(0, 2), PointValue(1, 4), PointValue(2, 3), PointValue(3, 4))
-
-        val line = Line(values)
-
-
+        var linevalues = arrayListOf(PointValue(0, 2), PointValue(1, 4), PointValue(2, 3), PointValue(3, 4))
+        var chartLine = findViewById<View>(R.id.chart1) as LineChartView
+        val line = Line(linevalues)
         val lines = arrayListOf(line)
+        val linedata = LineChartData(lines)
+        chartLine.lineChartData = linedata
 
-        val data = LineChartData(lines)
+//        var colvalues = arrayListOf(PointValue(0, 2), PointValue(1, 4), PointValue(2, 3), PointValue(3, 4))
+//        var chartCol = findViewById<View>(R.id.chart2) as ColumnChartView
+////        val col = Column(colvalues)
+////        val cols = arrayListOf(col)
+////        val coldata =  ColumnChartData(cols)
+////        chartCol.columnChartData = coldata
+//
+//
+//        val numSubcolumns = 4
+//        val numColumns = 4
+//        // Column can have many subcolumns, here I use 4 subcolumn in each of 8 columns.
+//        val columns = ArrayList<Column>()
+//        var values: MutableList<SubcolumnValue>
+//        for (i in 0 until numColumns) {
+//
+//            values = ArrayList()
+//            for (j in 0 until numSubcolumns) {
+//                values.add(SubcolumnValue(Math.random().toFloat() * 50f + 5, ChartUtils.pickColor()))
+//            }
+//
+//            val column = Column(values)
+//
+//            columns.add(column)
+//        }
+//
+//        val newData = ColumnChartData(columns)
+//        chartCol.columnChartData = ColumnChartData(columns)
 
 
-        chartid.lineChartData = data
+
 
     }
 
