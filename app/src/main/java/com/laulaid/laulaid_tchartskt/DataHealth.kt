@@ -75,7 +75,7 @@ class DataHealth(string: String, context: Context) {
 //                            dataHealth.kData.add(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))
                             dataHealth.kXAxisValuesMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
 //                            dataHealth.dataXAxis.add(DataGeneral.getDate(dp.getTimestamp(TimeUnit.MILLISECONDS).toLong(),"EEE" ).toString())
-                            dataHealth.kCol.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))))
+                            dataHealth.kValues.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))))
 
                         }
                     }
@@ -146,7 +146,7 @@ class DataHealth(string: String, context: Context) {
 
     // Data Structure - KelloCharts
     lateinit var kData : MutableList<SubcolumnValue>
-    val kCol = ArrayList<Column>()
+    val kValues = ArrayList<Column>()
     var kXAxisValues = ArrayList<AxisValue>()
     var kXAxis = Axis()
 
@@ -274,7 +274,7 @@ class DataHealth(string: String, context: Context) {
         data.clear()
         dataXAxis.clear()
         kXAxisValuesMillis.clear()
-        kCol.clear()
+        kValues.clear()
 
         kData.clear()
 
@@ -321,6 +321,15 @@ class DataHealth(string: String, context: Context) {
         aaChartViewID.aa_drawChartWithChartModel(aaChartModel)
     }
 
+
+    fun <T>sortData (valMilli: ArrayList<Long>, valData: ArrayList<T>):MutableList<T> {
+        val dateComparator = Comparator { col1: T, col2:T  ->
+            (valMilli[valData.indexOf(col1)] - valMilli[valData.indexOf(col2)]).toInt()
+        }
+
+        return valData.sortedWith(dateComparator) as MutableList<T>
+    }
+
     fun displayGraphPreview_K() {
         //        var colvalues = arrayListOf(PointValue(0, 2), PointValue(1, 4), PointValue(2, 3), PointValue(3, 4))
 //        val col = Column(colvalues)
@@ -335,14 +344,14 @@ class DataHealth(string: String, context: Context) {
 
         if (kXAxisValuesMillis.size != 0) {
 
-            val dateComparator = Comparator { col1: Column, col2:Column  ->
-                (kXAxisValuesMillis[kCol.indexOf(col1)] - kXAxisValuesMillis[kCol.indexOf(col2)]).toInt()
-            }
-
-            var kColSorted = kCol.sortedWith(dateComparator) as MutableList<Column>
+//            val dateComparator = Comparator { col1: Column, col2:Column  ->
+//                (kXAxisValuesMillis[kCol.indexOf(col1)] - kXAxisValuesMillis[kCol.indexOf(col2)]).toInt()
+//            }
+//
+//            var kColSorted = kCol.sortedWith(dateComparator) as MutableList<Column>
+            var kValuesSorted = sortData(kXAxisValuesMillis, kValues)
 
             kXAxisValuesMillis.sort()
-
             var kXAxisValuesSorted = ArrayList<String>()
             kXAxisValuesMillis.forEach {
                 kXAxisValuesSorted.add(DataGeneral.getDate(it, "EEE").toString())
@@ -356,7 +365,7 @@ class DataHealth(string: String, context: Context) {
             // Display Graph
             if (kXAxisValuesSorted.size > 1){
                 if (kChartViewID is ColumnChartView) {
-                    var kChart = ColumnChartData(kColSorted, false, false)
+                    var kChart = ColumnChartData(kValuesSorted, false, false)
                     kChart.axisXBottom = kXAxis
                     (kChartViewID as ColumnChartView).columnChartData = kChart
                 }
