@@ -335,7 +335,7 @@ class DataHealth(string: String, context: Context) {
 
         if (kXAxisValuesMillis.size != 0) {
 
-            val dateComparator = Comparator { col1, col2 ->
+            val dateComparator = Comparator { col1: Column, col2:Column  ->
                 (kXAxisValuesMillis[kCol.indexOf(col1)] - kXAxisValuesMillis[kCol.indexOf(col2)]).toInt()
             }
 
