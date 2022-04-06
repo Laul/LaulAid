@@ -48,6 +48,7 @@ class DataHealth(string: String, context: Context) {
         val fitnessOptions = FitnessOptions.builder()
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+            .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
             .addDataType(HealthDataTypes.TYPE_BLOOD_PRESSURE, FitnessOptions.ACCESS_READ)
@@ -61,65 +62,48 @@ class DataHealth(string: String, context: Context) {
          */
         fun parseGFitData(response: DataReadResponse, dataHealth: DataHealth){
             lateinit var Timestamp : String
+            for (bucket in response.buckets) {
+                dataHealth.kXAxisValuesMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
 
-                for (dataSet in response.buckets.flatMap { it.dataSets }) {
+                for (dataSet in bucket.dataSets) {
                     // Steps
                     if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kXAxisValuesMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
                             dataHealth.kValues_Column.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor()))))
 
                         }
                     }
 
-                    // Blood Pressure
-                    else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                        for (dp in dataSet.dataPoints) {
-                            dataHealth.kXAxisValuesMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.kValues_Line.add(
-                                Line(
-                                    arrayListOf(
-                                        PointValue(
-                                            dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),
-                                            dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC)
-                                                .asFloat(),
-                                            label = ""
-
-                                        ),
-
-                                        PointValue(
-                                            dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),
-                                            dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC)
-                                                .asFloat(),
-                                            label = ""
-
-                                        )
-                                    )
-                                )
-                            )
-                        }
-                    }
-
-                    // Heart Rate
                     else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kXAxisValuesMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.kValues_Line.add(
-                                Line(
-                                    arrayListOf(
-                                        PointValue(
-                                            dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),
-                                            dp.getValue(Field.FIELD_BPM)
-                                                .asFloat(),
-                                            ""
-                                        )
+                            dataHealth.kValues_Line.add(Line(arrayListOf(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_BPM).asFloat(), ""))))
+
+                        }
+                    }
+
+//                    // Blood Pressure
+                    else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
+                        // Initialize BP means
+                        var dia_temp = 0f
+                        var sys_temp = 0f
+//
+                        for (dp in dataSet.dataPoints) {
+
+                            // Create a new line between systolic and diastolic blood pressure
+                            dataHealth.kValues_Line.add(Line(
+                                arrayListOf(
+                                    PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat(), ""),
+                                    PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat(), "")
                                     )
                                 )
                             )
+
                         }
                     }
+
                 }
 
+}
 
             dataHealth.displayGraphPreview_K()
         }
@@ -139,11 +123,15 @@ class DataHealth(string: String, context: Context) {
     var datasize = 1
 
     // Data Structure - KelloCharts
-    val kValues_Column = ArrayList<Column>()
-    val kValues_Line = ArrayList<Line>()
+    // Column variables
+    var kValues_Column = ArrayList<Column>()
+    // var kValues_SubColumn = ArrayList<SubcolumnValue>()
 
-    var kXAxisValues = ArrayList<AxisValue>()
+    // Line variables
+    var kValues_Line = ArrayList<Line>()
+
     var kXAxis = Axis()
+    var kXAxisValues = ArrayList<AxisValue>()
     var kXAxisValuesMillis = ArrayList<Long>()
 
     //GFit variables
@@ -163,6 +151,7 @@ class DataHealth(string: String, context: Context) {
             gFitDataType = DataType.TYPE_STEP_COUNT_DELTA
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "estimated_steps"
+            kValues_Line = ArrayList<Line>()
 
         }
         if (string === "Blood Pressure") {
@@ -173,6 +162,11 @@ class DataHealth(string: String, context: Context) {
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
             datasize = 2
+            kValues_Line = ArrayList<Line>()
+
+//            for (i in 0 .. 1) {
+//                kValues_Line.add(Line())
+//            }
         }
         if (string === "Heart Rate") {
             kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_HR)
@@ -181,6 +175,7 @@ class DataHealth(string: String, context: Context) {
             gFitDataType = DataType.TYPE_HEART_RATE_BPM
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Heart Rate"
+            kValues_Line = ArrayList<Line>()
         }
 
 
@@ -251,7 +246,8 @@ class DataHealth(string: String, context: Context) {
         // Clear Data before retrieving other data from GFit
         kXAxisValuesMillis.clear()
         kValues_Column.clear()
-        kValues_Line.clear()
+
+        kValues_Line.forEach{it.values.clear()}
 
         // History request and go to parse data
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
@@ -270,7 +266,7 @@ class DataHealth(string: String, context: Context) {
      @param valMilli: Values in milliseconds - Used to determine the order to sort the sort
      @param valData: Values to sort based on valMilli order
      */
-    fun <T>sortData (valMilli: ArrayList<Long>, valData: ArrayList<T>):MutableList<T> {
+    fun <T>sortData (valMilli: ArrayList<Long>, valData: MutableList<T>):MutableList<T> {
         val dateComparator = Comparator { col1: T, col2:T  ->
             (valMilli[valData.indexOf(col1)] - valMilli[valData.indexOf(col2)]).toInt()
         }
@@ -304,6 +300,7 @@ class DataHealth(string: String, context: Context) {
                     }
                     kXAxis.values = kXAxisValues
 
+                    // sort data in chronological order and create a ColumnChartData using time and column data
                     var kChart = ColumnChartData(sortData(kXAxisValuesMillis, kValues_Column), false, false)
 
                     kChart.axisXBottom = kXAxis
@@ -317,8 +314,14 @@ class DataHealth(string: String, context: Context) {
                     }
                     kXAxis.values = kXAxisValues
 
-                    var kChart = LineChartData(sortData(kXAxisValuesMillis, kValues_Line))
-//                    kXAxis.hasLines = true
+                    // sort data in chronological order
+                    kValues_Line.forEach {
+                        it.values = sortData(kXAxisValuesMillis, it.values)
+                   }
+
+                    // Create a LineChartData using time and Line data
+                    var kChart = LineChartData(kValues_Line)
+                    // Add axis values and push it in the chart
                     kChart.axisXBottom = kXAxis
                     (kChartViewID as LineChartView).lineChartData = kChart
                 }
