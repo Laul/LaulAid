@@ -9,28 +9,23 @@ package com.laulaid.laulaid_tchartskt
 // Charting
 //chart - Detailed views
 //chart - main view
-import android.content.Intent
+
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import co.csadev.kellocharts.model.*
+import co.csadev.kellocharts.util.ChartUtils
+import co.csadev.kellocharts.view.*
+import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.fitness.Fitness
-import com.google.android.gms.fitness.FitnessOptions
+import com.android.volley.toolbox.Volley
 import com.google.android.gms.fitness.data.*
-import com.google.android.gms.fitness.request.DataReadRequest
-import com.google.android.gms.fitness.request.DataUpdateRequest
-import com.google.android.gms.fitness.result.DataReadResponse
-import com.google.android.gms.tasks.Task
-import org.json.JSONArray
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
+
 
 // GFit - Parameters variables
 const val TAG = "LaulAidTAG"
@@ -62,14 +57,18 @@ class MainActivity : AppCompatActivity() {
 
         // XDRip
 
-        DataHealth_BG.connectXDrip(url, this)
-
+//        DataHealth_BG.connectXDrip(url, this)
+//        connectXDrip(url, this)
 
         // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
-        btnRequest!!.setOnClickListener { DataHealth_steps.connectGFit( this) }
+        btnRequest!!.setOnClickListener {
+            DataHealth_steps.connectGFit( this)
+            DataHealth_BP.connectGFit( this)
+//            DataHealth_HR.connectGFit( this)
+        }
+//        btnRequest!!.setOnClickListener { connectXDrip(url, this)}
 
-        Log.i(TAG,"\tdata: ${DataHealth_steps.data}")
 
         // Show detailed view
 //        val buttonClick = findViewById<Button>(R.id.btn_steps)
@@ -77,7 +76,43 @@ class MainActivity : AppCompatActivity() {
 //            val intent = Intent(this, BloodGlucoseActivity::class.java)
 //            startActivity(intent)
 //        }
+//
+
+
     }
+
+
+
+    fun connectXDrip(url: String, context: Context) {
+
+        // HTTP request variables
+        var mRequestQueue: RequestQueue? = null
+        var mStringRequest: StringRequest? = null
+        val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
+//
+//        var mRequestQueue: RequestQueue? = null
+//        var mStringRequest: StringRequest? = null
+
+        // Request XDrip connection and permissions
+        //RequestQueue initialized
+        mRequestQueue = Volley.newRequestQueue(context)
+
+
+        //String Request initialized
+        mStringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                run {
+                    Log.i(TAG, "XDRip connection OK")
+//                    getGlucoData(response)
+                    // pushGlucoToGFit(response)
+                }
+            }) { error ->
+            Log.i(TAG, "Unable to connect to XDrip")
+        }
+        mRequestQueue!!.add(mStringRequest)
+    }
+
 
 
 
