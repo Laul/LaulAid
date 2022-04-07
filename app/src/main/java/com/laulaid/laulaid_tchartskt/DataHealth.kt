@@ -8,6 +8,7 @@ package com.laulaid.laulaid_tchartskt
 // charting
 
 // General
+
 import android.app.Activity
 import android.content.Context
 import android.util.Log
@@ -20,19 +21,18 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.fitness.Fitness
 import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.*
 import com.google.android.gms.fitness.data.DataType.TYPE_HEART_RATE_BPM
 import com.google.android.gms.fitness.data.DataType.TYPE_STEP_COUNT_DELTA
+import com.google.android.gms.fitness.data.Field.FIELD_STEPS
 import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_PRESSURE
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.result.DataReadResponse
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.klim.tcharts.entities.ChartItem
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
@@ -74,6 +74,7 @@ class DataHealth(string: String, context: Context) {
                         }
                     }
 
+
                     else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
                         for (dp in dataSet.dataPoints) {
                             dataHealth.kValues_Line.add(Line(arrayListOf(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_BPM).asFloat(), ""))))
@@ -88,17 +89,22 @@ class DataHealth(string: String, context: Context) {
                         var sys_temp = 0f
 //
                         for (dp in dataSet.dataPoints) {
-
+                            dia_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat()
+                            sys_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat()
                             // Create a new line between systolic and diastolic blood pressure
-                            dataHealth.kValues_Line.add(Line(
-                                arrayListOf(
-                                    PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat(), ""),
-                                    PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat(), "")
-                                    )
-                                )
-                            )
+
 
                         }
+
+                        dia_temp /= dataSet.dataPoints.size
+                        sys_temp /= dataSet.dataPoints.size
+                        dataHealth.kValues_Line.add(Line(
+                            arrayListOf(
+                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),dia_temp, ""),
+                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),sys_temp, ""),
+                            )
+                        )
+                        )
                     }
 
                 }
