@@ -26,7 +26,7 @@ class DataGeneral {
          * @param dateFormat Date format
          * @return String representing date in specified format
          */
-        fun getDate(milliSeconds: Long, dateFormat: String?): String? {
+        fun getDate(milliSeconds: Long, dateFormat: String?): String {
             // Create a DateFormatter object for displaying date in specified format.
             val formatter = SimpleDateFormat(dateFormat)
 

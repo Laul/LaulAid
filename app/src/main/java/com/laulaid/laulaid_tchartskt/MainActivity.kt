@@ -52,22 +52,22 @@ class MainActivity : AppCompatActivity() {
 
         // Google fit
         DataHealth_steps.connectGFit( this)
-        DataHealth_BP.connectGFit( this)
+//        DataHealth_BP.connectGFit( this)
         DataHealth_HR.connectGFit( this)
 
         // XDRip
 
-//        DataHealth_BG.connectXDrip(url, this)
+        DataHealth_BG.connectXDrip(url, this)
 //        connectXDrip(url, this)
 
         // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
         btnRequest!!.setOnClickListener {
             DataHealth_steps.connectGFit( this)
-            DataHealth_BP.connectGFit( this)
-//            DataHealth_HR.connectGFit( this)
+//            DataHealth_BP.connectGFit( this)
+            DataHealth_HR.connectGFit( this)
+            DataHealth_BG.connectXDrip(url, this)
         }
-//        btnRequest!!.setOnClickListener { connectXDrip(url, this)}
 
 
         // Show detailed view
