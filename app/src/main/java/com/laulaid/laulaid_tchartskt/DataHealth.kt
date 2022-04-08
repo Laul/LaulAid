@@ -79,7 +79,7 @@ class DataHealth(string: String, context: Context) {
                         for (dp in dataSet.dataPoints) {
                             dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
-                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_BPM).asFloat(), ""))
+                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_BPM).asFloat(), dp.getValue(Field.FIELD_BPM).asFloat().toString()))
                         }
 
                     }
@@ -106,8 +106,8 @@ class DataHealth(string: String, context: Context) {
                         sys_temp /= dataSet.dataPoints.size
                         dataHealth.kLine.add(Line(
                             arrayListOf(
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),dia_temp, ""),
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),sys_temp, ""),
+                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),dia_temp, dia_temp.toString()),
+                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),sys_temp, sys_temp.toString()),
                             )
                         )
                         )
@@ -197,10 +197,8 @@ class DataHealth(string: String, context: Context) {
             kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_BG)
             kXAxis.name = string
 
-//            gFitDataType = DataType.TYPE_HEART_RATE_BPM
-//            gFitBucketTime = TimeUnit.DAYS
-//            gFitStreamName = "Heart Rate"
             kLine = ArrayList<Line>()
+
         }
 
     }
@@ -339,7 +337,7 @@ class DataHealth(string: String, context: Context) {
 
             // Format Line charts
             else if (kChartViewID is LineChartView) {
-                if(gFitDataType != TYPE_BLOOD_PRESSURE){
+                if(kXAxis.name != "Blood Pressure"){
                     kLine.add(Line(kLineValues))
                 }
 
@@ -370,9 +368,11 @@ class DataHealth(string: String, context: Context) {
                 // Lines formatting
                 kLine.forEach{
                     it.isFilled = false
-                    it.hasPoints = false
+                    it.hasPoints = true
                     it.strokeWidth = 1
                     it.color = ChartUtils.COLOR_GREEN
+                    it.pointRadius = 1
+                    it.hasLabels = false
                 }
 
                 // Create a LineChartData using time and Line data
@@ -436,8 +436,8 @@ class DataHealth(string: String, context: Context) {
             kDateEEE.add(getDate(measure.getLong("date"), "EEE").toString())
 
             // Get BG values and create associated PointValue
-            val sgv = measure.getInt("sgv")
-            kLineValues.add(PointValue(measure.getLong("date").toFloat(),sgv.toFloat(), ""))
+            val sgv = measure.getDouble("sgv")/18
+            kLineValues.add(PointValue(measure.getLong("date").toFloat(),sgv.toFloat(), sgv.toString()))
         }
 
         // Display Graph
