@@ -57,7 +57,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
-                <co.csadev.kellocharts.view.ColumnChartView
+                <co.csadev.kellocharts.view.LineChartView
                     android:id="@+id/graph_main_steps"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

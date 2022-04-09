@@ -59,19 +59,26 @@ class DataHealth(string: String, context: Context) {
         @param dataHealth: structure containing all class variables to display graphs
          */
         fun parseGFitData(response: DataReadResponse, dataHealth: DataHealth){
-            lateinit var Timestamp : String
             for (bucket in response.buckets) {
 
                 for (dataSet in bucket.dataSets) {
                     // Steps
                     if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
-                        dataHealth.kDateEEE.add(bucket.getStartTime(TimeUnit.MILLISECONDS).toString())
+                        dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
+                        dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
+                        var steps_temp = 0f
 
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.kColumn.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor()))))
-
+                            steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
+//                            dataHealth.kColumn.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor(),dp.getValue(Field.FIELD_STEPS).toString().toCharArray()))))
                         }
+
+                        dataHealth.kLine.add(Line(
+                            arrayListOf(
+                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),0f, ""),
+                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),steps_temp,steps_temp.toString() ),
+                            )
+                        ))
                     }
 
 
@@ -87,6 +94,7 @@ class DataHealth(string: String, context: Context) {
                     // Blood Pressure
                     else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
                         dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
+                        dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
 
                         // Initialize BP means
                         var dia_temp = 0f
@@ -161,7 +169,7 @@ class DataHealth(string: String, context: Context) {
 
         if (string === "Steps") {
             // KelloChart
-            kChartViewID =(context as Activity).findViewById<ColumnChartView>(R.id.graph_main_steps)
+            kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_steps)
             kXAxis.name = string
 
             gFitDataType = DataType.TYPE_STEP_COUNT_DELTA
@@ -177,12 +185,9 @@ class DataHealth(string: String, context: Context) {
             gFitDataType = HealthDataTypes.TYPE_BLOOD_PRESSURE
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
-            datasize = 2
+
             kLine = ArrayList<Line>()
 
-//            for (i in 0 .. 1) {
-//                kValues_Line.add(Line())
-//            }
         }
         if (string === "Heart Rate") {
             kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_HR)
@@ -276,13 +281,12 @@ class DataHealth(string: String, context: Context) {
 
         // History request and go to parse data
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
-            .readData(ReqCompletedTimes)
+            .readData(ReqCurrentTimes)
             .addOnSuccessListener { response -> parseGFitData(response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
 
-
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
-            .readData(ReqCurrentTimes)
+            .readData(ReqCompletedTimes)
             .addOnSuccessListener { response -> parseGFitData(response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
     }
@@ -303,7 +307,6 @@ class DataHealth(string: String, context: Context) {
      */
     fun displayGraphPreview_K() {
         kXAxisValues.clear()
-        kLine.clear()
 
         // Compute x-Axis values and sort all values by chronological order
 
@@ -323,13 +326,18 @@ class DataHealth(string: String, context: Context) {
                     kXAxisValuesSorted.add(DataGeneral.getDate(it, "EEE").toString())
                 }
 
+//                // sort Lines in chronological order
+                kDateMillis.sort()
+                kColumn = sortData(kDateMillis, kColumn).toMutableList() as ArrayList
+
+
                 for (i in 0 until kXAxisValuesSorted.size) {
                     kXAxisValues.add(AxisValue(i, kXAxisValuesSorted[i]))
                 }
                 kXAxis.values = kXAxisValues
 
                 // sort data in chronological order and create a ColumnChartData using time and column data
-                var kChart = ColumnChartData(sortData(kDateMillis, kColumn), false, false)
+                var kChart = ColumnChartData(kColumn, false, false)
 
                 kChart.axisXBottom = kXAxis
                 (kChartViewID as ColumnChartView).columnChartData = kChart
@@ -337,15 +345,25 @@ class DataHealth(string: String, context: Context) {
 
             // Format Line charts
             else if (kChartViewID is LineChartView) {
-                if(kXAxis.name != "Blood Pressure"){
+
+                // All cases except Blood Pressure: 1 line with Point Values
+                if(kXAxis.name == "Blood Glucose" ||kXAxis.name == "Heart Rate"){
+                    // Create a line with all PointValues
+                    kLine.clear()
                     kLine.add(Line(kLineValues))
+
+                    // sort Point Values in chronological order
+                    kLine.forEach {
+                        if (it.values != null) {
+                            it.values = sortData(kDateMillis, it.values)
+                        }
+                    }
                 }
 
-                // sort data in chronological order
-                kLine.forEach {
-                    if (it.values != null) {
-                        it.values = sortData(kDateMillis, it.values)
-                    }
+                // Blood Pressure case: x lines with 2 pointvalues
+                if(kXAxis.name == "Blood Pressure" ||kXAxis.name == "Steps"){
+                    // sort Lines in chronological order
+                    kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
                 }
 
                 // get each distinct value of date in the list of string dates
@@ -421,10 +439,8 @@ class DataHealth(string: String, context: Context) {
     fun getGlucoData(jsonstring: String){
         // parse gluco data
         val json = JSONArray(jsonstring)
-
         // Reset data
-        kLine.forEach{it.values.clear()}
-        var dateTemp =getDate(json.getJSONObject(0).getLong("date"), "EEE").toString()
+        kLine.clear()
 
         // Loop to get BG data
         for (i in 0 until json.length()) {
@@ -437,7 +453,7 @@ class DataHealth(string: String, context: Context) {
 
             // Get BG values and create associated PointValue
             val sgv = measure.getDouble("sgv")/18
-            kLineValues.add(PointValue(measure.getLong("date").toFloat(),sgv.toFloat(), sgv.toString()))
+            kLineValues.add(PointValue(measure.getLong("date").toFloat(),sgv.toFloat(), "%.2f".format(sgv)))
         }
 
         // Display Graph

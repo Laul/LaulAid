@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private var btnRequest: Button? = null
     private var mRequestQueue: RequestQueue? = null
     private var mStringRequest: StringRequest? = null
-    private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
+    private val url = "http://127.0.0.1:17580/api/v1/entries/sgv.json?count=10"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,65 +52,23 @@ class MainActivity : AppCompatActivity() {
 
         // Google fit
         DataHealth_steps.connectGFit( this)
-//        DataHealth_BP.connectGFit( this)
+        DataHealth_BP.connectGFit( this)
         DataHealth_HR.connectGFit( this)
 
         // XDRip
-
         DataHealth_BG.connectXDrip(url, this)
-//        connectXDrip(url, this)
 
         // Button callback to force get data once app launched
         btnRequest = findViewById<Button>(R.id.buttonRequest2)
         btnRequest!!.setOnClickListener {
             DataHealth_steps.connectGFit( this)
-//            DataHealth_BP.connectGFit( this)
+            DataHealth_BP.connectGFit( this)
             DataHealth_HR.connectGFit( this)
             DataHealth_BG.connectXDrip(url, this)
         }
 
 
-        // Show detailed view
-//        val buttonClick = findViewById<Button>(R.id.btn_steps)
-//        buttonClick.setOnClickListener {
-//            val intent = Intent(this, BloodGlucoseActivity::class.java)
-//            startActivity(intent)
-//        }
-//
 
-
-    }
-
-
-
-    fun connectXDrip(url: String, context: Context) {
-
-        // HTTP request variables
-        var mRequestQueue: RequestQueue? = null
-        var mStringRequest: StringRequest? = null
-        val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
-//
-//        var mRequestQueue: RequestQueue? = null
-//        var mStringRequest: StringRequest? = null
-
-        // Request XDrip connection and permissions
-        //RequestQueue initialized
-        mRequestQueue = Volley.newRequestQueue(context)
-
-
-        //String Request initialized
-        mStringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->
-                run {
-                    Log.i(TAG, "XDRip connection OK")
-//                    getGlucoData(response)
-                    // pushGlucoToGFit(response)
-                }
-            }) { error ->
-            Log.i(TAG, "Unable to connect to XDrip")
-        }
-        mRequestQueue!!.add(mStringRequest)
     }
 
 
