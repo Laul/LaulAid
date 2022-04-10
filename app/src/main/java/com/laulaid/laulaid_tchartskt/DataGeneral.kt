@@ -6,6 +6,11 @@ import java.util.*
 class DataGeneral {
 
     companion object {
+        /**
+         * Calculates time ranges based on the duration to cover
+         * @param duration number of days as Int
+         * @return Time for now, start of current day, and start of entire range in millis
+         */
         fun getTimes(duration: Int): List<Long>{
             val cal = GregorianCalendar()
             val TimeNowInMilli = cal.timeInMillis

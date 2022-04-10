@@ -10,21 +10,12 @@ package com.laulaid.laulaid_tchartskt
 //chart - Detailed views
 //chart - main view
 
-import android.content.Context
-import android.graphics.Color
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import co.csadev.kellocharts.model.*
-import co.csadev.kellocharts.util.ChartUtils
-import co.csadev.kellocharts.view.*
-import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import com.google.android.gms.fitness.data.*
 
 
 // GFit - Parameters variables
@@ -37,7 +28,6 @@ class MainActivity : AppCompatActivity() {
     private var btnRequest: Button? = null
     private var mRequestQueue: RequestQueue? = null
     private var mStringRequest: StringRequest? = null
-    private val url = "http://127.0.0.1:17580/api/v1/entries/sgv.json?count=10"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,29 +35,35 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Create 1 instance of DataHealth for each type of data in GFit
-        var DataHealth_BG = DataHealth("Blood Glucose", this)
-        var DataHealth_BP = DataHealth("Blood Pressure", this)
-        var DataHealth_steps = DataHealth("Steps", this)
-        var DataHealth_HR = DataHealth("Heart Rate", this)
+        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, 6)
+        var DataHealth_BP = DataHealth("Blood Pressure",this, R.id.graph_main_BP, 6)
+        var DataHealth_steps = DataHealth("Steps", this, R.id.graph_main_steps, 6)
+        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.graph_main_HR, 6)
 
         // Google fit
-        DataHealth_steps.connectGFit( this)
-        DataHealth_BP.connectGFit( this)
-        DataHealth_HR.connectGFit( this)
+        DataHealth_steps.connectGFit( this, false)
+        DataHealth_BP.connectGFit( this, false)
+        DataHealth_BG.connectGFit( this, false)
+        DataHealth_HR.connectGFit( this, false)
 
         // XDRip
-        DataHealth_BG.connectXDrip(url, this)
+//        DataHealth_BG.connectXDrip(this, false, 1000)
 
         // Button callback to force get data once app launched
-        btnRequest = findViewById<Button>(R.id.buttonRequest2)
+        btnRequest = findViewById(R.id.btn_GetData)
         btnRequest!!.setOnClickListener {
-            DataHealth_steps.connectGFit( this)
-            DataHealth_BP.connectGFit( this)
-            DataHealth_HR.connectGFit( this)
-            DataHealth_BG.connectXDrip(url, this)
+            DataHealth_steps.connectGFit( this, false)
+            DataHealth_BP.connectGFit( this, false)
+            DataHealth_BG.connectGFit( this, false)
+            DataHealth_HR.connectGFit( this, false)
+//            DataHealth_BG.connectXDrip(this, false,1000)
         }
 
-
+        btnRequest = findViewById(R.id.btn_BG)
+        btnRequest!!.setOnClickListener {
+            val intent = Intent(this, BloodGlucoseActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 

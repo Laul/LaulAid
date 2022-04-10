@@ -1,21 +1,11 @@
 package com.laulaid.laulaid_tchartskt
 
-// General
-
-
-// HTTP Request
-
-// charting
-
-// General
-
 import android.app.Activity
 import android.content.Context
 import android.util.Log
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.util.ChartUtils
 import co.csadev.kellocharts.view.AbstractChartView
-import co.csadev.kellocharts.view.ColumnChartView
 import co.csadev.kellocharts.view.LineChartView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
@@ -27,36 +17,41 @@ import com.google.android.gms.fitness.FitnessOptions
 import com.google.android.gms.fitness.data.*
 import com.google.android.gms.fitness.data.DataType.TYPE_HEART_RATE_BPM
 import com.google.android.gms.fitness.data.DataType.TYPE_STEP_COUNT_DELTA
+import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_GLUCOSE
 import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_PRESSURE
 import com.google.android.gms.fitness.request.DataReadRequest
+import com.google.android.gms.fitness.request.DataUpdateRequest
 import com.google.android.gms.fitness.result.DataReadResponse
-import com.klim.tcharts.entities.ChartItem
+import com.google.android.gms.tasks.Task
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-
-class DataHealth(string: String, context: Context) {
+class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
      */
+
     companion object {
-        var dataDetailedView = ArrayList<ChartItem>()
         val fitnessOptions = FitnessOptions.builder()
             .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+            .addDataType(TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
-            .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+            .addDataType(TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
             .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-            .addDataType(HealthDataTypes.TYPE_BLOOD_PRESSURE, FitnessOptions.ACCESS_READ)
-            .addDataType(HealthDataTypes.TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_READ)
+            .addDataType(TYPE_BLOOD_PRESSURE, FitnessOptions.ACCESS_READ)
+            .addDataType(TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_READ)
+            .addDataType(TYPE_BLOOD_GLUCOSE, FitnessOptions.ACCESS_WRITE)
             .build()
 
+        val xDripUrl = "http://127.0.0.1:17580/api/v1/entries/sgv.json"
+
+
         /** Steps data parsing + formatting to display graph
-        @param InitData: Flag to reset data container
-        @param response: Google fit response
-        @param dataHealth: structure containing all class variables to display graphs
+        * @param InitData: Flag to reset data container
+        * @param response: Google fit response
+        * @param dataHealth: structure containing all class variables to display graphs
          */
         fun parseGFitData(response: DataReadResponse, dataHealth: DataHealth){
             for (bucket in response.buckets) {
@@ -70,7 +65,6 @@ class DataHealth(string: String, context: Context) {
 
                         for (dp in dataSet.dataPoints) {
                             steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
-//                            dataHealth.kColumn.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor(),dp.getValue(Field.FIELD_STEPS).toString().toCharArray()))))
                         }
 
                         dataHealth.kLine.add(Line(
@@ -81,6 +75,15 @@ class DataHealth(string: String, context: Context) {
                         ))
                     }
 
+
+                    else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
+                        for (dp in dataSet.dataPoints) {
+                            dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+                            dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
+                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat().toString()))
+                        }
+
+                    }
 
                     else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
                         for (dp in dataSet.dataPoints) {
@@ -120,17 +123,13 @@ class DataHealth(string: String, context: Context) {
                         )
                         )
                     }
-
                 }
-
             }
 
             // Display Graph
             dataHealth.displayGraphPreview_K()
         }
     }
-
-    private val url = "http://192.168.1.133:17580/api/v1/entries/sgv.json?count=10"
 
     /** Class variables per category: general, charting, data structure, GoogleFit variables,etc. )
      */
@@ -139,9 +138,6 @@ class DataHealth(string: String, context: Context) {
 
     // Chart variables
     lateinit var kChartViewID: AbstractChartView
-
-    // Data structure - AAChart
-    var datasize = 1
 
     // Data Structure - KelloCharts
 
@@ -159,59 +155,56 @@ class DataHealth(string: String, context: Context) {
     var kDateEEE = ArrayList<String>()
 
     //GFit variables
-    var duration: Int = 6
+    var duration: Int
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
     lateinit var gFitStreamName: String
 
     // Variables initialization for each data type:
     init {
+        this.duration = duration
 
         if (string === "Steps") {
             // KelloChart
-            kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_steps)
+            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
             kXAxis.name = string
 
-            gFitDataType = DataType.TYPE_STEP_COUNT_DELTA
+            gFitDataType = TYPE_STEP_COUNT_DELTA
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "estimated_steps"
-            kLine = ArrayList<Line>()
 
         }
         if (string === "Blood Pressure") {
-            kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_BP)
+            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
             kXAxis.name = string
 
-            gFitDataType = HealthDataTypes.TYPE_BLOOD_PRESSURE
+            gFitDataType = TYPE_BLOOD_PRESSURE
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
-
-            kLine = ArrayList<Line>()
-
         }
         if (string === "Heart Rate") {
-            kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_HR)
+            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
             kXAxis.name = string
 
-            gFitDataType = DataType.TYPE_HEART_RATE_BPM
+            gFitDataType = TYPE_HEART_RATE_BPM
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Heart Rate"
-            kLine = ArrayList<Line>()
         }
         if (string === "Blood Glucose") {
-            kChartViewID =(context as Activity).findViewById<LineChartView>(R.id.graph_main_BG)
+            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
             kXAxis.name = string
 
-            kLine = ArrayList<Line>()
-
+            gFitDataType = TYPE_BLOOD_GLUCOSE
+            gFitBucketTime = TimeUnit.DAYS
+            gFitStreamName = "Blood Glucose"
         }
 
     }
 
     /** GFit permissions verification and dispatch
-    @param context: App Context (typically main activity)
+    * @param context: App Context (typically main activity)
      */
-    fun connectGFit(context: Activity) {
+    fun connectGFit(context: Activity, isPush:Boolean) {
         // If no permission -> request permission to the user
         if (!GoogleSignIn.hasPermissions(getGoogleAccount(context), fitnessOptions)) {
             GoogleSignIn.requestPermissions(
@@ -223,18 +216,23 @@ class DataHealth(string: String, context: Context) {
         }
         // If permission -> get Data
         else {
-            this.getGFitData(duration)
+            if (!isPush) {
+                this.getGFitData(duration)
+            }
+            else{
+                pushGlucoData()
+            }
         }
     }
 
     /** GFit connection request based on fitness option list
-    @param context: App Context (typically main activity)
+    * @param context: App Context (typically main activity)
      */
     private fun getGoogleAccount(context: Context) =
         GoogleSignIn.getAccountForExtension(context, fitnessOptions)
 
     /** GFit connection to retrieve fit data
-    @param duration: duration to cover (default: last 7 days)
+    * @param duration: duration to cover (default: last 7 days)
      */
     fun getGFitData(duration: Int) {
         var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
@@ -292,8 +290,8 @@ class DataHealth(string: String, context: Context) {
     }
 
     /** Data sorting based on object data index
-     @param valMilli: Values in milliseconds - Used to determine the order to sort the sort
-     @param valData: Values to sort based on valMilli order
+     * @param valMilli: Values in milliseconds - Used to determine the order to sort the sort
+     * @param valData: Values to sort based on valMilli order
      */
     fun <T>sortData (valMilli: ArrayList<Long>, valData: MutableList<T>):MutableList<T> {
         val dateComparator = Comparator { col1: T, col2:T  ->
@@ -314,40 +312,10 @@ class DataHealth(string: String, context: Context) {
             // Display Graph
         if (kDateMillis.size > 1) {
 
-            // Format column charts
-            if (kChartViewID is ColumnChartView) {
-                // Sort time in milliseconds
-                var kXAxisValuesMillisSorted = ArrayList<Long>(kDateMillis)
-                kXAxisValuesMillisSorted.sort()
-
-                // Sort values to plot
-                var kXAxisValuesSorted = ArrayList<String>()
-                kXAxisValuesMillisSorted.forEach {
-                    kXAxisValuesSorted.add(DataGeneral.getDate(it, "EEE").toString())
-                }
-
-//                // sort Lines in chronological order
-                kDateMillis.sort()
-                kColumn = sortData(kDateMillis, kColumn).toMutableList() as ArrayList
-
-
-                for (i in 0 until kXAxisValuesSorted.size) {
-                    kXAxisValues.add(AxisValue(i, kXAxisValuesSorted[i]))
-                }
-                kXAxis.values = kXAxisValues
-
-                // sort data in chronological order and create a ColumnChartData using time and column data
-                var kChart = ColumnChartData(kColumn, false, false)
-
-                kChart.axisXBottom = kXAxis
-                (kChartViewID as ColumnChartView).columnChartData = kChart
-            }
-
-            // Format Line charts
-            else if (kChartViewID is LineChartView) {
+            if (kChartViewID is LineChartView) {
 
                 // All cases except Blood Pressure: 1 line with Point Values
-                if(kXAxis.name == "Blood Glucose" ||kXAxis.name == "Heart Rate"){
+                if(kXAxis.name == "Blood Glucose" || kXAxis.name == "Heart Rate"){
                     // Create a line with all PointValues
                     kLine.clear()
                     kLine.add(Line(kLineValues))
@@ -404,13 +372,12 @@ class DataHealth(string: String, context: Context) {
         }
     }
 
-
-
+    
     /** XDrip permissions verification and dispatch
-    @param url: url string to connect to XDrip - Typically 127.0.0.1 if localhost
-    @param context: App Context (typically main activity)
+    * @param count: number of data to retrieve from XDrip. Max is 1000, XDrip does neither allow nor to specify time interval, nor more than the last 1000 values (~3.5 days of data)
+    * @param context: App Context (typically main activity)
      */
-    fun connectXDrip(url: String, context: Context) {
+    fun connectXDrip(context: Context, isPush: Boolean, count: Int) {
         var mRequestQueue: RequestQueue? = null
         var mStringRequest: StringRequest? = null
 
@@ -421,11 +388,10 @@ class DataHealth(string: String, context: Context) {
 
         //String Request initialized
         mStringRequest = StringRequest(
-            Request.Method.GET, "http://127.0.0.1:17580/api/v1/entries/sgv.json?count=5000",
+            Request.Method.GET, xDripUrl + "?count=" + count,
             { response ->
                 run {
                     getGlucoData(response)
-                    // pushGlucoToGFit(response)
                 }
             }) { error ->
             Log.i(TAG, "Unable to connect to XDrip")
@@ -433,8 +399,9 @@ class DataHealth(string: String, context: Context) {
         mRequestQueue!!.add(mStringRequest)
     }
 
-    /* Gluco data parsing + formatting to display graph
-     @param response: XDrip json response
+    /** Gluco data parsing + formatting to display graph
+     * @param jsonstring: XDrip json string retrieved from connectXDrip
+     * @param flag: "push"/"pull" boolean
     */
     fun getGlucoData(jsonstring: String){
         // parse gluco data
@@ -456,8 +423,57 @@ class DataHealth(string: String, context: Context) {
             kLineValues.add(PointValue(measure.getLong("date").toFloat(),sgv.toFloat(), "%.2f".format(sgv)))
         }
 
-        // Display Graph
-        displayGraphPreview_K()
+        // Add glucose data to GFit (Push)
+
+            pushGlucoData()
     }
+
+    /**
+     * Push gluco data to GFit.
+     * @param
+     * @return
+     */
+
+    fun pushGlucoData(){
+// Create DataSource
+        val gFitGlucoDSource = DataSource.Builder()
+            .setAppPackageName(context)
+            .setDataType(TYPE_BLOOD_GLUCOSE)
+            .setType(DataSource.TYPE_RAW)
+            .build()
+
+
+
+        // Create dataset
+        val gFitGlucoDSet = DataSet.builder(gFitGlucoDSource)
+
+        for (i in 0 until kLineValues.size){
+            val date = kLineValues[i].x.toLong()
+            val sgv = kLineValues[i].y
+
+
+        // Add new datapoint to dataset
+        gFitGlucoDSet.add(DataPoint.builder(gFitGlucoDSource)
+                .setTimestamp(date, TimeUnit.MILLISECONDS)
+                .setField(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL, sgv)
+                .build()
+            )
+        }
+
+        // Request dataset update
+        val request = DataUpdateRequest.Builder()
+            .setDataSet(gFitGlucoDSet.build())
+            .setTimeInterval(kLineValues[kLineValues.size -1 ].x.toLong(), kLineValues[0].x.toLong(), TimeUnit.MILLISECONDS)
+            .build()
+
+
+        Fitness.getHistoryClient(context, getGoogleAccount(context))
+            .updateData(request)
+            .addOnSuccessListener { Log.i(TAG, "Data update was successful.") }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "There was a problem updating the dataset.", e)
+            }
+
+        }
 
 }
