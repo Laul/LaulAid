@@ -3,10 +3,11 @@ package com.laulaid.laulaid_tchartskt
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import co.csadev.kellocharts.gesture.ZoomType
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.util.ChartUtils
-import co.csadev.kellocharts.view.AbstractChartView
 import co.csadev.kellocharts.view.LineChartView
+import co.csadev.kellocharts.view.PreviewLineChartView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
@@ -22,12 +23,11 @@ import com.google.android.gms.fitness.data.HealthDataTypes.TYPE_BLOOD_PRESSURE
 import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.request.DataUpdateRequest
 import com.google.android.gms.fitness.result.DataReadResponse
-import com.google.android.gms.tasks.Task
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  {
+class DataHealth(string: String, context: Context, viewID :Int, previewID: Int)  {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
@@ -136,16 +136,10 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
     // Data Initialization
     var context = context
 
+    var kChartViewID =viewID
+    var kChartPreViewID =previewID
+
     // Chart variables
-    lateinit var kChartViewID: AbstractChartView
-
-    // Data Structure - KelloCharts
-
-    // Column variables
-    var kColumn = ArrayList<Column>()
-    // var kValues_SubColumn = ArrayList<SubcolumnValue>()
-
-    // Line variables
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
 
@@ -155,48 +149,35 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
     var kDateEEE = ArrayList<String>()
 
     //GFit variables
-    var duration: Int
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
     lateinit var gFitStreamName: String
 
     // Variables initialization for each data type:
     init {
-        this.duration = duration
-
         if (string === "Steps") {
-            // KelloChart
-            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
-            kXAxis.name = string
-
             gFitDataType = TYPE_STEP_COUNT_DELTA
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "estimated_steps"
-
+            kXAxis.name = string
         }
         if (string === "Blood Pressure") {
-            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
-            kXAxis.name = string
-
             gFitDataType = TYPE_BLOOD_PRESSURE
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
+            kXAxis.name = string
         }
         if (string === "Heart Rate") {
-            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
-            kXAxis.name = string
-
             gFitDataType = TYPE_HEART_RATE_BPM
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Heart Rate"
+            kXAxis.name = string
         }
         if (string === "Blood Glucose") {
-            kChartViewID =(context as Activity).findViewById<LineChartView>(viewID)
-            kXAxis.name = string
-
             gFitDataType = TYPE_BLOOD_GLUCOSE
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Glucose"
+            kXAxis.name = string
         }
 
     }
@@ -204,7 +185,7 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
     /** GFit permissions verification and dispatch
     * @param context: App Context (typically main activity)
      */
-    fun connectGFit(context: Activity, isPush:Boolean) {
+    fun connectGFit(context: Activity, isPush:Boolean, duration: Int) {
         // If no permission -> request permission to the user
         if (!GoogleSignIn.hasPermissions(getGoogleAccount(context), fitnessOptions)) {
             GoogleSignIn.requestPermissions(
@@ -271,7 +252,6 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
         // Clear Data before retrieving other data from GFit
         kDateMillis.clear()
         kDateEEE.clear()
-        kColumn.clear()
         kLine.clear()
         kLineValues.clear()
 
@@ -311,8 +291,9 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
 
             // Display Graph
         if (kDateMillis.size > 1) {
+            var mainView = (context as Activity).findViewById<LineChartView>(kChartViewID)
 
-            if (kChartViewID is LineChartView) {
+            if (mainView is LineChartView) {
 
                 // All cases except Blood Pressure: 1 line with Point Values
                 if(kXAxis.name == "Blood Glucose" || kXAxis.name == "Heart Rate"){
@@ -366,7 +347,27 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
 
                 // Add axis values and push it in the chart
                 kChart.axisXBottom = kXAxis
-                (kChartViewID as LineChartView).lineChartData = kChart
+                mainView.lineChartData = kChart
+
+
+                val tempViewport = mainView?.maximumViewport.copy()
+                val dx = tempViewport.width() / 4
+                tempViewport.inset(dx, 0f)
+
+
+
+
+                if  (kChartPreViewID != -1) {
+                    var preView = (context as Activity).findViewById<LineChartView>(kChartPreViewID)
+                    preView.lineChartData = kChart
+
+
+                    preView?.currentViewport = tempViewport
+
+                    preView?.zoomType = ZoomType.HORIZONTAL
+
+
+                }
             }
 
         }
@@ -429,13 +430,11 @@ class DataHealth(string: String, context: Context, viewID :Int, duration: Int)  
     }
 
     /**
-     * Push gluco data to GFit.
-     * @param
-     * @return
+     * Push last 1000 gluco data from XDrip to GFit.
      */
 
     fun pushGlucoData(){
-// Create DataSource
+        // Create DataSource
         val gFitGlucoDSource = DataSource.Builder()
             .setAppPackageName(context)
             .setDataType(TYPE_BLOOD_GLUCOSE)

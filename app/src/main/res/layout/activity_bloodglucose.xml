@@ -56,7 +56,7 @@
         android:layout_height="match_parent">
 
         <co.csadev.kellocharts.view.LineChartView
-            android:id="@+id/graph_BG_MainView"
+            android:id="@+id/graph_BG_Main"
             android:layout_width="match_parent"
             android:layout_height="524dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -67,11 +67,11 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <co.csadev.kellocharts.view.PreviewLineChartView
-            android:id="@+id/graph_BG_PreView"
+            android:id="@+id/graph_BG_Preview"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/graph_BG_MainView" />
+            app:layout_constraintTop_toBottomOf="@+id/graph_BG_Main" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
