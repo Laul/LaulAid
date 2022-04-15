@@ -16,7 +16,7 @@
 
     // Custom colors Laulaid
     <color name="textColor">#56203D</color>
-    <color name="backgroundColor">#CCDAD1</color>
+    <color name="backgroundColor">#FFF0F0F0</color>
 
     <color name="secondaryColor">#D199B6</color>
     <color name="thirdColor">#EDADC7</color>

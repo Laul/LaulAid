@@ -9,7 +9,7 @@
 
 
     <Button
-        android:id="@+id/buttonRequest2"
+        android:id="@+id/btn_GetData"
         android:layout_width="135dp"
         android:layout_height="44dp"
         android:layout_marginStart="75dp"
@@ -32,7 +32,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonRequest2">
+        app:layout_constraintTop_toBottomOf="@+id/btn_GetData">
 
 
         <LinearLayout
@@ -44,114 +44,70 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
 
+                <Button
+                    android:id="@+id/btn_BG"
+                    android:layout_width="118dp"
+                    android:layout_height="32dp"
+                    android:background="#414af4"
+                    android:text="Blood Glucose"
+                    android:textColor="#ffffff"
+                    android:textSize="9sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TouchTargetSizeCheck" />
 
-                <!--                <Button-->
-                <!--                    android:id="@+id/btn_bloodglucose"-->
-                <!--                    android:layout_width="wrap_content"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:text="Steps"-->
-                <!--                    app:layout_constraintStart_toStartOf="parent"-->
-                <!--                    app:layout_constraintTop_toTopOf="parent" />-->
-
-                <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                    android:id="@+id/graph_preview_bloodglucose"
+                <co.csadev.kellocharts.view.LineChartView
+                    android:id="@+id/graph_main_BG"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:backgroundTint="#F0F0F0"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
-
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
-
-
-<!--                <Button-->
-<!--                    android:id="@+id/btn_steps"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Steps"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent" />-->
-
-                <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                    android:id="@+id/graph_preview_steps"
+                <co.csadev.kellocharts.view.LineChartView
+                    android:id="@+id/graph_main_steps"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
-
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp">
-
-<!--                <Button-->
-<!--                    android:id="@+id/btn_bloodpressure"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Blood Pressure"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent" />-->
-
-
-                <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                    android:id="@+id/graph_preview_bloodpressure"
+                android:layout_height="200dp">
+                <co.csadev.kellocharts.view.LineChartView
+                    android:id="@+id/graph_main_BP"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
-
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp">
-
-<!--                <Button-->
-<!--                    android:id="@+id/btn_heartrate"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Heart Rate [BPM]"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent" />-->
-
-
-                <com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-                    android:id="@+id/graph_preview_heartrate"
+                android:layout_height="200dp">
+                <co.csadev.kellocharts.view.LineChartView
+                    android:id="@+id/graph_main_HR"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></com.github.aachartmodel.aainfographics.aachartcreator.AAChartView>
-
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--            <com.klim.tcharts.TChart-->
-<!--                android:id="@+id/graph_steps"-->
-<!--                android:layout_width="350dp"-->
-<!--                android:layout_height="166dp"-->
-<!--                android:padding="16dp"-->
-<!--                app:backgroundColor="#FFFFFF"-->
-<!--                app:detailDivisionColor="#efeff0"-->
-<!--                app:detailLabelsFontColor="#506372"-->
-<!--                app:detailLineSelectedPosition="#73C9D8E3"-->
-<!--                app:infoWindowBackground="#FFFFFFFF"-->
-<!--                app:infoWindowShadowColor="#5C000000"-->
-<!--                app:infoWindowTitleColor="#222222"-->
-<!--                app:navBordersColor="#477DA9CA"-->
-<!--                app:navViewFillColor="#BAF5F8F9"-->
-<!--                app:showTitle="true"-->
-<!--                app:title="Title"-->
-<!--                app:titleFontColor="#3896D4"-->
-<!--                app:titleFontSize="16dp" />-->
 
 
         </LinearLayout>
