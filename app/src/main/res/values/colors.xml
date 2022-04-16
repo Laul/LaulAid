@@ -10,7 +10,14 @@
 
 
     // Custom colors from TCharts example
-    <color name="colorPrimary">#517DA2</color>
+    <color name="orange_primary">#C97507</color>
+    <color name="orange_secondary">#FFDDB1</color>
+
+    <color name="red_primary">#5B061A</color>
+    <color name="red_secondary">#CA746A</color>
+
+
+
     <color name="colorPrimaryDark">#426382</color>
     <color name="background">#f0f0f0</color>
 
@@ -18,7 +25,6 @@
     <color name="textColor">#56203D</color>
     <color name="backgroundColor">#FFF0F0F0</color>
 
-    <color name="secondaryColor">#D199B6</color>
     <color name="thirdColor">#EDADC7</color>
 
 

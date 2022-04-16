@@ -40,23 +40,30 @@ class MainActivity : AppCompatActivity() {
         // Google fit
         DataHealth_steps.connectGFit( this, false, 6)
         DataHealth_BP.connectGFit( this, false, 6)
-        DataHealth_BG.connectGFit( this, false, 6)
+        DataHealth_BG.connectGFit( this, false, 2)
         DataHealth_HR.connectGFit( this, false, 6)
 
         // Button callback to force get data once app launched
+//        btnRequest = findViewById(R.id.btn_GetData)
+//        btnRequest!!.setOnClickListener {
+//            DataHealth_steps.connectGFit( this, false, 6)
+//            DataHealth_BP.connectGFit( this, false, 6)
+//            DataHealth_BG.connectGFit( this, false, 6)
+//            DataHealth_HR.connectGFit( this, false, 6)
+//        }
+
+        // Push data to GFit
         btnRequest = findViewById(R.id.btn_GetData)
         btnRequest!!.setOnClickListener {
-            DataHealth_steps.connectGFit( this, false, 6)
-            DataHealth_BP.connectGFit( this, false, 6)
-            DataHealth_BG.connectGFit( this, false, 6)
-            DataHealth_HR.connectGFit( this, false, 6)
+            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 )
+            DataHealth_BG.connectXDrip(this, true ,1000)
         }
 
-        btnRequest = findViewById(R.id.btn_BG)
-        btnRequest!!.setOnClickListener {
-            val intent = Intent(this, BloodGlucoseActivity::class.java)
-            startActivity(intent)
-        }
+//        btnRequest = findViewById(R.id.btn_BG)
+//        btnRequest!!.setOnClickListener {
+//            val intent = Intent(this, BloodGlucoseActivity::class.java)
+//            startActivity(intent)
+//        }
 
     }
 

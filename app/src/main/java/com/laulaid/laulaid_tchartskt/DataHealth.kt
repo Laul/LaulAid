@@ -3,11 +3,10 @@ package com.laulaid.laulaid_tchartskt
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.widget.TextView
 import co.csadev.kellocharts.gesture.ZoomType
 import co.csadev.kellocharts.model.*
-import co.csadev.kellocharts.util.ChartUtils
 import co.csadev.kellocharts.view.LineChartView
-import co.csadev.kellocharts.view.PreviewLineChartView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
@@ -24,6 +23,7 @@ import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.request.DataUpdateRequest
 import com.google.android.gms.fitness.result.DataReadResponse
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
+import com.laulaid.laulaid_tchartskt.R.color.orange_primary
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
@@ -136,14 +136,17 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
     // Data Initialization
     var context = context
 
-    var kChartViewID =viewID
+    var kChartViewID = viewID
     var kChartPreViewID =previewID
+    lateinit var kValueViewID : TextView
 
     // Chart variables
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
 
     var kXAxis = Axis()
+    var kYaxis = Axis()
+
     var kXAxisValues = ArrayList<AxisValue>()
     var kDateMillis = ArrayList<Long>()
     var kDateEEE = ArrayList<String>()
@@ -160,24 +163,35 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "estimated_steps"
             kXAxis.name = string
+            kYaxis.name = ""
+            kValueViewID = (context as Activity).findViewById<TextView>(R.id.steps_value)
         }
         if (string === "Blood Pressure") {
             gFitDataType = TYPE_BLOOD_PRESSURE
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Pressure"
             kXAxis.name = string
+            kYaxis.name = "mmHg"
+//            kValueViewID = R.id.bp_value
+
         }
         if (string === "Heart Rate") {
             gFitDataType = TYPE_HEART_RATE_BPM
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Heart Rate"
             kXAxis.name = string
+            kYaxis.name = "bpm"
+//            kValueViewID = R.id.heart_value
+
         }
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
             gFitBucketTime = TimeUnit.DAYS
             gFitStreamName = "Blood Glucose"
             kXAxis.name = string
+            kYaxis.name = "mmol/L"
+            kValueViewID = (context as Activity).findViewById<TextView>(R.id.bg_value)
+
         }
 
     }
@@ -286,14 +300,12 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
     fun displayGraphPreview_K() {
         kXAxisValues.clear()
 
-        // Compute x-Axis values and sort all values by chronological order
-
-
-            // Display Graph
+        // Display Graph
         if (kDateMillis.size > 1) {
-            var mainView = (context as Activity).findViewById<LineChartView>(kChartViewID)
+            var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
+//            var view_ValueCurrent = (context as Activity).findViewById<TextView>(R.id.bg_value)
 
-            if (mainView is LineChartView) {
+            if (view_GraphMain is LineChartView) {
 
                 // All cases except Blood Pressure: 1 line with Point Values
                 if(kXAxis.name == "Blood Glucose" || kXAxis.name == "Heart Rate"){
@@ -307,14 +319,25 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
                             it.values = sortData(kDateMillis, it.values)
                         }
                     }
+
+
                 }
 
-                // Blood Pressure case: x lines with 2 pointvalues
+                // Blood Pressure case and steps: x lines with 2 pointvalues
                 if(kXAxis.name == "Blood Pressure" ||kXAxis.name == "Steps"){
                     // sort Lines in chronological order
                     kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
+
+
                 }
 
+
+                if(kXAxis.name == "Blood Glucose" || kXAxis.name == "Steps"){
+                    // Display current value as text with 2 decimals only
+                    val currentPointValue = kLine.last().values.last()
+                    kValueViewID.text= "%.2f".format(currentPointValue.y)
+                    kYaxis = Axis(hasLines = true, maxLabels = 4)
+                }
                 // get each distinct value of date in the list of string dates
                 val kXAxisLabels = kDateEEE.distinct()
 
@@ -334,11 +357,12 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
 
                 // Lines formatting
                 kLine.forEach{
+                    it.hasLabelsOnlyForSelected = true
                     it.isFilled = false
-                    it.hasPoints = true
-                    it.strokeWidth = 1
-                    it.color = ChartUtils.COLOR_GREEN
-                    it.pointRadius = 1
+                    it.hasPoints = false
+                    it.strokeWidth = 2
+                    it.color = orange_primary
+                    it.pointRadius = 2
                     it.hasLabels = false
                 }
 
@@ -347,10 +371,12 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
 
                 // Add axis values and push it in the chart
                 kChart.axisXBottom = kXAxis
-                mainView.lineChartData = kChart
+                kChart.axisYRight = kYaxis
+
+                view_GraphMain.lineChartData = kChart
 
 
-                val tempViewport = mainView?.maximumViewport.copy()
+                val tempViewport = view_GraphMain?.maximumViewport.copy()
                 val dx = tempViewport.width() / 4
                 tempViewport.inset(dx, 0f)
 
@@ -358,13 +384,13 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
 
 
                 if  (kChartPreViewID != -1) {
-                    var preView = (context as Activity).findViewById<LineChartView>(kChartPreViewID)
-                    preView.lineChartData = kChart
+                    var view_GraphPreview = (context as Activity).findViewById<LineChartView>(kChartPreViewID)
+                    view_GraphPreview.lineChartData = kChart
 
 
-                    preView?.currentViewport = tempViewport
+                    view_GraphPreview?.currentViewport = tempViewport
 
-                    preView?.zoomType = ZoomType.HORIZONTAL
+                    view_GraphPreview?.zoomType = ZoomType.HORIZONTAL
 
 
                 }
