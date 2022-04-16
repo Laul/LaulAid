@@ -42,7 +42,7 @@
         android:fontFamily="@font/helveticaneue_normal"
         android:gravity="center_vertical"
         android:text="Reload"
-        android:textAlignment="center"
+        android:textAlignment="textEnd"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="0dp" />
