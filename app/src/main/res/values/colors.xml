@@ -19,6 +19,13 @@
     <color name="grey_primary">#404446</color>
     <color name="grey_secondary">#DEE2E5</color>
 
+    <color name="blue_primary">#007771</color>
+    <color name="blue_secondary">#20C2C2</color>
+
+    // Label colors to warn
+    <color name="state_normal">#961618</color>
+    <color name="state_warning">#146C40</color>
+
 
 
     <color name="colorPrimaryDark">#426382</color>

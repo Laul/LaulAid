@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import co.csadev.kellocharts.gesture.ZoomType
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.LineChartView
@@ -23,7 +24,7 @@ import com.google.android.gms.fitness.request.DataReadRequest
 import com.google.android.gms.fitness.request.DataUpdateRequest
 import com.google.android.gms.fitness.result.DataReadResponse
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
-import com.laulaid.laulaid_tchartskt.R.color.orange_primary
+import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
@@ -136,11 +137,13 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
     // Data Initialization
     var context = context
 
+    // Views to plot graph and add values
     var kChartViewID = viewID
     var kChartPreViewID =previewID
     lateinit var kValueViewID : TextView
 
     // Chart variables
+    var kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
 
@@ -165,6 +168,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             kXAxis.name = string
             kYaxis.name = ""
             kValueViewID = (context as Activity).findViewById<TextView>(R.id.steps_value)
+            kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
         }
         if (string === "Blood Pressure") {
             gFitDataType = TYPE_BLOOD_PRESSURE
@@ -173,7 +177,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             kXAxis.name = string
             kYaxis.name = "mmHg"
 //            kValueViewID = R.id.bp_value
-
+            kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
         }
         if (string === "Heart Rate") {
             gFitDataType = TYPE_HEART_RATE_BPM
@@ -181,8 +185,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             gFitStreamName = "Heart Rate"
             kXAxis.name = string
             kYaxis.name = "bpm"
-//            kValueViewID = R.id.heart_value
-
+            kValueViewID = (context as Activity).findViewById<TextView>(R.id.hr_value)
+            kLineColor = ContextCompat.getColor(context, R.color.blue_primary)
         }
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
@@ -191,6 +195,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             kXAxis.name = string
             kYaxis.name = "mmol/L"
             kValueViewID = (context as Activity).findViewById<TextView>(R.id.bg_value)
+            kLineColor = ContextCompat.getColor(context, R.color.red_primary)
 
         }
 
@@ -332,10 +337,24 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
                 }
 
 
-                if(kXAxis.name == "Blood Glucose" || kXAxis.name == "Steps"){
+                if(kXAxis.name != "Blood Pressure" ){
                     // Display current value as text with 2 decimals only
                     val currentPointValue = kLine.last().values.last()
+                    if (kXAxis.name == "Blood Glucose" ){
                     kValueViewID.text= "%.2f".format(currentPointValue.y)
+                        if (currentPointValue.y < 4.0){
+                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "WARNING"
+                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
+                        }
+                        else {
+                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "NORMAL"
+                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
+                        }
+                    }
+                    else{
+                        kValueViewID.text= "%.0f".format(currentPointValue.y)
+                    }
+
                     kYaxis = Axis(hasLines = true, maxLabels = 4)
                 }
                 // get each distinct value of date in the list of string dates
@@ -360,9 +379,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
                     it.hasLabelsOnlyForSelected = true
                     it.isFilled = false
                     it.hasPoints = false
-                    it.strokeWidth = 2
-                    it.color = orange_primary
-                    it.pointRadius = 2
+                    it.strokeWidth = 1
+                    it.color = kLineColor
+                    it.pointRadius = 1
                     it.hasLabels = false
                 }
 

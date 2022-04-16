@@ -52,11 +52,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Push data to GFit
-//        btnRequest = findViewById(R.id.btn_GetData)
-//        btnRequest!!.setOnClickListener {
-//            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 )
-//            DataHealth_BG.connectXDrip(this, true ,1000)
-//        }
+        btnRequest = findViewById(R.id.pushgluco_btn)
+        btnRequest!!.setOnClickListener {
+            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 )
+            DataHealth_BG.connectXDrip(this, true ,1000)
+        }
 
 //        btnRequest = findViewById(R.id.btn_BG)
 //        btnRequest!!.setOnClickListener {

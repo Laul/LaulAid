@@ -8,26 +8,9 @@
     tools:context=".MainActivity"
     android:background="@color/backgroundColor">
 
-
-<!--    <Button-->
-<!--        android:id="@+id/btn_GetData"-->
-<!--        android:layout_width="100dp"-->
-<!--        android:layout_height="38dp"-->
-<!--        android:layout_marginStart="75dp"-->
-<!--        android:layout_marginEnd="75dp"-->
-<!--        android:text="Get Data"-->
-<!--        android:textColor="#ffffff"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/scroll"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.454"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/scroll"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-
-
-
+<!--    TOP Bar     -->
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
+        android:id="@+id/top_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -54,11 +37,13 @@
     <TextView
         android:id="@+id/reload_txt"
         android:layout_width="100dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="50dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="45dp"
+        android:fontFamily="@font/helveticaneue_normal"
         android:gravity="center_vertical"
         android:text="Reload"
-        android:textAlignment="textEnd"
+        android:textAlignment="center"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="0dp" />
 
@@ -89,6 +74,7 @@
         android:text="Sync Data"
         app:layout_constraintStart_toEndOf="@+id/pushgluco_btn"
         app:layout_constraintTop_toTopOf="parent" />
+<!--    /TOP Bar     -->
 
 
     <ScrollView
@@ -102,12 +88,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/reload_btn">
 
-
+        <!--    Blood Glucose     -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -188,11 +173,13 @@
                         android:layout_width="80dp"
                         android:layout_height="22dp"
                         android:background="@drawable/border"
-                        android:fontFamily="@font/helveticaneue_thin"
+                        android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
                         android:text="bg_state"
                         android:textAlignment="center"
-                        android:textSize="12dp"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10dp"
+                        android:textStyle="bold"
                         android:translationY="-20dp"
                         android:typeface="normal"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -246,7 +233,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -317,11 +303,13 @@
                         android:layout_width="80dp"
                         android:layout_height="22dp"
                         android:background="@drawable/border"
-                        android:fontFamily="@font/helveticaneue_thin"
+                        android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
                         android:text="steps_state"
                         android:textAlignment="center"
-                        android:textSize="12dp"
+                        android:textColor="@color/white"
+                        android:textSize="10dp"
+                        android:textStyle="bold"
                         android:translationY="-20dp"
                         android:typeface="normal"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -392,6 +380,175 @@
             <!--                    app:layout_constraintVertical_bias="0.0" />-->
             <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
 
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/hr_leftside"
+                    android:layout_width="187dp"
+                    android:layout_height="160dp">
+
+                    <Button
+                        android:id="@+id/btn_HR"
+                        android:layout_width="35dp"
+                        android:layout_height="45dp"
+                        android:backgroundTint="@color/blue_secondary"
+                        android:backgroundTintMode="add"
+                        android:foregroundTint="@color/blue_primary"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:stateListAnimator="@null"
+
+                        android:translationY="15dp"
+
+                        app:icon="@drawable/hr_icn"
+                        app:iconGravity="start"
+                        app:iconSize="20dp"
+                        app:iconTint="@color/blue_primary"
+                        app:layout_constraintStart_toStartOf="@+id/hr_guideline"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="SpeakableTextPresentCheck" />
+
+                    <TextView
+                        android:id="@+id/hr_title"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/helveticaneue_normal"
+                        android:gravity="center_vertical"
+                        android:text="Heart Rate"
+                        android:textSize="16dp"
+                        android:textStyle="bold"
+                        android:translationY="20dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/btn_HR"
+                        app:layout_constraintStart_toEndOf="@+id/btn_HR"
+                        app:layout_constraintTop_toTopOf="@+id/btn_HR" />
+
+                    <TextView
+                        android:id="@+id/hr_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/helveticaneue_light"
+                        android:gravity="center_vertical"
+                        android:text="4.5"
+                        android:textAlignment="viewStart"
+                        android:textSize="30dp"
+                        app:layout_constraintBottom_toTopOf="@+id/hr_label"
+                        app:layout_constraintStart_toStartOf="@+id/hr_guideline"
+                        app:layout_constraintTop_toBottomOf="@+id/btn_HR"
+                        app:layout_constraintVertical_bias="0.35     " />
+
+                    <TextView
+                        android:id="@+id/hr_Unit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/helveticaneue_normal"
+                        android:gravity="bottom"
+                        android:text="bpm"
+                        android:textSize="14dp"
+                        android:translationX="10dp"
+                        android:translationY="-2dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/hr_value"
+                        app:layout_constraintStart_toEndOf="@+id/hr_value" />
+
+                    <TextView
+                        android:id="@+id/hr_label"
+                        android:layout_width="80dp"
+                        android:layout_height="22dp"
+                        android:background="@drawable/border"
+                        android:fontFamily="@font/helveticaneue_normal"
+                        android:gravity="center_vertical"
+                        android:text="hr_state"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="10dp"
+                        android:textStyle="bold"
+                        android:translationY="-20dp"
+                        android:typeface="normal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="@+id/hr_guideline" />
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/hr_guideline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintGuide_end="162dp" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/hr_rightside"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp">
+
+                    <co.csadev.kellocharts.view.LineChartView
+                        android:id="@+id/graph_main_HR"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_marginTop="50dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:backgroundTint="#F0F0F0"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!--
+                    android:layout_marginTop="25dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.932"
+                    app:layout_constraintStart_toEndOf="@+id/bg_title"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0"
+                    -->
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+<!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="200dp">-->
+
+<!--                <co.csadev.kellocharts.view.LineChartView-->
+<!--                    android:id="@+id/graph_main_HR"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent" />-->
+<!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+
+
+
+
+
+
+
+<!--       Section to update     -->
+
+
+
+
+
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
@@ -407,19 +564,6 @@
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="200dp">
-
-                <co.csadev.kellocharts.view.LineChartView
-                    android:id="@+id/graph_main_HR"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         </LinearLayout>
