@@ -6,6 +6,11 @@ import java.util.*
 class DataGeneral {
 
     companion object {
+        /**
+         * Calculates time ranges based on the duration to cover
+         * @param duration number of days as Int
+         * @return Time for now, start of current day, and start of entire range in millis
+         */
         fun getTimes(duration: Int): List<Long>{
             val cal = GregorianCalendar()
             val TimeNowInMilli = cal.timeInMillis
@@ -26,7 +31,7 @@ class DataGeneral {
          * @param dateFormat Date format
          * @return String representing date in specified format
          */
-        fun getDate(milliSeconds: Long, dateFormat: String?): String? {
+        fun getDate(milliSeconds: Long, dateFormat: String?): String {
             // Create a DateFormatter object for displaying date in specified format.
             val formatter = SimpleDateFormat(dateFormat)
 
@@ -35,6 +40,8 @@ class DataGeneral {
             calendar.timeInMillis = milliSeconds
             return formatter.format(calendar.time)
         }
+
+
     }
 
 
