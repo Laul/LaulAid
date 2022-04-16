@@ -10,12 +10,9 @@ package com.laulaid.laulaid_tchartskt
 //chart - Detailed views
 //chart - main view
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.StringRequest
 
 
 // GFit - Parameters variables
@@ -44,20 +41,22 @@ class MainActivity : AppCompatActivity() {
         DataHealth_HR.connectGFit( this, false, 6)
 
         // Button callback to force get data once app launched
-//        btnRequest = findViewById(R.id.btn_GetData)
-//        btnRequest!!.setOnClickListener {
-//            DataHealth_steps.connectGFit( this, false, 6)
-//            DataHealth_BP.connectGFit( this, false, 6)
-//            DataHealth_BG.connectGFit( this, false, 6)
-//            DataHealth_HR.connectGFit( this, false, 6)
-//        }
-
-        // Push data to GFit
-        btnRequest = findViewById(R.id.btn_GetData)
+        btnRequest = findViewById(R.id.reload_btn)
         btnRequest!!.setOnClickListener {
             var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 )
-            DataHealth_BG.connectXDrip(this, true ,1000)
+//            DataHealth_BG.connectXDrip(this, true ,1000)
+            DataHealth_steps.connectGFit( this, false, 6)
+            DataHealth_BP.connectGFit( this, false, 6)
+            DataHealth_BG.connectGFit( this, false, 2)
+            DataHealth_HR.connectGFit( this, false, 6)
         }
+
+        // Push data to GFit
+//        btnRequest = findViewById(R.id.btn_GetData)
+//        btnRequest!!.setOnClickListener {
+//            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 )
+//            DataHealth_BG.connectXDrip(this, true ,1000)
+//        }
 
 //        btnRequest = findViewById(R.id.btn_BG)
 //        btnRequest!!.setOnClickListener {

@@ -16,6 +16,9 @@
     <color name="red_primary">#5B061A</color>
     <color name="red_secondary">#CA746A</color>
 
+    <color name="grey_primary">#404446</color>
+    <color name="grey_secondary">#DEE2E5</color>
+
 
 
     <color name="colorPrimaryDark">#426382</color>

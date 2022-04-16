@@ -5,23 +5,91 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/backgroundColor">
 
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_GetData"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="38dp"-->
+<!--        android:layout_marginStart="75dp"-->
+<!--        android:layout_marginEnd="75dp"-->
+<!--        android:text="Get Data"-->
+<!--        android:textColor="#ffffff"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/scroll"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.454"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/scroll"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="270dp" />
 
     <Button
-        android:id="@+id/btn_GetData"
-        android:layout_width="135dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="75dp"
-        android:layout_marginEnd="75dp"
-        android:background="#414af4"
-        android:text="Get Data"
-        android:textColor="#ffffff"
-        app:layout_constraintBottom_toTopOf="@+id/scroll"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.454"
-        app:layout_constraintStart_toStartOf="@+id/scroll"
+        android:id="@+id/reload_btn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="5dp"
+        android:backgroundTint="@color/backgroundColor"
+        android:foregroundTint="@color/grey_primary"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/reload"
+        app:iconGravity="start"
+        app:iconSize="20dp"
+        app:iconTint="@color/grey_primary"
+        app:layout_constraintStart_toEndOf="@+id/reload_txt"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/reload_txt"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="50dp"
+        android:gravity="center_vertical"
+        android:text="Reload"
+        android:textAlignment="textEnd"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <Button
+        android:id="@+id/pushgluco_btn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:backgroundTint="@color/backgroundColor"
+        android:foregroundTint="@color/grey_primary"
+        android:paddingLeft="8dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/pushcloud"
+        app:iconGravity="start"
+        app:iconSize="25dp"
+        app:iconTint="@color/grey_primary"
+        app:layout_constraintStart_toEndOf="@+id/reload_btn"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/pushgluco_txt"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="5dp"
+        android:gravity="center_vertical"
+        android:text="Sync Data"
+        app:layout_constraintStart_toEndOf="@+id/pushgluco_btn"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <ScrollView
         android:id="@+id/scroll"
@@ -32,7 +100,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_GetData">
+        app:layout_constraintTop_toBottomOf="@+id/reload_btn">
 
 
         <LinearLayout
@@ -119,6 +187,7 @@
                         android:id="@+id/bg_label"
                         android:layout_width="80dp"
                         android:layout_height="22dp"
+                        android:background="@drawable/border"
                         android:fontFamily="@font/helveticaneue_thin"
                         android:gravity="center_vertical"
                         android:text="bg_state"
@@ -126,7 +195,6 @@
                         android:textSize="12dp"
                         android:translationY="-20dp"
                         android:typeface="normal"
-                        android:background="@drawable/border"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/guideline4" />
 
@@ -135,7 +203,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_begin="25dp" />
+                        app:layout_constraintGuide_end="162dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -205,8 +273,8 @@
                         android:translationY="15dp"
 
                         app:icon="@drawable/steps_icn"
-                        app:iconPadding="0dp"
                         app:iconGravity="start"
+                        app:iconPadding="0dp"
                         app:iconSize="20dp"
                         app:iconTint="@color/orange_primary"
 
@@ -264,7 +332,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_begin="25dp" />
+                        app:layout_constraintGuide_end="162dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -301,12 +369,12 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
+
             <View
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
-
 
 
             <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
