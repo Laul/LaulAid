@@ -3,9 +3,9 @@ package com.laulaid.laulaid_tchartskt
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import co.csadev.kellocharts.gesture.ZoomType
+import co.csadev.kellocharts.listener.ViewportChangeListener
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.LineChartView
 import com.android.volley.Request
@@ -28,7 +28,7 @@ import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-class DataHealth(string: String, context: Context, viewID :Int, previewID: Int)  {
+class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int)  {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
@@ -78,6 +78,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
 
 
                     else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
+                        Log.i(TAG, "prout")
                         for (dp in dataSet.dataPoints) {
                             dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
@@ -128,7 +129,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             }
 
             // Display Graph
-            dataHealth.displayGraphPreview_K()
+            dataHealth.displayMainGraph()
         }
     }
 
@@ -140,9 +141,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
     // Views to plot graph and add values
     var kChartViewID = viewID
     var kChartPreViewID =previewID
-    lateinit var kValueViewID : TextView
+    var kValueViewID = valueID
 
-    // Chart variables
+    // Chart variables (Main view)
     var kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
@@ -153,6 +154,10 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
     var kXAxisValues = ArrayList<AxisValue>()
     var kDateMillis = ArrayList<Long>()
     var kDateEEE = ArrayList<String>()
+
+    // Chart Variables (Detailed view)
+    var updatingPreviewViewport = false
+    var updatingChartViewport = false
 
     //GFit variables
     lateinit var gFitDataType: DataType
@@ -167,7 +172,6 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             gFitStreamName = "estimated_steps"
             kXAxis.name = string
             kYaxis.name = ""
-            kValueViewID = (context as Activity).findViewById<TextView>(R.id.steps_value)
             kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
         }
         if (string === "Blood Pressure") {
@@ -176,7 +180,6 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             gFitStreamName = "Blood Pressure"
             kXAxis.name = string
             kYaxis.name = "mmHg"
-//            kValueViewID = R.id.bp_value
             kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
         }
         if (string === "Heart Rate") {
@@ -185,7 +188,6 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             gFitStreamName = "Heart Rate"
             kXAxis.name = string
             kYaxis.name = "bpm"
-            kValueViewID = (context as Activity).findViewById<TextView>(R.id.hr_value)
             kLineColor = ContextCompat.getColor(context, R.color.blue_primary)
         }
         if (string === "Blood Glucose") {
@@ -194,7 +196,6 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
             gFitStreamName = "Blood Glucose"
             kXAxis.name = string
             kYaxis.name = "mmol/L"
-            kValueViewID = (context as Activity).findViewById<TextView>(R.id.bg_value)
             kLineColor = ContextCompat.getColor(context, R.color.red_primary)
 
         }
@@ -300,15 +301,17 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
         return valData.sortedWith(dateComparator) as MutableList<T>
     }
 
-    /** Display preview graphs on main using KelloCharts Lib
+    /** Display Main graphs using KelloCharts Lib
      */
-    fun displayGraphPreview_K() {
+    fun displayMainGraph() {
         kXAxisValues.clear()
+
+        context.isUiContext
+
 
         // Display Graph
         if (kDateMillis.size > 1) {
             var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
-//            var view_ValueCurrent = (context as Activity).findViewById<TextView>(R.id.bg_value)
 
             if (view_GraphMain is LineChartView) {
 
@@ -337,23 +340,23 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
                 }
 
 
-                if(kXAxis.name != "Blood Pressure" ){
+                if( kXAxis.name != "Blood Pressure" ){
                     // Display current value as text with 2 decimals only
                     val currentPointValue = kLine.last().values.last()
-                    if (kXAxis.name == "Blood Glucose" ){
-                    kValueViewID.text= "%.2f".format(currentPointValue.y)
-                        if (currentPointValue.y < 4.0){
-                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "WARNING"
-                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
-                        }
-                        else {
-                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "NORMAL"
-                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
-                        }
-                    }
-                    else{
-                        kValueViewID.text= "%.0f".format(currentPointValue.y)
-                    }
+//                    if (kXAxis.name == "Blood Glucose" ){
+//                        (context as Activity).findViewById<TextView>(kValueViewID).text= "%.2f".format(currentPointValue.y)
+//                        if (currentPointValue.y < 4.0){
+//                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "WARNING"
+//                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
+//                        }
+//                        else {
+//                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "NORMAL"
+//                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
+//                        }
+//                    }
+//                    else{
+//                        (context as Activity).findViewById<TextView>(kValueViewID).text= "%.0f".format(currentPointValue.y)
+//                    }
 
                     kYaxis = Axis(hasLines = true, maxLabels = 4)
                 }
@@ -396,20 +399,14 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
 
 
                 val tempViewport = view_GraphMain?.maximumViewport.copy()
-                val dx = tempViewport.width() / 4
-                tempViewport.inset(dx, 0f)
+                val dx = tempViewport.width()*15f/16f
+                tempViewport.offset(dx, 0f)
 
-
-
-
+                // If a preview view is available, to to displayPreviewChart()
                 if  (kChartPreViewID != -1) {
-                    var view_GraphPreview = (context as Activity).findViewById<LineChartView>(kChartPreViewID)
-                    view_GraphPreview.lineChartData = kChart
+                    displayPreviewGraph(kChart, tempViewport)
 
 
-                    view_GraphPreview?.currentViewport = tempViewport
-
-                    view_GraphPreview?.zoomType = ZoomType.HORIZONTAL
 
 
                 }
@@ -418,7 +415,57 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int) 
         }
     }
 
-    
+
+    /** Display Preview graphs using KelloCharts Lib
+     */
+    fun displayPreviewGraph(kChart: LineChartData, viewPort: Viewport) {
+        // Declare views
+        var view_GraphPreview = (context as Activity).findViewById<LineChartView>(kChartPreViewID)
+        view_GraphPreview.lineChartData = kChart
+
+        var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
+
+        // Viewport listener for main and preview graphs
+        view_GraphPreview?.setViewportChangeListener(ChartPreviewPortListener(kChartViewID))
+        view_GraphMain?.setViewportChangeListener(ChartViewportListener(kChartPreViewID))
+
+
+        view_GraphPreview?.currentViewport = viewPort
+        view_GraphMain?.currentViewport = viewPort
+
+        view_GraphPreview?.zoomType = ZoomType.HORIZONTAL
+    }
+
+
+    private inner class ChartPreviewPortListener(chartMain_ViewID : Int) : ViewportChangeListener {
+
+        var chartMainView = (context as Activity).findViewById<LineChartView>(chartMain_ViewID)
+
+        override fun onViewportChanged(newViewport: Viewport) {
+            if (!updatingPreviewViewport) {
+                updatingChartViewport = true
+                chartMainView.zoomType = ZoomType.HORIZONTAL
+                chartMainView.currentViewport = newViewport
+                updatingChartViewport = false
+            }
+        }
+    }
+
+    private inner class ChartViewportListener(chartPreview_ViewID : Int) : ViewportChangeListener {
+        var chartPreviewView = (context as Activity).findViewById<LineChartView>(chartPreview_ViewID)
+
+        override fun onViewportChanged(newViewport: Viewport) {
+            if (!updatingChartViewport) {
+                updatingPreviewViewport = true
+                chartPreviewView.zoomType = ZoomType.HORIZONTAL
+                chartPreviewView.currentViewport = newViewport
+                updatingPreviewViewport = false
+            }
+        }
+    }
+
+
+
     /** XDrip permissions verification and dispatch
     * @param count: number of data to retrieve from XDrip. Max is 1000, XDrip does neither allow nor to specify time interval, nor more than the last 1000 values (~3.5 days of data)
     * @param context: App Context (typically main activity)
