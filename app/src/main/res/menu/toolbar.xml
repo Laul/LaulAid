@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!-- "Mark Favorite", should appear as action button if possible -->
+<item
+    android:id="@+id/toolbar_back"
+    android:icon="@drawable/back"
+    android:title="Back"
+    android:iconTint="@color/grey_secondary"
+        app:showAsAction="ifRoom"
+
+
+    />
+</menu>

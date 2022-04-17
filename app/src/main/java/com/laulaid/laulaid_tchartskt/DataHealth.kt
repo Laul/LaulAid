@@ -368,7 +368,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                     it.strokeWidth = 1
                     it.color = kLineColor
                     it.pointRadius = 1
-                    it.hasLabels = false
+                    it.hasLabels = true
 
                 }
 

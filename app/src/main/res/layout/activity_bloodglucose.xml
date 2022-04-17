@@ -8,54 +8,36 @@
     tools:context=".BloodGlucoseActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_bg"
+        android:id="@+id/bgView_Toolbar"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:background="@color/grey_primary"
         android:minHeight="?attr/actionBarSize"
         android:outlineAmbientShadowColor="@color/grey_secondary"
         android:outlineSpotShadowColor="@color/grey_primary"
         android:theme="?attr/actionBarTheme"
-        tools:layout_editor_absoluteX="1dp"
-        app:titleTextColor="@color/grey_secondary"
+        app:subtitle="Blood Glucose"
+        app:subtitleTextColor="@color/red_secondary"
         app:title="LaulAid"
-        app:subtitle="Blood Glucose">
+        app:titleTextColor="@color/grey_secondary"
+        tools:layout_editor_absoluteX="1dp"
+        android:elevation="4dp"
+        >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="75dp">
-
-            <TextView
-                android:id="@+id/bgView_Title"
-                android:layout_width="330dp"
-                android:layout_height="53dp"
-                android:fontFamily="@font/helveticaneue_normal"
-                android:gravity="center"
-                android:text="LaulAid - Blood Glucose"
-                android:textAlignment="viewStart"
-                android:textColor="@color/grey_secondary"
-                android:textSize="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/bgView_Back"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/bgView_Back"
-                android:layout_width="40dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="15dp"
-                android:backgroundTint="@color/grey_primary"
-                android:foregroundTint="@color/grey_primary"
-                android:drawableLeft="@drawable/back"
-                android:drawableTint="#FF888888"
-                android:padding="12dp"
-                app:iconSize="25dp"
-                app:iconTint="@color/grey_secondary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
+
+<!--    <Button-->
+<!--        android:id="@+id/bgView_Back"-->
+<!--        android:layout_width="40dp"-->
+<!--        android:layout_height="50dp"-->
+<!--        android:backgroundTint="@color/grey_primary"-->
+<!--        android:drawableLeft="@drawable/back"-->
+<!--        android:drawableTint="#FF888888"-->
+<!--        android:foregroundTint="@color/grey_primary"-->
+<!--        android:padding="12dp"-->
+<!--        android:translationX="0dp"-->
+<!--        app:iconSize="25dp"-->
+<!--        app:iconTint="@color/grey_secondary" />-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -63,8 +45,9 @@
 
         <co.csadev.kellocharts.view.LineChartView
             android:id="@+id/bgView_MainGraph"
-            android:layout_width="413dp"
-            android:layout_height="504dp"
+            android:layout_width="409dp"
+            android:layout_height="419dp"
+            android:layout_marginTop="100dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -74,7 +57,7 @@
             android:id="@+id/bgView_Label"
             android:layout_width="80dp"
             android:layout_height="22dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/border"
             android:fontFamily="@font/helveticaneue_normal"
             android:gravity="center_vertical"
@@ -101,16 +84,16 @@
             android:id="@+id/bgView_Value"
             android:layout_width="78dp"
             android:layout_height="56dp"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="25dp"
             android:fontFamily="@font/helveticaneue_light"
             android:gravity="center_vertical"
-            android:text="4.5"
 
+            android:text="4.5"
             android:textAlignment="viewStart"
             android:textSize="40dp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
