@@ -7,54 +7,115 @@
     android:orientation="vertical"
     tools:context=".BloodGlucoseActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_bg"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey_primary"
+        android:minHeight="?attr/actionBarSize"
+        android:outlineAmbientShadowColor="@color/grey_secondary"
+        android:outlineSpotShadowColor="@color/grey_primary"
+        android:theme="?attr/actionBarTheme"
+        tools:layout_editor_absoluteX="1dp"
+        app:titleTextColor="@color/grey_secondary"
+        app:title="LaulAid"
+        app:subtitle="Blood Glucose">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="75dp">
+
+            <TextView
+                android:id="@+id/bgView_Title"
+                android:layout_width="330dp"
+                android:layout_height="53dp"
+                android:fontFamily="@font/helveticaneue_normal"
+                android:gravity="center"
+                android:text="LaulAid - Blood Glucose"
+                android:textAlignment="viewStart"
+                android:textColor="@color/grey_secondary"
+                android:textSize="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/bgView_Back"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/bgView_Back"
+                android:layout_width="40dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="15dp"
+                android:backgroundTint="@color/grey_primary"
+                android:foregroundTint="@color/grey_primary"
+                android:drawableLeft="@drawable/back"
+                android:drawableTint="#FF888888"
+                android:padding="12dp"
+                app:iconSize="25dp"
+                app:iconTint="@color/grey_secondary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="75dp">
+        android:layout_height="match_parent">
+
+        <co.csadev.kellocharts.view.LineChartView
+            android:id="@+id/bgView_MainGraph"
+            android:layout_width="413dp"
+            android:layout_height="504dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="245dp"
-            android:layout_height="55dp"
-            android:layout_marginStart="25dp"
-            android:text="Bloog Glucose"
-            android:textAlignment="textStart"
-            android:gravity="center"
-            app:layout_constraintStart_toEndOf="@+id/bSearch"
-            app:layout_constraintTop_toTopOf="@+id/bSearch" />
+            android:id="@+id/bgView_Label"
+            android:layout_width="80dp"
+            android:layout_height="22dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/border"
+            android:fontFamily="@font/helveticaneue_normal"
+            android:gravity="center_vertical"
+            android:text="bg_state"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="10dp"
+            android:textStyle="bold"
+            android:translationY="0dp"
+            android:typeface="normal"
+            app:layout_constraintStart_toStartOf="@+id/bgView_Value"
+            app:layout_constraintTop_toBottomOf="@+id/bgView_Value" />
 
-        <Button
-            android:id="@+id/bSearch"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:drawableLeft="@android:drawable/ic_menu_more"
-            android:padding="12dp"
-            android:rotation="90"
+        <co.csadev.kellocharts.view.PreviewLineChartView
+            android:id="@+id/bgView_PreviewGraph"
+            android:layout_width="411dp"
+            android:layout_height="152dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bgView_MainGraph"
+            app:layout_constraintVertical_bias="0.954"
+            tools:layout_editor_absoluteX="0dp" />
+
+        <TextView
+            android:id="@+id/bgView_Value"
+            android:layout_width="78dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="25dp"
+            android:fontFamily="@font/helveticaneue_light"
+            android:gravity="center_vertical"
+            android:text="4.5"
+
+            android:textAlignment="viewStart"
+            android:textSize="40dp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:backgroundTint="@color/backgroundColor"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.klim.tcharts.TChart
-        android:id="@+id/graph_gluco"
-        android:layout_width="match_parent"
-        android:layout_height="712dp"
-        android:padding="16dp"
-        app:backgroundColor="#FFFFFF"
-        app:detailDivisionColor="#efeff0"
-        app:detailLabelsFontColor="#506372"
-        app:detailLineSelectedPosition="#73C9D8E3"
-        app:infoWindowBackground="#FFFFFFFF"
-        app:infoWindowShadowColor="#5C000000"
-        app:infoWindowTitleColor="#222222"
-        app:navBordersColor="#477DA9CA"
-        app:navViewFillColor="#BAF5F8F9"
-        app:showTitle="true"
-        app:title="Title"
-        app:titleFontColor="#3896D4"
-        app:titleFontSize="16dp" />
+
 
 
 </LinearLayout>
