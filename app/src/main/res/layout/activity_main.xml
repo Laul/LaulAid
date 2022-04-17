@@ -8,73 +8,61 @@
     tools:context=".MainActivity"
     android:background="@color/backgroundColor">
 
-<!--    TOP Bar     -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/top_guideline"
-        android:layout_width="wrap_content"
+    <!--    TOP Bar     -->
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="270dp" />
+        android:background="@color/grey_primary"
+        android:minHeight="?attr/actionBarSize"
+        android:outlineAmbientShadowColor="@color/grey_secondary"
+        android:outlineSpotShadowColor="@color/grey_primary"
+        android:theme="?attr/actionBarTheme"
+        tools:layout_editor_absoluteX="1dp"
+        app:title="LaulAid - Summary"
+        app:titleTextColor="@color/grey_secondary">
+
+    </androidx.appcompat.widget.Toolbar>
+
 
     <Button
         android:id="@+id/reload_btn"
         android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="5dp"
-        android:backgroundTint="@color/backgroundColor"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/grey_primary"
         android:foregroundTint="@color/grey_primary"
         android:paddingLeft="10dp"
-        android:paddingTop="10dp"
+        android:paddingTop="15dp"
         android:paddingBottom="10dp"
         android:stateListAnimator="@null"
         app:icon="@drawable/reload"
         app:iconGravity="start"
         app:iconSize="20dp"
-        app:iconTint="@color/grey_primary"
-        app:layout_constraintStart_toEndOf="@+id/reload_txt"
-        tools:layout_editor_absoluteY="0dp" />
-
-    <TextView
-        android:id="@+id/reload_txt"
-        android:layout_width="100dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="45dp"
-        android:fontFamily="@font/helveticaneue_normal"
-        android:gravity="center_vertical"
-        android:text="Reload"
-        android:textAlignment="textEnd"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="0dp" />
+        app:iconTint="@color/grey_secondary"
+        app:layout_constraintEnd_toStartOf="@+id/pushgluco_btn"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/pushgluco_btn"
         android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="10dp"
-        android:backgroundTint="@color/backgroundColor"
+        android:layout_height="50dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@color/grey_primary"
         android:foregroundTint="@color/grey_primary"
         android:paddingLeft="8dp"
-        android:paddingTop="10dp"
+        android:paddingTop="15dp"
         android:paddingBottom="10dp"
         android:stateListAnimator="@null"
         app:icon="@drawable/pushcloud"
         app:iconGravity="start"
         app:iconSize="25dp"
-        app:iconTint="@color/grey_primary"
-        app:layout_constraintStart_toEndOf="@+id/reload_btn"
-        tools:layout_editor_absoluteY="0dp" />
-
-    <TextView
-        android:id="@+id/pushgluco_txt"
-        android:layout_width="100dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="5dp"
-        android:gravity="center_vertical"
-        android:text="Sync Data"
-        app:layout_constraintStart_toEndOf="@+id/pushgluco_btn"
+        app:iconTint="@color/grey_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 <!--    /TOP Bar     -->
+
 
 
     <ScrollView
@@ -97,12 +85,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:orientation="horizontal">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/bg_leftside"
-                    android:layout_width="187dp"
-                    android:layout_height="160dp">
+                    android:layout_width="175dp"
+                    android:layout_height="180dp">
 
                     <Button
                         android:id="@+id/btn_BG"
@@ -122,7 +111,7 @@
                         app:iconGravity="start"
                         app:iconSize="20dp"
                         app:iconTint="@color/red_primary"
-                        app:layout_constraintStart_toStartOf="@+id/guideline4"
+                        app:layout_constraintStart_toStartOf="@+id/bg_guideline"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:ignore="SpeakableTextPresentCheck" />
 
@@ -134,6 +123,7 @@
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
                         android:text="Blood Glucose"
+                        android:textColor="@color/red_primary"
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:translationY="20dp"
@@ -149,11 +139,12 @@
                         android:gravity="center_vertical"
                         android:text="4.5"
                         android:textAlignment="viewStart"
+                        android:textColor="@color/red_primary"
                         android:textSize="30dp"
                         app:layout_constraintBottom_toTopOf="@+id/bg_label"
-                        app:layout_constraintStart_toStartOf="@+id/guideline4"
+                        app:layout_constraintStart_toStartOf="@+id/bg_guideline"
                         app:layout_constraintTop_toBottomOf="@+id/btn_BG"
-                        app:layout_constraintVertical_bias="0.35     " />
+                        app:layout_constraintVertical_bias=".7" />
 
                     <TextView
                         android:id="@+id/bg_Unit"
@@ -162,6 +153,8 @@
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="bottom"
                         android:text="mmol/L"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/red_primary"
                         android:textSize="14dp"
                         android:translationX="10dp"
                         android:translationY="-2dp"
@@ -172,6 +165,7 @@
                         android:id="@+id/bg_label"
                         android:layout_width="80dp"
                         android:layout_height="22dp"
+                        android:layout_marginBottom="25dp"
                         android:background="@drawable/border"
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
@@ -180,32 +174,32 @@
                         android:textColor="#FFFFFF"
                         android:textSize="10dp"
                         android:textStyle="bold"
-                        android:translationY="-20dp"
+                        android:translationY="0dp"
                         android:typeface="normal"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="@+id/guideline4" />
+                        app:layout_constraintStart_toStartOf="@+id/bg_guideline" />
 
                     <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/guideline4"
+                        android:id="@+id/bg_guideline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_end="162dp" />
+                        app:layout_constraintGuide_begin="25dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/bg_rightside"
                     android:layout_width="match_parent"
-                    android:layout_height="160dp">
+                    android:layout_height="180dp">
 
                     <co.csadev.kellocharts.view.LineChartView
                         android:id="@+id/graph_main_BG"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:layout_marginTop="50dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginTop="45dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginBottom="10dp"
                         android:backgroundTint="#F0F0F0"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -241,8 +235,8 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/steps_leftside"
-                    android:layout_width="187dp"
-                    android:layout_height="160dp">
+                    android:layout_width="175dp"
+                    android:layout_height="180dp">
 
 
                     <Button
@@ -266,7 +260,8 @@
 
                         app:layout_constraintStart_toStartOf="@+id/steps_guideline"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                        tools:ignore="SpeakableTextPresentCheck"
+                        />
 
                     <TextView
                         android:id="@+id/steps_title"
@@ -276,6 +271,7 @@
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
                         android:text="Steps"
+                        android:textColor="@color/orange_primary"
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:translationY="20dp"
@@ -291,17 +287,19 @@
                         android:gravity="center_vertical"
                         android:text="4.5"
                         android:textAlignment="viewStart"
+                        android:textColor="@color/orange_primary"
                         android:textSize="30dp"
                         app:layout_constraintBottom_toTopOf="@+id/steps_label"
                         app:layout_constraintStart_toStartOf="@+id/steps_guideline"
                         app:layout_constraintTop_toBottomOf="@+id/btn_steps"
-                        app:layout_constraintVertical_bias="0.35" />
+                        app:layout_constraintVertical_bias=".7" />
 
 
                     <TextView
                         android:id="@+id/steps_label"
                         android:layout_width="80dp"
                         android:layout_height="22dp"
+                        android:layout_marginBottom="25dp"
                         android:background="@drawable/border"
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
@@ -310,7 +308,7 @@
                         android:textColor="@color/white"
                         android:textSize="10dp"
                         android:textStyle="bold"
-                        android:translationY="-20dp"
+                        android:translationY="0dp"
                         android:typeface="normal"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/steps_guideline" />
@@ -320,22 +318,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_end="162dp" />
+                        app:layout_constraintGuide_begin="25dp"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/steps_rightside"
                     android:layout_width="match_parent"
-                    android:layout_height="160dp">
+                    android:layout_height="180dp">
 
                     <co.csadev.kellocharts.view.LineChartView
                         android:id="@+id/graph_main_steps"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:layout_marginTop="50dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginTop="45dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginBottom="10dp"
                         android:backgroundTint="#F0F0F0"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -388,8 +386,8 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/hr_leftside"
-                    android:layout_width="187dp"
-                    android:layout_height="160dp">
+                    android:layout_width="175dp"
+                    android:layout_height="180dp">
 
                     <Button
                         android:id="@+id/btn_HR"
@@ -421,6 +419,7 @@
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
                         android:text="Heart Rate"
+                        android:textColor="@color/blue_primary"
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:translationY="20dp"
@@ -436,11 +435,12 @@
                         android:gravity="center_vertical"
                         android:text="4.5"
                         android:textAlignment="viewStart"
+                        android:textColor="@color/blue_primary"
                         android:textSize="30dp"
                         app:layout_constraintBottom_toTopOf="@+id/hr_label"
                         app:layout_constraintStart_toStartOf="@+id/hr_guideline"
                         app:layout_constraintTop_toBottomOf="@+id/btn_HR"
-                        app:layout_constraintVertical_bias="0.35     " />
+                        app:layout_constraintVertical_bias=".7" />
 
                     <TextView
                         android:id="@+id/hr_Unit"
@@ -449,6 +449,7 @@
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="bottom"
                         android:text="bpm"
+                        android:textColor="@color/blue_primary"
                         android:textSize="14dp"
                         android:translationX="10dp"
                         android:translationY="-2dp"
@@ -459,6 +460,7 @@
                         android:id="@+id/hr_label"
                         android:layout_width="80dp"
                         android:layout_height="22dp"
+                        android:layout_marginBottom="25dp"
                         android:background="@drawable/border"
                         android:fontFamily="@font/helveticaneue_normal"
                         android:gravity="center_vertical"
@@ -467,7 +469,7 @@
                         android:textColor="@color/white"
                         android:textSize="10dp"
                         android:textStyle="bold"
-                        android:translationY="-20dp"
+                        android:translationY="0dp"
                         android:typeface="normal"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/hr_guideline" />
@@ -477,22 +479,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        app:layout_constraintGuide_end="162dp" />
+                        app:layout_constraintGuide_begin="25dp" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/hr_rightside"
                     android:layout_width="match_parent"
-                    android:layout_height="160dp">
+                    android:layout_height="180dp">
 
                     <co.csadev.kellocharts.view.LineChartView
                         android:id="@+id/graph_main_HR"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
-                        android:layout_marginTop="50dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginTop="45dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginBottom="10dp"
                         android:backgroundTint="#F0F0F0"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -521,32 +523,22 @@
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
 
-<!--            <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="200dp">-->
+            <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="200dp">-->
 
-<!--                <co.csadev.kellocharts.view.LineChartView-->
-<!--                    android:id="@+id/graph_main_HR"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent" />-->
-<!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-
+            <!--                <co.csadev.kellocharts.view.LineChartView-->
+            <!--                    android:id="@+id/graph_main_HR"-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="match_parent"-->
+            <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                    app:layout_constraintStart_toStartOf="parent"-->
+            <!--                    app:layout_constraintTop_toTopOf="parent" />-->
+            <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
 
 
-
-
-
-
-<!--       Section to update     -->
-
-
-
-
+            <!--       Section to update     -->
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -565,10 +557,10 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
         </LinearLayout>
 
     </ScrollView>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

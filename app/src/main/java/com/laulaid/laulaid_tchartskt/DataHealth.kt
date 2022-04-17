@@ -3,6 +3,7 @@ package com.laulaid.laulaid_tchartskt
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import co.csadev.kellocharts.gesture.ZoomType
 import co.csadev.kellocharts.listener.ViewportChangeListener
@@ -28,7 +29,7 @@ import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int)  {
+class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int, labelID: Int)  {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
@@ -142,6 +143,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var kChartViewID = viewID
     var kChartPreViewID =previewID
     var kValueViewID = valueID
+    var kLabelViewID = labelID
 
     // Chart variables (Main view)
     var kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
@@ -306,9 +308,6 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     fun displayMainGraph() {
         kXAxisValues.clear()
 
-        context.isUiContext
-
-
         // Display Graph
         if (kDateMillis.size > 1) {
             var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
@@ -339,25 +338,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                 }
 
-
+                // Last value to fill textfield + Label update depending on the last value
                 if( kXAxis.name != "Blood Pressure" ){
-                    // Display current value as text with 2 decimals only
-                    val currentPointValue = kLine.last().values.last()
-//                    if (kXAxis.name == "Blood Glucose" ){
-//                        (context as Activity).findViewById<TextView>(kValueViewID).text= "%.2f".format(currentPointValue.y)
-//                        if (currentPointValue.y < 4.0){
-//                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "WARNING"
-//                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
-//                        }
-//                        else {
-//                            (context as Activity).findViewById<TextView>(R.id.bg_label).text= "NORMAL"
-//                            (context as Activity).findViewById<TextView>(R.id.bg_label).setBackgroundColor((context as Activity).getResources().getColor(state_warning))
-//                        }
-//                    }
-//                    else{
-//                        (context as Activity).findViewById<TextView>(kValueViewID).text= "%.0f".format(currentPointValue.y)
-//                    }
-
+                    formatLabel()
                     kYaxis = Axis(hasLines = true, maxLabels = 4)
                 }
                 // get each distinct value of date in the list of string dates
@@ -380,12 +363,13 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                 // Lines formatting
                 kLine.forEach{
                     it.hasLabelsOnlyForSelected = true
-                    it.isFilled = false
+                    it.isFilled = true
                     it.hasPoints = false
                     it.strokeWidth = 1
                     it.color = kLineColor
                     it.pointRadius = 1
                     it.hasLabels = false
+
                 }
 
                 // Create a LineChartData using time and Line data
@@ -397,26 +381,54 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                 view_GraphMain.lineChartData = kChart
 
-
                 val tempViewport = view_GraphMain?.maximumViewport.copy()
-                val dx = tempViewport.width()*15f/16f
+                val dx = tempViewport.width()*2f/3f
                 tempViewport.offset(dx, 0f)
 
-                // If a preview view is available, to to displayPreviewChart()
-                if  (kChartPreViewID != -1) {
-                    displayPreviewGraph(kChart, tempViewport)
-
-
-
-
+                // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
+                if(this.context:: class != MainActivity::class){
+                   displayPreviewGraph(kChart, tempViewport)
                 }
             }
 
         }
     }
+    fun formatLabel() {
+        val currentPointValue = kLine.last().values.last()
+
+        // Display Current Value
+        if (kXAxis.name == "Blood Glucose") {
+            (context as Activity).findViewById<TextView>(kValueViewID).text =
+                "%.2f".format(currentPointValue.y)
+        } else {
+            (context as Activity).findViewById<TextView>(kValueViewID).text =
+                "%.0f".format(currentPointValue.y)
+        }
+
+        // Format Label
+        // 1 - Warning
+
+            if ((kXAxis.name == "Blood Glucose" && currentPointValue.y < 4.0) || (kXAxis.name == "Steps" && currentPointValue.y < 1000) || ((kXAxis.name == "Heart Rate" && currentPointValue.y > 100) || (kXAxis.name == "Heart Rate" && currentPointValue.y < 40))) {
+                (context as Activity).findViewById<TextView>(kLabelViewID).text = "WARNING"
+                (context as Activity).findViewById<TextView>(kLabelViewID).setBackgroundColor(
+                    (context as Activity).getResources().getColor(state_warning)
+                )
+
+            }
+            // 2- Normal
+            else if ((kXAxis.name == "Blood Glucose" && currentPointValue.y >= 4.0) || (kXAxis.name == "Steps" && currentPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && currentPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && currentPointValue.y >= 40))) {
+                (context as Activity).findViewById<TextView>(kLabelViewID).text = "NORMAL"
+                (context as Activity).findViewById<TextView>(kLabelViewID)
+                    .setBackgroundColor((context as Activity).getResources().getColor(state_normal))
+            }
+    }
+
+
 
 
     /** Display Preview graphs using KelloCharts Lib
+     * @param kChart: LineChartData of the main chart - used to copy same data to the preview graph
+     * @param viewport: temporary viewport to call listener
      */
     fun displayPreviewGraph(kChart: LineChartData, viewPort: Viewport) {
         // Declare views

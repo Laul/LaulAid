@@ -14,13 +14,13 @@ class BloodGlucoseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bloodglucose)
 
-        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_BG_Main,  R.id.graph_BG_Preview , R.id.bg_value)
+        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.bgView_MainGraph,  R.id.bgView_PreviewGraph , R.id.bgView_Value,R.id.bgView_Label)
         DataHealth_BG.connectGFit( this, false, 15)
 
 
 
         //
-        btnRequest = findViewById(R.id.bSearch)
+        btnRequest = findViewById(R.id.bgView_Back)
         btnRequest!!.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
