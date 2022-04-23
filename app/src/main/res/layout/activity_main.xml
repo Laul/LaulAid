@@ -30,6 +30,7 @@
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="100dp"
         android:layout_height="60dp"
         app:layout_constraintEnd_toEndOf="@+id/toolbar">
@@ -68,12 +69,11 @@
             app:iconTint="@color/grey_secondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 <!--    /TOP Bar     -->
-
-
 
     <ScrollView
         android:id="@+id/scroll"
@@ -231,18 +231,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
-
-                    <!--
-                    android:layout_marginTop="25dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.932"
-                    app:layout_constraintStart_toEndOf="@+id/bg_title"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    -->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -587,6 +575,22 @@
 
     </ScrollView>
 
+    <Button
+        android:id="@+id/sandbox_btn"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/grey_primary"
+        android:foregroundTint="@color/grey_primary"
+        android:paddingLeft="8dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="10dp"
+        android:stateListAnimator="@null"
+        app:icon="@drawable/sandbox"
+        app:iconGravity="start"
+        app:iconSize="25dp"
+        app:iconTint="@color/grey_secondary"
+        app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
+        tools:layout_editor_absoluteY="0dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
