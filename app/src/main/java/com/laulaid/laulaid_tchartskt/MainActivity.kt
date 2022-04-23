@@ -9,28 +9,14 @@ package com.laulaid.laulaid_tchartskt
 // Charting
 //chart - Detailed views
 //chart - main view
+
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.StringRequest
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
-import com.github.aachartmodel.aainfographics.aachartcreator.AAChartView
-import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.fitness.Fitness
-import com.google.android.gms.fitness.FitnessOptions
-import com.google.android.gms.fitness.data.*
-import com.google.android.gms.fitness.request.DataReadRequest
-import com.google.android.gms.fitness.request.DataUpdateRequest
-import com.google.android.gms.fitness.result.DataReadResponse
-import com.google.android.gms.tasks.Task
-import org.json.JSONArray
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
+
 
 // GFit - Parameters variables
 const val TAG = "LaulAidTAG"
@@ -40,44 +26,51 @@ const val TAG = "LaulAidTAG"
 class MainActivity : AppCompatActivity() {
     // HTTP request variables
     private var btnRequest: Button? = null
-    private var mRequestQueue: RequestQueue? = null
-    private var mStringRequest: StringRequest? = null
-    private val url = "http://192.168.1.135:17580/api/v1/entries/sgv.json?count=10"
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
         // Create 1 instance of DataHealth for each type of data in GFit
-        var DataHealth_BG = DataHealth("Blood Glucose", this)
-        var DataHealth_BP = DataHealth("Blood Pressure", this)
-        var DataHealth_steps = DataHealth("Steps", this)
-        var DataHealth_HR = DataHealth("Heart Rate", this)
+        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label , R.id.bg_date)
+//        var DataHealth_BP = DataHealth("Blood Pressure",this, R.id.graph_main_BP, -1, R.id.bp_value)
+        var DataHealth_steps = DataHealth("Steps", this, R.id.graph_main_steps,-1, R.id.steps_value, R.id.steps_label, R.id.bg_date)
+        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.graph_main_HR,-1, R.id.hr_value, R.id.hr_label, R.id.bg_date)
+//        var DataHealth_sleep = DataHealth("Sleep", this, R.id.graph_main_sleep-1, R.id.steps_value, R.id.steps_label)
 
         // Google fit
-        DataHealth_steps.connectGFit( this)
-        DataHealth_BP.connectGFit( this)
-        DataHealth_HR.connectGFit( this)
-
-        // XDRip
-
-        DataHealth_BG.connectXDrip(url, this)
-
+        DataHealth_steps.connectGFit( this, false, 6)
+//        DataHealth_BP.connectGFit( this, false, 6)
+        DataHealth_BG.connectGFit( this, false, 2)
+        DataHealth_HR.connectGFit( this, false, 6)
 
         // Button callback to force get data once app launched
-        btnRequest = findViewById<Button>(R.id.buttonRequest2)
-        btnRequest!!.setOnClickListener { DataHealth_steps.connectGFit( this) }
+        btnRequest = findViewById(R.id.reload_btn)
+        btnRequest!!.setOnClickListener {
+//            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value)
+//            DataHealth_BG.connectXDrip(this, true ,1000)
+            DataHealth_steps.connectGFit( this, false, 6)
+//            DataHealth_BP.connectGFit( this, false, 6)
+            DataHealth_BG.connectGFit( this, false, 2)
+            DataHealth_HR.connectGFit( this, false, 6)
+        }
 
-        Log.i(TAG,"\tdata: ${DataHealth_steps.data}")
+        // Push data to GFit
+        btnRequest = findViewById(R.id.pushgluco_btn)
+        btnRequest!!.setOnClickListener {
+            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label, R.id.bg_date )
+            DataHealth_BG.connectXDrip(this, true ,1000)
+        }
 
-        // Show detailed view
-//        val buttonClick = findViewById<Button>(R.id.btn_steps)
-//        buttonClick.setOnClickListener {
-//            val intent = Intent(this, BloodGlucoseActivity::class.java)
-//            startActivity(intent)
-//        }
+        btnRequest = findViewById(R.id.btn_BG)
+        btnRequest!!.setOnClickListener {
+            val intent = Intent(this, BloodGlucoseActivity::class.java)
+            startActivity(intent)
+        }
+
     }
+
 
 
 
