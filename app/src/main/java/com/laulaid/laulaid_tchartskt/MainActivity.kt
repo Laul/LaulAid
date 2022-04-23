@@ -33,10 +33,11 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         // Create 1 instance of DataHealth for each type of data in GFit
-        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label )
+        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label , R.id.bg_date)
 //        var DataHealth_BP = DataHealth("Blood Pressure",this, R.id.graph_main_BP, -1, R.id.bp_value)
-        var DataHealth_steps = DataHealth("Steps", this, R.id.graph_main_steps,-1, R.id.steps_value, R.id.steps_label)
-        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.graph_main_HR,-1, R.id.hr_value, R.id.hr_label)
+        var DataHealth_steps = DataHealth("Steps", this, R.id.graph_main_steps,-1, R.id.steps_value, R.id.steps_label, R.id.bg_date)
+        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.graph_main_HR,-1, R.id.hr_value, R.id.hr_label, R.id.bg_date)
+//        var DataHealth_sleep = DataHealth("Sleep", this, R.id.graph_main_sleep-1, R.id.steps_value, R.id.steps_label)
 
         // Google fit
         DataHealth_steps.connectGFit( this, false, 6)
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         // Push data to GFit
         btnRequest = findViewById(R.id.pushgluco_btn)
         btnRequest!!.setOnClickListener {
-            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label )
+            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label, R.id.bg_date )
             DataHealth_BG.connectXDrip(this, true ,1000)
         }
 

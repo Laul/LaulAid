@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.LaulAid_TChartskt" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/backgroundColor</item>
+        <item name="colorPrimary">@color/grey_secondary</item>
         <item name="colorPrimaryVariant">@color/backgroundColor</item>
         <item name="colorOnPrimary">@color/backgroundColor</item>
         <!-- Secondary brand color. -->
@@ -11,6 +11,8 @@
         <item name="colorOnSecondary">@color/backgroundColor</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/backgroundColor</item>
+<!--        <item name="android:iconTint" tools:targetApi="l">@color/grey_secondary</item>-->
+<!--        <item name="android:subtitleTextColor" tools:targetApi="l">@color/orange_secondary</item>-->
         <!-- Customize your theme here. -->
     </style>
 

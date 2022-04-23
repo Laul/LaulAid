@@ -29,7 +29,8 @@ import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int, labelID: Int)  {
+
+class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int, labelID: Int, dateID : Int)  {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
@@ -60,21 +61,32 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                 for (dataSet in bucket.dataSets) {
                     // Steps
-                    if (dataSet.dataType==TYPE_STEP_COUNT_DELTA){
-                        dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
-                        dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
-                        var steps_temp = 0f
+                    if (dataSet.dataType==TYPE_STEP_COUNT_DELTA) {
+                        if (dataHealth.context::class == MainActivity::class) {
+                            dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
+                            dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
+                            var steps_temp = 0f
 
-                        for (dp in dataSet.dataPoints) {
-                            steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
-                        }
+                            for (dp in dataSet.dataPoints) {
+                                steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
+                            }
 
-                        dataHealth.kLine.add(Line(
-                            arrayListOf(
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),0f, ""),
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),steps_temp,steps_temp.toString() ),
+                            dataHealth.kLine.add(
+                                Line(
+                                    arrayListOf(
+                                        PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(), 0f, ""),
+                                        PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(), steps_temp, steps_temp.toString()),
+                                    )
+                                )
                             )
-                        ))
+                        }
+                        else{
+                            for (dp in dataSet.dataPoints) {
+                                dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+                                dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
+                                dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_STEPS).asFloat(), dp.getValue(Field.FIELD_STEPS).asFloat().toString()))
+                            }
+                        }
                     }
 
 
@@ -144,6 +156,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var kChartPreViewID =previewID
     var kValueViewID = valueID
     var kLabelViewID = labelID
+    var kDateViewID = dateID
 
     // Chart variables (Main view)
     var kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
@@ -277,6 +290,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         kLine.clear()
         kLineValues.clear()
 
+//        displayCharts = false
         kLine.forEach{it.values.clear()}
 
         // History request and go to parse data
@@ -309,106 +323,120 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         kXAxisValues.clear()
 
         // Display Graph
-        if (kDateMillis.size > 1) {
-            var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
+         if (kDateMillis.size > 1) {
+                var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
 
-            if (view_GraphMain is LineChartView) {
+                if (view_GraphMain is LineChartView) {
 
-                // All cases except Blood Pressure: 1 line with Point Values
-                if(kXAxis.name == "Blood Glucose" || kXAxis.name == "Heart Rate"){
-                    // Create a line with all PointValues
-                    kLine.clear()
-                    kLine.add(Line(kLineValues))
+                    // All cases except Blood Pressure: 1 line with Point Values
+                    if (kXAxis.name == "Blood Glucose" || kXAxis.name == "Heart Rate") {
+                        // Create a line with all PointValues
+                        kLine.clear()
+                        kLine.add(Line(kLineValues))
 
-                    // sort Point Values in chronological order
-                    kLine.forEach {
-                        if (it.values != null) {
-                            it.values = sortData(kDateMillis, it.values)
+                        // sort Point Values in chronological order
+                        kLine.forEach {
+                            if (it.values != null) {
+                                it.values = sortData(kDateMillis, it.values)
+                            }
                         }
+
+
                     }
 
+                    // Blood Pressure case and steps: x lines with 2 pointvalues
+                    if (kXAxis.name == "Blood Pressure" || kXAxis.name == "Steps") {
+                        // sort Lines in chronological order
+                        kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
 
+
+                    }
+
+                    // Last value to fill textfield + Label update depending on the last value
+                    if (kXAxis.name != "Blood Pressure") {
+                        formatLabel()
+                        kYaxis = Axis(hasLines = true, maxLabels = 4)
+                    }
+                    // get each distinct value of date in the list of string dates
+                    val kXAxisLabels = kDateEEE.distinct()
+
+                    // Get index of each distinct value in the list of string dates
+                    var kXAxisIndex = ArrayList<Int>()
+                    kXAxisLabels.forEach {
+                        kXAxisIndex.add(kDateEEE.indexOf(it))
+                    }
+
+                    // Create axis values
+                    for (i in 0 until kXAxisIndex.size) {
+                        kXAxisValues.add(
+                            AxisValue(
+                                kDateMillis[kXAxisIndex[i]].toFloat(),
+                                kXAxisLabels[i].toCharArray()
+                            )
+                        )
+                    }
+
+                    // Add values for x Axis
+                    kXAxis.values = kXAxisValues
+
+                    // Lines formatting
+                    kLine.forEach {
+                        it.hasLabelsOnlyForSelected = true
+                        it.isFilled = true
+                        it.hasPoints = false
+                        it.strokeWidth = 1
+                        it.color = kLineColor
+                        it.pointRadius = 1
+                        it.hasLabels = true
+
+                    }
+
+                    // Create a LineChartData using time and Line data
+                    var kChart = LineChartData(kLine)
+
+                    // Add axis values and push it in the chart
+                    kChart.axisXBottom = kXAxis
+                    kChart.axisYRight = kYaxis
+
+                    view_GraphMain.lineChartData = kChart
+
+                    val tempViewport = view_GraphMain?.maximumViewport.copy()
+                    val dx = tempViewport.width() * 2f / 3f
+                    tempViewport.offset(dx, 0f)
+
+                    // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
+                    if (this.context::class != MainActivity::class) {
+                        displayPreviewGraph(kChart, tempViewport)
+                    }
                 }
 
-                // Blood Pressure case and steps: x lines with 2 pointvalues
-                if(kXAxis.name == "Blood Pressure" ||kXAxis.name == "Steps"){
-                    // sort Lines in chronological order
-                    kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
-
-
-                }
-
-                // Last value to fill textfield + Label update depending on the last value
-                if( kXAxis.name != "Blood Pressure" ){
-                    formatLabel()
-                    kYaxis = Axis(hasLines = true, maxLabels = 4)
-                }
-                // get each distinct value of date in the list of string dates
-                val kXAxisLabels = kDateEEE.distinct()
-
-                // Get index of each distinct value in the list of string dates
-                var kXAxisIndex = ArrayList<Int>()
-                kXAxisLabels.forEach{
-                    kXAxisIndex.add(kDateEEE.indexOf(it))
-                }
-
-                // Create axis values
-                for (i in 0 until kXAxisIndex.size) {
-                    kXAxisValues.add(AxisValue(kDateMillis[kXAxisIndex[i]].toFloat(), kXAxisLabels[i].toCharArray()))
-                }
-
-                // Add values for x Axis
-                kXAxis.values = kXAxisValues
-
-                // Lines formatting
-                kLine.forEach{
-                    it.hasLabelsOnlyForSelected = true
-                    it.isFilled = true
-                    it.hasPoints = false
-                    it.strokeWidth = 1
-                    it.color = kLineColor
-                    it.pointRadius = 1
-                    it.hasLabels = false
-
-                }
-
-                // Create a LineChartData using time and Line data
-                var kChart = LineChartData(kLine)
-
-                // Add axis values and push it in the chart
-                kChart.axisXBottom = kXAxis
-                kChart.axisYRight = kYaxis
-
-                view_GraphMain.lineChartData = kChart
-
-                val tempViewport = view_GraphMain?.maximumViewport.copy()
-                val dx = tempViewport.width()*2f/3f
-                tempViewport.offset(dx, 0f)
-
-                // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
-                if(this.context:: class != MainActivity::class){
-                   displayPreviewGraph(kChart, tempViewport)
-                }
             }
 
-        }
     }
+
     fun formatLabel() {
-        val currentPointValue = kLine.last().values.last()
+        if (context::class == MainActivity::class) {
 
-        // Display Current Value
-        if (kXAxis.name == "Blood Glucose") {
-            (context as Activity).findViewById<TextView>(kValueViewID).text =
-                "%.2f".format(currentPointValue.y)
-        } else {
-            (context as Activity).findViewById<TextView>(kValueViewID).text =
-                "%.0f".format(currentPointValue.y)
-        }
+            val latestPointValue = kLine.last().values.last()
+//        val latestDate = getDate(latestPointValue.x, "EEE, MMM d - h:mm a")
 
-        // Format Label
-        // 1 - Warning
 
-            if ((kXAxis.name == "Blood Glucose" && currentPointValue.y < 4.0) || (kXAxis.name == "Steps" && currentPointValue.y < 1000) || ((kXAxis.name == "Heart Rate" && currentPointValue.y > 100) || (kXAxis.name == "Heart Rate" && currentPointValue.y < 40))) {
+            // Display Current Value
+            if (kXAxis.name == "Blood Glucose") {
+                (context as Activity).findViewById<TextView>(kValueViewID).text =
+                    "%.2f".format(latestPointValue.y)
+            } else {
+                (context as Activity).findViewById<TextView>(kValueViewID).text =
+                    "%.0f".format(latestPointValue.y)
+            }
+
+            // Display latest date in association to the latest value
+            (context as Activity).findViewById<TextView>(kDateViewID).text = getDate(latestPointValue.x.toLong(), "EEE, MMM d - h:mm a")
+
+            // Format Label
+            // 1 - Warning
+
+            if ((kXAxis.name == "Blood Glucose" && latestPointValue.y < 4.0) || (kXAxis.name == "Steps" && latestPointValue.y < 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y > 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y < 40))) {
                 (context as Activity).findViewById<TextView>(kLabelViewID).text = "WARNING"
                 (context as Activity).findViewById<TextView>(kLabelViewID).setBackgroundColor(
                     (context as Activity).getResources().getColor(state_warning)
@@ -416,11 +444,12 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
             }
             // 2- Normal
-            else if ((kXAxis.name == "Blood Glucose" && currentPointValue.y >= 4.0) || (kXAxis.name == "Steps" && currentPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && currentPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && currentPointValue.y >= 40))) {
+            else if ((kXAxis.name == "Blood Glucose" && latestPointValue.y >= 4.0) || (kXAxis.name == "Steps" && latestPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y >= 40))) {
                 (context as Activity).findViewById<TextView>(kLabelViewID).text = "NORMAL"
                 (context as Activity).findViewById<TextView>(kLabelViewID)
                     .setBackgroundColor((context as Activity).getResources().getColor(state_normal))
             }
+        }
     }
 
 
@@ -521,7 +550,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
             // Get dates in millis and in strings
             kDateMillis.add(measure.getLong("date"))
-            kDateEEE.add(getDate(measure.getLong("date"), "EEE").toString())
+            kDateEEE.add(getDate(measure.getLong("date"), "EEE"))
 
             // Get BG values and create associated PointValue
             val sgv = measure.getDouble("sgv")/18
@@ -544,8 +573,6 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             .setDataType(TYPE_BLOOD_GLUCOSE)
             .setType(DataSource.TYPE_RAW)
             .build()
-
-
 
         // Create dataset
         val gFitGlucoDSet = DataSet.builder(gFitGlucoDSource)
@@ -578,5 +605,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             }
 
         }
+
+
 
 }
