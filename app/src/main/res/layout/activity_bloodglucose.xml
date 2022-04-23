@@ -22,6 +22,7 @@
         app:titleTextColor="@color/grey_secondary"
         tools:layout_editor_absoluteX="1dp"
         android:elevation="4dp"
+        android:layout = "@menu/toolbar"
         >
 
     </androidx.appcompat.widget.Toolbar>

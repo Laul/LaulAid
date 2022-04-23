@@ -7,8 +7,17 @@
     android:icon="@drawable/back"
     android:title="Back"
     android:iconTint="@color/grey_secondary"
-        app:showAsAction="ifRoom"
+    app:showAsAction="ifRoom"
+ />
+    <item
+        android:id="@+id/reload"
+        android:icon="@drawable/reload"
+        android:title="Reload"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/pushgluco"
+        android:icon="@drawable/pushcloud"
+        android:title="Push Data"
+        app:showAsAction="always" />
 
-
-    />
 </menu>
