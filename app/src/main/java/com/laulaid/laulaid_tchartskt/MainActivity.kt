@@ -75,6 +75,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        btnRequest = findViewById(R.id.sandbox)
+        btnRequest!!.setOnClickListener {
+            val intent = Intent(this, SandboxActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
 

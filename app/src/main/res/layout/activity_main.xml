@@ -27,7 +27,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
-        android:layout_width="100dp"
+        android:layout_width="150dp"
         android:layout_height="60dp"
         app:layout_constraintEnd_toEndOf="@+id/toolbar">
 
@@ -65,6 +65,23 @@
             app:iconTint="@color/grey_secondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/sandbox"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/grey_primary"
+            android:foregroundTint="@color/grey_primary"
+            android:paddingLeft="8dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:stateListAnimator="@null"
+            app:icon="@drawable/sandbox"
+            app:iconGravity="start"
+            app:iconSize="25dp"
+            app:iconTint="@color/grey_secondary"
+            app:layout_constraintEnd_toStartOf="@+id/reload_btn"
+            tools:layout_editor_absoluteY="0dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 <!--    /TOP Bar     -->
