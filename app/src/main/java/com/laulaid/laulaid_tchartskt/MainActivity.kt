@@ -10,11 +10,9 @@ package com.laulaid.laulaid_tchartskt
 //chart - Detailed views
 //chart - main view
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 
@@ -33,10 +31,10 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         // Create 1 instance of DataHealth for each type of data in GFit
-        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label , R.id.bg_date)
+        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.bg_graph, -1 , R.id.bg_value, R.id.bg_label , R.id.bg_date)
 //        var DataHealth_BP = DataHealth("Blood Pressure",this, R.id.graph_main_BP, -1, R.id.bp_value)
-        var DataHealth_steps = DataHealth("Steps", this, R.id.graph_main_steps,-1, R.id.steps_value, R.id.steps_label, R.id.bg_date)
-        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.graph_main_HR,-1, R.id.hr_value, R.id.hr_label, R.id.bg_date)
+        var DataHealth_steps = DataHealth("Steps", this, R.id.steps_graph,-1, R.id.steps_value, R.id.steps_label, R.id.steps_date)
+        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.ht_graph,-1, R.id.hr_value, R.id.hr_label, R.id.hr_date)
 //        var DataHealth_sleep = DataHealth("Sleep", this, R.id.graph_main_sleep-1, R.id.steps_value, R.id.steps_label)
 
         // Google fit
@@ -59,10 +57,11 @@ class MainActivity : AppCompatActivity() {
         // Push data to GFit
         btnRequest = findViewById(R.id.pushgluco_btn)
         btnRequest!!.setOnClickListener {
-            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value, R.id.bg_label, R.id.bg_date )
+            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.bg_graph, -1 , R.id.bg_value, R.id.bg_label, R.id.bg_date )
             DataHealth_BG.connectXDrip(this, true ,1000)
         }
 
+<<<<<<< Updated upstream
         // Start Sandbox activity
         btnRequest = findViewById(R.id.sandbox_btn)
         btnRequest!!.setOnClickListener {
@@ -71,12 +70,23 @@ class MainActivity : AppCompatActivity() {
         }
         // Start BG activity
         btnRequest = findViewById(R.id.btn_BG)
+=======
+        btnRequest = findViewById(R.id.bg_btn)
+>>>>>>> Stashed changes
         btnRequest!!.setOnClickListener {
             val intent = Intent(this, BloodGlucoseActivity::class.java)
             startActivity(intent)
         }
 
+<<<<<<< Updated upstream
 
+=======
+        btnRequest = findViewById(R.id.steps_btn)
+        btnRequest!!.setOnClickListener {
+            val intent = Intent(this, StepsActivity::class.java)
+            startActivity(intent)
+        }
+>>>>>>> Stashed changes
 
     }
 

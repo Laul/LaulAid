@@ -38,8 +38,13 @@
         </activity>
 
         <activity
+<<<<<<< Updated upstream
             android:name=".SandboxActivity"
             android:label="@string/title_activity_sandbox">
+=======
+            android:name=".StepsActivity"
+            android:label="@string/title_activity_steps">
+>>>>>>> Stashed changes
             android:parentActivityName=".MainActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -47,6 +52,10 @@
                 android:value=".MainActivity"/>
 
         </activity>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 
     </application>

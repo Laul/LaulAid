@@ -9,7 +9,6 @@
     android:background="@color/backgroundColor">
 
     <!--    TOP Bar     -->
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="fill_parent"
@@ -24,9 +23,6 @@
         app:title="LaulAid"
         app:titleTextColor="@color/grey_secondary"
         tools:layout_editor_absoluteX="1dp">
-
-
-
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,10 +67,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 <!--    /TOP Bar     -->
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     <ScrollView
         android:id="@+id/scroll"
         android:layout_width="0dp"
@@ -104,7 +102,7 @@
                     android:layout_height="180dp">
 
                     <Button
-                        android:id="@+id/btn_BG"
+                        android:id="@+id/bg_btn"
                         android:layout_width="35dp"
                         android:layout_height="45dp"
                         android:backgroundTint="@color/red_secondary"
@@ -137,9 +135,9 @@
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:translationY="20dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/btn_BG"
-                        app:layout_constraintStart_toEndOf="@+id/btn_BG"
-                        app:layout_constraintTop_toTopOf="@+id/btn_BG" />
+                        app:layout_constraintBottom_toBottomOf="@+id/bg_btn"
+                        app:layout_constraintStart_toEndOf="@+id/bg_btn"
+                        app:layout_constraintTop_toTopOf="@+id/bg_btn" />
 
                     <TextView
                         android:id="@+id/bg_value"
@@ -154,7 +152,7 @@
                         android:textSize="30dp"
                         app:layout_constraintBottom_toTopOf="@+id/bg_date"
                         app:layout_constraintStart_toStartOf="@+id/bg_guideline"
-                        app:layout_constraintTop_toBottomOf="@+id/btn_BG" />
+                        app:layout_constraintTop_toBottomOf="@+id/bg_btn" />
 
                     <TextView
                         android:id="@+id/bg_unit"
@@ -220,7 +218,7 @@
                     android:layout_height="180dp">
 
                     <co.csadev.kellocharts.view.LineChartView
-                        android:id="@+id/graph_main_BG"
+                        android:id="@+id/bg_graph"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
                         android:layout_marginTop="45dp"
@@ -237,7 +235,7 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/divider2"
+                android:id="@+id/bg_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
@@ -254,7 +252,7 @@
 
 
                     <Button
-                        android:id="@+id/btn_steps"
+                        android:id="@+id/steps_btn"
                         android:layout_width="35dp"
                         android:layout_height="45dp"
                         android:backgroundTint="@color/orange_secondary"
@@ -289,25 +287,43 @@
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:translationY="20dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/btn_steps"
-                        app:layout_constraintStart_toEndOf="@+id/btn_steps"
-                        app:layout_constraintTop_toTopOf="@+id/btn_steps" />
+                        app:layout_constraintBottom_toBottomOf="@+id/steps_btn"
+                        app:layout_constraintStart_toEndOf="@+id/steps_btn"
+                        app:layout_constraintTop_toTopOf="@+id/steps_btn" />
 
                     <TextView
                         android:id="@+id/steps_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
                         android:fontFamily="@font/helveticaneue_light"
                         android:gravity="center_vertical"
                         android:text="4.5"
                         android:textAlignment="viewStart"
                         android:textColor="@color/orange_primary"
                         android:textSize="30dp"
-                        app:layout_constraintBottom_toTopOf="@+id/steps_label"
+                        app:layout_constraintBottom_toTopOf="@+id/steps_date"
                         app:layout_constraintStart_toStartOf="@+id/steps_guideline"
-                        app:layout_constraintTop_toBottomOf="@+id/btn_steps"
-                        app:layout_constraintVertical_bias=".7" />
+                        app:layout_constraintTop_toBottomOf="@+id/steps_btn"
 
+                        />
+
+
+                    <TextView
+                        android:id="@+id/steps_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="@font/helveticaneue_light"
+                        android:gravity="bottom"
+                        android:text="Date latest"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/orange_primary"
+                        android:textSize="11dp"
+                        android:translationX="0dp"
+                        android:translationY="0dp"
+                        app:layout_constraintBottom_toTopOf="@+id/steps_label"
+                        app:layout_constraintStart_toStartOf="@+id/steps_guideline" />
 
                     <TextView
                         android:id="@+id/steps_label"
@@ -342,7 +358,7 @@
                     android:layout_height="180dp">
 
                     <co.csadev.kellocharts.view.LineChartView
-                        android:id="@+id/graph_main_steps"
+                        android:id="@+id/steps_graph"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
                         android:layout_marginTop="45dp"
@@ -354,44 +370,15 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!--
-                    android:layout_marginTop="25dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.932"
-                    app:layout_constraintStart_toEndOf="@+id/bg_title"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    -->
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
             <View
-                android:id="@+id/divider"
+                android:id="@+id/steps_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
-
-
-            <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="200dp">-->
-
-            <!--                <co.csadev.kellocharts.view.LineChartView-->
-            <!--                    android:id="@+id/graph_main_steps"-->
-            <!--                    android:layout_width="246dp"-->
-            <!--                    android:layout_height="170dp"-->
-            <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                    app:layout_constraintStart_toStartOf="parent"-->
-            <!--                    app:layout_constraintTop_toTopOf="parent"-->
-            <!--                    app:layout_constraintVertical_bias="0.0" />-->
-            <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -404,7 +391,7 @@
                     android:layout_height="180dp">
 
                     <Button
-                        android:id="@+id/btn_HR"
+                        android:id="@+id/hr_btn"
                         android:layout_width="35dp"
                         android:layout_height="45dp"
                         android:backgroundTint="@color/blue_secondary"
@@ -437,38 +424,42 @@
                         android:textSize="16dp"
                         android:textStyle="bold"
                         android:translationY="20dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/btn_HR"
-                        app:layout_constraintStart_toEndOf="@+id/btn_HR"
-                        app:layout_constraintTop_toTopOf="@+id/btn_HR" />
+                        app:layout_constraintBottom_toBottomOf="@+id/hr_btn"
+                        app:layout_constraintStart_toEndOf="@+id/hr_btn"
+                        app:layout_constraintTop_toTopOf="@+id/hr_btn" />
 
                     <TextView
                         android:id="@+id/hr_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
                         android:fontFamily="@font/helveticaneue_light"
                         android:gravity="center_vertical"
                         android:text="4.5"
                         android:textAlignment="viewStart"
                         android:textColor="@color/blue_primary"
                         android:textSize="30dp"
-                        app:layout_constraintBottom_toTopOf="@+id/hr_label"
+                        app:layout_constraintBottom_toTopOf="@+id/hr_date"
                         app:layout_constraintStart_toStartOf="@+id/hr_guideline"
-                        app:layout_constraintTop_toBottomOf="@+id/btn_HR"
-                        app:layout_constraintVertical_bias=".7" />
+                        app:layout_constraintTop_toBottomOf="@+id/hr_btn"
+                        />
+
 
                     <TextView
-                        android:id="@+id/hr_unit"
+                        android:id="@+id/hr_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/helveticaneue_normal"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="@font/helveticaneue_light"
                         android:gravity="bottom"
-                        android:text="bpm"
+                        android:text="Date latest"
+                        android:textAlignment="textEnd"
                         android:textColor="@color/blue_primary"
-                        android:textSize="14dp"
-                        android:translationX="10dp"
-                        android:translationY="-2dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/hr_value"
-                        app:layout_constraintStart_toEndOf="@+id/hr_value" />
+                        android:textSize="11dp"
+                        android:translationX="0dp"
+                        android:translationY="0dp"
+                        app:layout_constraintBottom_toTopOf="@+id/hr_label"
+                        app:layout_constraintStart_toStartOf="@+id/hr_guideline" />
 
                     <TextView
                         android:id="@+id/hr_label"
@@ -503,7 +494,7 @@
                     android:layout_height="180dp">
 
                     <co.csadev.kellocharts.view.LineChartView
-                        android:id="@+id/graph_main_HR"
+                        android:id="@+id/ht_graph"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
                         android:layout_marginTop="45dp"
@@ -514,46 +505,15 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
-
-                    <!--
-                    android:layout_marginTop="25dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.932"
-                    app:layout_constraintStart_toEndOf="@+id/bg_title"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    -->
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
             <View
-                android:id="@+id/divider3"
+                android:id="@+id/hr_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
-
-            <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="200dp">-->
-
-            <!--                <co.csadev.kellocharts.view.LineChartView-->
-            <!--                    android:id="@+id/graph_main_HR"-->
-            <!--                    android:layout_width="match_parent"-->
-            <!--                    android:layout_height="match_parent"-->
-            <!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                    app:layout_constraintStart_toStartOf="parent"-->
-            <!--                    app:layout_constraintTop_toTopOf="parent" />-->
-            <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-
-            <!--       Section to update     -->
-
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
