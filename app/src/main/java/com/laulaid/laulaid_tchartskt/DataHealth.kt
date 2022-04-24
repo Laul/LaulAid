@@ -409,9 +409,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                         displayPreviewGraph(kChart, tempViewport)
                     }
                 }
-
             }
-
     }
 
     fun formatLabel() {

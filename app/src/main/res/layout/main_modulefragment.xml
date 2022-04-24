@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+tools:showIn="@layout/activity_main" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/bg_leftside"
+                    android:layout_width="175dp"
+                    android:layout_height="180dp">
+
+                        <Button
+                            android:id="@+id/bg_btn"
+                            android:layout_width="35dp"
+                            android:layout_height="45dp"
+                            android:backgroundTint="@color/red_secondary"
+                            android:backgroundTintMode="add"
+                            android:foregroundTint="@color/red_primary"
+                            android:paddingLeft="8dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
+                            android:stateListAnimator="@null"
+                            android:translationY="15dp"
+                            />
+
+                        <TextView
+                            android:id="@+id/bg_title"
+                            android:layout_width="150dp"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/helveticaneue_normal"
+                            android:gravity="center_vertical"
+                            android:text="Blood Glucose"
+                            android:textColor="@color/red_primary"
+                            android:textSize="16dp"
+                            android:textStyle="bold"
+                            android:translationY="20dp"
+                            />
+
+                        <TextView
+                            android:id="@+id/bg_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="25dp"
+                            android:fontFamily="@font/helveticaneue_light"
+                            android:gravity="center_vertical"
+                            android:text="4.5"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/red_primary"
+                            android:textSize="30dp"
+                            />
+
+                        <TextView
+                            android:id="@+id/bg_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/helveticaneue_light"
+                            android:gravity="bottom"
+                            android:text="mmol/L"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/red_primary"
+                            android:textSize="14dp"
+                            android:translationX="10dp"
+                            android:translationY="-2dp"
+                            />
+
+                        <TextView
+                            android:id="@+id/bg_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:fontFamily="@font/helveticaneue_light"
+                            android:gravity="bottom"
+                            android:text="Date latest"
+                            android:textAlignment="textEnd"
+                            android:textColor="@color/red_primary"
+                            android:textSize="11dp"
+                            android:translationX="0dp"
+                            android:translationY="0dp"
+                            />
+
+                        <TextView
+                            android:id="@+id/bg_label"
+                            android:layout_width="80dp"
+                            android:layout_height="22dp"
+                            android:layout_marginBottom="25dp"
+                            android:background="@drawable/border"
+                            android:fontFamily="@font/helveticaneue_normal"
+                            android:gravity="center_vertical"
+                            android:text="bg_state"
+                            android:textAlignment="center"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10dp"
+                            android:textStyle="bold"
+                            android:translationY="0dp"
+                            android:typeface="normal"
+                            />
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/bg_guideline"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                        />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/bg_rightside"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp">
+
+                        <co.csadev.kellocharts.view.LineChartView
+                            android:id="@+id/bg_graph"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_marginTop="45dp"
+                            android:layout_marginRight="15dp"
+                            android:layout_marginBottom="10dp"
+                            android:backgroundTint="#F0F0F0"
+                            />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+
+</FrameLayout>

@@ -8,8 +8,17 @@
         <entry key="app/src/main/res/font/helvetica.xml" value="0.4588541666666667" />
         <entry key="app/src/main/res/layout/1.xml" value="0.16185410334346503" />
         <entry key="app/src/main/res/layout/activity_bloodglucose.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.75" />
+<<<<<<< Updated upstream
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main1.xml" value="0.14537037037037037" />
+        <entry key="app/src/main/res/layout/activity_sandbox.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/main_module.xml" value="0.302158273381295" />
+=======
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5381526104417671" />
+        <entry key="app/src/main/res/layout/activity_main1.xml" value="0.14537037037037037" />
+        <entry key="app/src/main/res/layout/activity_steps.xml" value="0.16574074074074074" />
+        <entry key="app/src/main/res/layout/main_modulefragment.xml" value="0.5526041666666667" />
+>>>>>>> Stashed changes
         <entry key="app/src/main/res/layout/toolbar.xml" value="0.1" />
         <entry key="app/src/main/res/menu/toolbar.xml" value="0.38177083333333334" />
       </map>

@@ -8,6 +8,7 @@ android {
         release {
         }
     }
+    viewBinding:{enabled=true}
     compileSdk 32
 
     defaultConfig {
