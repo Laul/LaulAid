@@ -69,10 +69,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 <!--    /TOP Bar     -->
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     <ScrollView
         android:id="@+id/scroll"
         android:layout_width="0dp"
@@ -535,22 +532,22 @@
 
     </ScrollView>
 
-    <Button
-        android:id="@+id/sandbox_btn"
-        android:layout_width="40dp"
-        android:layout_height="50dp"
-        android:backgroundTint="@color/grey_primary"
-        android:foregroundTint="@color/grey_primary"
-        android:paddingLeft="8dp"
-        android:paddingTop="15dp"
-        android:paddingBottom="10dp"
-        android:stateListAnimator="@null"
-        app:icon="@drawable/sandbox"
-        app:iconGravity="start"
-        app:iconSize="25dp"
-        app:iconTint="@color/grey_secondary"
-        app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
-        tools:layout_editor_absoluteY="0dp" />
+<!--    <Button-->
+<!--        android:id="@+id/sandbox_btn"-->
+<!--        android:layout_width="40dp"-->
+<!--        android:layout_height="50dp"-->
+<!--        android:backgroundTint="@color/grey_primary"-->
+<!--        android:foregroundTint="@color/grey_primary"-->
+<!--        android:paddingLeft="8dp"-->
+<!--        android:paddingTop="15dp"-->
+<!--        android:paddingBottom="10dp"-->
+<!--        android:stateListAnimator="@null"-->
+<!--        app:icon="@drawable/sandbox"-->
+<!--        app:iconGravity="start"-->
+<!--        app:iconSize="25dp"-->
+<!--        app:iconTint="@color/grey_secondary"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/constraintLayout"-->
+<!--        tools:layout_editor_absoluteY="0dp" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

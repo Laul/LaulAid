@@ -61,32 +61,19 @@ class MainActivity : AppCompatActivity() {
             DataHealth_BG.connectXDrip(this, true ,1000)
         }
 
-<<<<<<< Updated upstream
-        // Start Sandbox activity
-        btnRequest = findViewById(R.id.sandbox_btn)
-        btnRequest!!.setOnClickListener {
-            val intent = Intent(this, BloodGlucoseActivity::class.java)
-            startActivity(intent)
-        }
         // Start BG activity
-        btnRequest = findViewById(R.id.btn_BG)
-=======
         btnRequest = findViewById(R.id.bg_btn)
->>>>>>> Stashed changes
         btnRequest!!.setOnClickListener {
             val intent = Intent(this, BloodGlucoseActivity::class.java)
             startActivity(intent)
         }
 
-<<<<<<< Updated upstream
 
-=======
         btnRequest = findViewById(R.id.steps_btn)
         btnRequest!!.setOnClickListener {
             val intent = Intent(this, StepsActivity::class.java)
             startActivity(intent)
         }
->>>>>>> Stashed changes
 
     }
 
