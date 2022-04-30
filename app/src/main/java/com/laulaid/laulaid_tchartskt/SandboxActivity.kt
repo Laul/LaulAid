@@ -20,13 +20,13 @@ class SandboxActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.bgView_MainGraph,  R.id.bgView_PreviewGraph , R.id.bgView_Value,R.id.bgView_Label, R.id.bg_date)
-        DataHealth_BG.connectGFit( this, false, 15)
+        DataHealth_BG.connectGFit( this, false, 4)
 
 // Set up the RecyclerView
         var recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.setHasFixedSize(false)
         recyclerView.layoutManager = LinearLayoutManager(this.applicationContext, RecyclerView.VERTICAL, false)
-        val adapter = ModuleRecyclerViewAdapter(Module.initModuleList())
+        val adapter = ModuleRecyclerViewAdapter(Module.initModuleList(this))
         recyclerView.adapter = adapter
         val smallPadding = 30
         val largePadding = 200

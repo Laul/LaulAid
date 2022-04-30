@@ -30,7 +30,6 @@
             android:name=".BloodGlucoseActivity"
             android:label="@string/title_activity_bloodglucose">
             android:parentActivityName=".MainActivity" >
-            <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>
@@ -42,7 +41,6 @@
             android:name=".SandboxActivity"
             android:label="@string/title_activity_sandbox">
             android:parentActivityName=".MainActivity" >
-            <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity"/>

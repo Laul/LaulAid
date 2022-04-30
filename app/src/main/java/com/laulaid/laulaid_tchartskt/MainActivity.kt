@@ -25,10 +25,32 @@ class MainActivity : AppCompatActivity() {
     // HTTP request variables
     private var btnRequest: Button? = null
 
+
+
+
+
+
+
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
+
+//        setSupportActionBar(findViewById(R.id.toolbar))
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+
+
+
+
+
+
+
+
+
 
         // Create 1 instance of DataHealth for each type of data in GFit
         var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.bg_graph, -1 , R.id.bg_value, R.id.bg_label , R.id.bg_date)
