@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
+    android:layout_height="200dp"
+    android:backgroundTint="@color/grey_primary"
     tools:context=".Module">
 
     <LinearLayout
@@ -11,45 +12,43 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
+
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/module_leftside"
             android:layout_width="175dp"
-            android:layout_height="180dp">
+            android:layout_height="match_parent">
+
 
             <Button
                 android:id="@+id/module_btn"
                 android:layout_width="35dp"
                 android:layout_height="45dp"
-                android:backgroundTint="@color/red_secondary"
-                android:backgroundTintMode="add"
-                android:foregroundTint="@color/red_primary"
-                android:paddingLeft="8dp"
+                android:layout_marginTop="20dp"
+                android:paddingLeft="5dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:stateListAnimator="@null"
-
-                android:translationY="15dp"
-
-                app:icon="@drawable/bg_icn"
                 app:iconGravity="start"
-                app:iconSize="20dp"
-                app:iconTint="@color/red_primary"
+                app:iconSize="24dp"
                 app:layout_constraintStart_toStartOf="@+id/module_guideline"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="SpeakableTextPresentCheck" />
+                app:layout_constraintTop_toTopOf="@+id/module_leftside"
+                tools:ignore="SpeakableTextPresentCheck"
+                android:text="Blood Glucose"
+                />
 
             <TextView
                 android:id="@+id/module_title"
                 android:layout_width="150dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
                 android:fontFamily="@font/helveticaneue_normal"
                 android:gravity="center_vertical"
                 android:text="Blood Glucose"
                 android:textColor="@color/red_primary"
                 android:textSize="16dp"
                 android:textStyle="bold"
-                android:translationY="20dp"
+                android:translationY="0dp"
                 app:layout_constraintBottom_toBottomOf="@+id/module_btn"
                 app:layout_constraintStart_toEndOf="@+id/module_btn"
                 app:layout_constraintTop_toTopOf="@+id/module_btn" />
@@ -67,20 +66,23 @@
                 android:textSize="30dp"
                 app:layout_constraintBottom_toTopOf="@+id/module_date"
                 app:layout_constraintStart_toStartOf="@+id/module_guideline"
-                app:layout_constraintTop_toBottomOf="@+id/module_btn" />
+                app:layout_constraintTop_toBottomOf="@+id/module_btn"
+                app:layout_constraintVertical_bias="0.695" />
 
             <TextView
-                android:id="@+id/bg_unit"
+                android:id="@+id/module_unit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginBottom="5dp"
                 android:fontFamily="@font/helveticaneue_light"
                 android:gravity="bottom"
                 android:text="mmol/L"
                 android:textAlignment="textEnd"
                 android:textColor="@color/red_primary"
                 android:textSize="14dp"
-                android:translationX="10dp"
-                android:translationY="-2dp"
+                android:translationX="0dp"
+                android:translationY="0dp"
                 app:layout_constraintBottom_toBottomOf="@+id/module_value"
                 app:layout_constraintStart_toEndOf="@+id/module_value" />
 
@@ -88,7 +90,7 @@
                 android:id="@+id/module_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="15dp"
                 android:fontFamily="@font/helveticaneue_light"
                 android:gravity="bottom"
                 android:text="Date latest"
@@ -104,9 +106,10 @@
                 android:id="@+id/module_label"
                 android:layout_width="80dp"
                 android:layout_height="22dp"
-                android:layout_marginBottom="25dp"
+                android:layout_marginBottom="15dp"
                 android:background="@drawable/border"
                 android:fontFamily="@font/helveticaneue_normal"
+
                 android:gravity="center_vertical"
                 android:text="bg_state"
                 android:textAlignment="center"
@@ -126,10 +129,11 @@
                 app:layout_constraintGuide_begin="25dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/module_rightside"
             android:layout_width="match_parent"
-            android:layout_height="180dp">
+            android:layout_height="match_parent">
 
             <co.csadev.kellocharts.view.LineChartView
                 android:id="@+id/module_chart"
@@ -145,6 +149,17 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <!--        <View-->
+<!--            android:id="@+id/module_divider"-->
+<!--            android:layout_width="500dp"-->
+<!--            android:layout_height="10dp"-->
+<!--            android:background="?android:attr/listDivider"-->
+<!--            app:layout_constraintTop_toTopOf="@id/module_rightside"-->
+<!--            app:layout_constraintStart_toStartOf="@+id/module_rightside"-->
+<!--            />-->
 
     </LinearLayout>
 </FrameLayout>

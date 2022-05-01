@@ -18,8 +18,8 @@ private var btnRequest: Button? = null
         // Get a support ActionBar corresponding to this toolbar and enable the Up button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        var DataHealth_BG = DataHealth("Steps", this, R.id.bgView_MainGraph,  R.id.bgView_PreviewGraph , R.id.bgView_Value,R.id.bgView_Label, R.id.bg_date)
-        DataHealth_BG.connectGFit( this, false, 15)
+//        var DataHealth_BG = DataHealth("Steps", this, R.id.bgView_MainGraph,  R.id.bgView_PreviewGraph , R.id.bgView_Value,R.id.bgView_Label, R.id.bg_date)
+//        DataHealth_BG.connectGFit( this, false, 15)
 
 
         }

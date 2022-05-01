@@ -152,17 +152,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     // Data Initialization
     var context = context
 
-    // For Recycler view
-    var dataValue = ""
-//    var dataHolder: ModuleViewHolder? = null
-
     // Views to plot graph and add values
-//    var kChartViewID = viewID
-//    var kChartPreViewID =previewID
-//    var kValueViewID = valueID
-//    var kLabelViewID = labelID
-//    var kDateViewID = dateID
-
     var kChartView: AbstractChartView? = null
     var kChartPreView: AbstractChartView? = null
     var kValueView: TextView? = null
@@ -170,7 +160,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var kDateView : TextView? = null
 
     // Chart variables (Main view)
-    var kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
+    var color_primary = ContextCompat.getColor(context, R.color.orange_primary)
+    var color_secondary = ContextCompat.getColor(context, R.color.orange_secondary)
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
 
@@ -195,10 +186,11 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         if (string === "Steps") {
             gFitDataType = TYPE_STEP_COUNT_DELTA
             gFitBucketTime = TimeUnit.DAYS
-            gFitStreamName = "estimated_steps"
+            gFitStreamName = "Steps"
             kXAxis.name = string
             kYaxis.name = ""
-            kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
+            color_primary = ContextCompat.getColor(context, orange_primary)
+            color_secondary = ContextCompat.getColor(context, orange_secondary)
         }
         if (string === "Blood Pressure") {
             gFitDataType = TYPE_BLOOD_PRESSURE
@@ -206,7 +198,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             gFitStreamName = "Blood Pressure"
             kXAxis.name = string
             kYaxis.name = "mmHg"
-            kLineColor = ContextCompat.getColor(context, R.color.orange_primary)
+            color_primary = ContextCompat.getColor(context, orange_primary)
+            color_secondary = ContextCompat.getColor(context, orange_secondary)
         }
         if (string === "Heart Rate") {
             gFitDataType = TYPE_HEART_RATE_BPM
@@ -214,7 +207,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             gFitStreamName = "Heart Rate"
             kXAxis.name = string
             kYaxis.name = "bpm"
-            kLineColor = ContextCompat.getColor(context, R.color.blue_primary)
+            color_primary = ContextCompat.getColor(context, blue_primary)
+            color_secondary = ContextCompat.getColor(context, blue_secondary)
         }
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
@@ -222,8 +216,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             gFitStreamName = "Blood Glucose"
             kXAxis.name = string
             kYaxis.name = "mmol/L"
-            kLineColor = ContextCompat.getColor(context, R.color.red_primary)
-
+            color_primary = ContextCompat.getColor(context, red_primary)
+            color_secondary = ContextCompat.getColor(context, red_secondary)
         }
 
     }
@@ -403,7 +397,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                         it.isFilled = true
                         it.hasPoints = false
                         it.strokeWidth = 1
-                        it.color = kLineColor
+                        it.color = color_primary
                         it.pointRadius = 1
                         it.hasLabels = true
 
@@ -447,6 +441,12 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
             // Display latest date in association to the latest value
             kDateView!!.text = getDate(latestPointValue.x.toLong(), "EEE, MMM d - h:mm a")
+
+            // Set text colors
+            kValueView!!.setTextColor(color_primary)
+            kDateView!!.setTextColor(color_primary)
+
+
 
             // Format Label
             // 1 - Warning

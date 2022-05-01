@@ -1,8 +1,11 @@
 package com.laulaid.laulaid_tchartskt
 
 import android.app.Activity
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 
@@ -18,14 +21,34 @@ class ModuleRecyclerViewAdapter(private val moduleList: List<Module>) : Recycler
 
     override fun onBindViewHolder(holder: ModuleViewHolder, position: Int) {
         if (position < moduleList.size) {
-            val module = moduleList[position]
-            holder.moduleTitle.text = position.toString()
-            module.dataHealth.bind(holder)
-            module.dataHealth.connectGFit( module.dataHealth.context as Activity, false, 4)
+            val module = moduleList[position].dataHealth
+
+            // Set Title text and color
+            holder.moduleTitle.text = module.gFitStreamName
+            holder.moduleTitle.setTextColor(module.color_primary)
+
+            // Set Unit text and color
+            holder.moduleUnit.text = module.kYaxis.name
+            holder.moduleUnit.setTextColor(module.color_primary)
+
+            // Set Button color
+            holder.moduleBtn.setBackgroundColor(module.color_secondary)
+//            holder.moduleBtn.foregroundTintList
+
+            holder.moduleBtn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.icn_bg, 0,0,0)
+
+
+
+
+                module.bind(holder)
+            module.connectGFit( module.context as Activity, false, 4)
+
+
         }
     }
 
     override fun getItemCount(): Int {
         return moduleList.size
     }
+
 }
