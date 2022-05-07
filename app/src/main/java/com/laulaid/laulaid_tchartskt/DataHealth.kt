@@ -2,6 +2,7 @@ package com.laulaid.laulaid_tchartskt
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -29,6 +30,7 @@ import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
 import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
+import kotlin.Double.Companion.NaN
 
 
 class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int, labelID: Int, dateID : Int)  {
@@ -160,8 +162,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var kDateView : TextView? = null
 
     // Chart variables (Main view)
-    var color_primary = ContextCompat.getColor(context, R.color.orange_primary)
-    var color_secondary = ContextCompat.getColor(context, R.color.orange_secondary)
+    var mcolor_primary = ContextCompat.getColor(context, R.color.orange_primary)
+    var mcolor_secondary = ContextCompat.getColor(context, R.color.orange_secondary)
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
 
@@ -171,6 +173,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var kXAxisValues = ArrayList<AxisValue>()
     var kDateMillis = ArrayList<Long>()
     var kDateEEE = ArrayList<String>()
+    var kStrokeWidth = 1
 
     // Chart Variables (Detailed view)
     var updatingPreviewViewport = false
@@ -179,46 +182,64 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     //GFit variables
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
-    lateinit var gFitStreamName: String
+    lateinit var mname: String
+    var micon = R.drawable.icn_bg
 
     // Variables initialization for each data type:
     init {
-        if (string === "Steps") {
-            gFitDataType = TYPE_STEP_COUNT_DELTA
-            gFitBucketTime = TimeUnit.DAYS
-            gFitStreamName = "Steps"
-            kXAxis.name = string
-            kYaxis.name = ""
-            color_primary = ContextCompat.getColor(context, orange_primary)
-            color_secondary = ContextCompat.getColor(context, orange_secondary)
-        }
-        if (string === "Blood Pressure") {
-            gFitDataType = TYPE_BLOOD_PRESSURE
-            gFitBucketTime = TimeUnit.DAYS
-            gFitStreamName = "Blood Pressure"
-            kXAxis.name = string
-            kYaxis.name = "mmHg"
-            color_primary = ContextCompat.getColor(context, orange_primary)
-            color_secondary = ContextCompat.getColor(context, orange_secondary)
-        }
-        if (string === "Heart Rate") {
-            gFitDataType = TYPE_HEART_RATE_BPM
-            gFitBucketTime = TimeUnit.DAYS
-            gFitStreamName = "Heart Rate"
-            kXAxis.name = string
-            kYaxis.name = "bpm"
-            color_primary = ContextCompat.getColor(context, blue_primary)
-            color_secondary = ContextCompat.getColor(context, blue_secondary)
-        }
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
             gFitBucketTime = TimeUnit.DAYS
-            gFitStreamName = "Blood Glucose"
             kXAxis.name = string
             kYaxis.name = "mmol/L"
-            color_primary = ContextCompat.getColor(context, red_primary)
-            color_secondary = ContextCompat.getColor(context, red_secondary)
+            kStrokeWidth = 1
+
+            mname = "Blood Glucose"
+            mcolor_primary = ContextCompat.getColor(context, red_primary)
+            mcolor_secondary = ContextCompat.getColor(context, red_secondary)
+            micon = R.drawable.icn_bg
         }
+
+        else if (string === "Steps") {
+            gFitDataType = TYPE_STEP_COUNT_DELTA
+            gFitBucketTime = TimeUnit.DAYS
+            kXAxis.name = string
+            kYaxis.name = ""
+            kStrokeWidth = 4
+
+            mname = "Steps"
+            mcolor_primary = ContextCompat.getColor(context, orange_primary)
+            mcolor_secondary = ContextCompat.getColor(context, orange_secondary)
+            micon = R.drawable.icn_steps
+        }
+
+        else if (string === "Heart Rate") {
+            gFitDataType = TYPE_HEART_RATE_BPM
+            gFitBucketTime = TimeUnit.DAYS
+            kXAxis.name = string
+            kYaxis.name = "bpm"
+            kStrokeWidth = 1
+
+            mname = "Heart Rate"
+            mcolor_primary = ContextCompat.getColor(context, blue_primary)
+            mcolor_secondary = ContextCompat.getColor(context, blue_secondary)
+            micon = R.drawable.icn_hr
+        }
+
+        else if (string === "Blood Pressure") {
+            gFitDataType = TYPE_BLOOD_PRESSURE
+            gFitBucketTime = TimeUnit.DAYS
+            kXAxis.name = string
+            kYaxis.name = "mmHg"
+            kStrokeWidth = 4
+
+            mname = "Blood Pressure"
+            mcolor_primary = ContextCompat.getColor(context, pink_primary)
+            mcolor_secondary = ContextCompat.getColor(context, pink_secondary)
+            micon = R.drawable.icn_bp
+        }
+
+
 
     }
 
@@ -365,10 +386,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                     }
 
                     // Last value to fill textfield + Label update depending on the last value
-                    if (kXAxis.name != "Blood Pressure") {
-                        formatLabel()
-                        kYaxis = Axis(hasLines = true, maxLabels = 4)
-                    }
+                    formatLabel()
+                    kYaxis = Axis(hasLines = true, maxLabels = 4)
+
                     // get each distinct value of date in the list of string dates
                     val kXAxisLabels = kDateEEE.distinct()
 
@@ -396,8 +416,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                         it.hasLabelsOnlyForSelected = true
                         it.isFilled = true
                         it.hasPoints = false
-                        it.strokeWidth = 1
-                        it.color = color_primary
+                        it.strokeWidth = kStrokeWidth
+                        it.color = mcolor_primary
                         it.pointRadius = 1
                         it.hasLabels = true
 
@@ -424,42 +444,70 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             }
     }
 
+
+    fun getLastValue(): MutableList<PointValue> {
+        if (mname == "Steps" || mname == "Blood Pressure"){
+            for (i in kLine.size-1 downTo 0) {
+                if (!kLine[i].values.last().y.isNaN()) {
+                    return kLine[i].values
+                }
+            }
+        }
+        else {
+            return mutableListOf(kLine.last().values.last())
+        }
+        return mutableListOf()
+    }
+
     fun formatLabel() {
 
         if ((context::class == MainActivity::class ||context::class == SandboxActivity::class ) && kValueView != null) {
-
+            var latestValueList = getLastValue()
             val latestPointValue = kLine.last().values.last()
 
             // Display Current Value
             if (kXAxis.name == "Blood Glucose") {
-                kValueView!!.text = "%.2f".format(latestPointValue.y)
+                kValueView!!.text = "%.2f".format(latestValueList[0].y)
+            }
+            else if (mname == "Blood Pressure"){
+                kValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)
+            }
+            else if (mname == "Steps"){
+                kValueView!!.text = "%.0f".format(latestValueList[1].y)
             }
             else {
-                kValueView!!.text = "%.0f".format(latestPointValue.y)
-
+                kValueView!!.text = "%.0f".format(latestValueList[0].y)
             }
 
             // Display latest date in association to the latest value
-            kDateView!!.text = getDate(latestPointValue.x.toLong(), "EEE, MMM d - h:mm a")
+            kDateView!!.text = getDate(latestValueList[0].x.toLong(), "EEE, MMM d - h:mm a")
 
             // Set text colors
-            kValueView!!.setTextColor(color_primary)
-            kDateView!!.setTextColor(color_primary)
+            kValueView!!.setTextColor(mcolor_primary)
+            kDateView!!.setTextColor(mcolor_primary)
 
 
 
             // Format Label
             // 1 - Warning
 
-            if ((kXAxis.name == "Blood Glucose" && latestPointValue.y < 4.0) || (kXAxis.name == "Steps" && latestPointValue.y < 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y > 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y < 40))) {
-                kLabelView!!.text = "WARNING"
-                kLabelView!!.setBackgroundColor(
-                    (context as Activity).getResources().getColor(state_warning)
-                )
+            if (
+                (mname == "Blood Glucose" && latestValueList[0].y< 4.0)
+                || (mname == "Steps" && latestValueList[1].y < 1000)
+                || (mname == "Heart Rate" && (latestValueList[0].y > 100 || latestValueList[0].y < 40))
+                || (mname == "Blood Pressure" && (latestValueList[0].y <60 || latestValueList[1].y > 120))
+            )
 
-            }
+            {
+                    kLabelView!!.text = "WARNING"
+                    kLabelView!!.setBackgroundColor(
+                        (context as Activity).getResources().getColor(state_warning)
+                    )
+
+                }
             // 2- Normal
-            else if ((kXAxis.name == "Blood Glucose" && latestPointValue.y >= 4.0) || (kXAxis.name == "Steps" && latestPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y >= 40))) {
+            else{
+//            else if ((kXAxis.name == "Blood Glucose" && latestPointValue.y >= 4.0) || (kXAxis.name == "Steps" && latestPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y >= 40))) {
                 kLabelView!!.text = "NORMAL"
                 kLabelView!!.setBackgroundColor((context as Activity).getResources().getColor(state_normal))
             }
