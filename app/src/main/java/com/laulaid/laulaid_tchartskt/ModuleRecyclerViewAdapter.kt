@@ -1,6 +1,7 @@
 package com.laulaid.laulaid_tchartskt
 
 import android.app.Activity
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -30,15 +31,16 @@ class ModuleRecyclerViewAdapter(private val moduleList: List<Module>) : Recycler
 
             // Set Button color
             holder.moduleBtn.setBackgroundColor(module.mcolor_secondary)
-
             holder.moduleBtn.setCompoundDrawablesWithIntrinsicBounds(module.micon, 0,0,0)
-
-
-
 
             module.bind(holder)
             module.connectGFit( module.context as Activity, false, 4)
 
+        // Start BG activity
+        holder.moduleBtn!!.setOnClickListener {
+            val intent = Intent(holder.moduleBtn.context, Module_BG::class.java)
+            holder.moduleBtn.context.startActivity(intent)
+        }
 
         }
     }

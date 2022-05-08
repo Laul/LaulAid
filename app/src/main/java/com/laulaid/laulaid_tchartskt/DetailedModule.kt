@@ -1,29 +1,25 @@
 package com.laulaid.laulaid_tchartskt
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Button
 
 
-class StepsActivity : AppCompatActivity() {
+open class DetailedModule : AppCompatActivity() {
+    var mType = ""
 
-private var btnRequest: Button? = null
-
-        override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detailedmodule)
         setSupportActionBar(findViewById(R.id.detailedmodule_toolbar))
 
         // Get a support ActionBar corresponding to this toolbar and enable the Up button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-//        var DataHealth_BG = DataHealth("Steps", this, R.id.bgView_MainGraph,  R.id.bgView_PreviewGraph , R.id.bgView_Value,R.id.bgView_Label, R.id.bg_date)
-//        DataHealth_BG.connectGFit( this, false, 15)
-
-
-        }
+        var DataHealth_BG = DataHealth(mType, this,R.id.detailedmodule_maingraph, R.id.detailedmodule_previewgraph, R.id.detailedmodule_value, R.id.detailedmodule_label,R.id.detailedmodule_date)
+        DataHealth_BG.connectGFit( DataHealth_BG.context as Activity, false, 4)
 
 
+    }
 
 
 }

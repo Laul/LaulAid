@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
 
         // Toolbar
         setSupportActionBar(findViewById(R.id.toolbar))
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 //
 // Set up the RecyclerView
@@ -46,53 +45,12 @@ class MainActivity : AppCompatActivity() {
         recyclerView.addItemDecoration(ModuleDecoration(30,30))
 
 
-
-
-
-
-
-//        // Create 1 instance of DataHealth for each type of data in GFit
-//        var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.bg_graph, -1 , R.id.bg_value, R.id.bg_label , R.id.bg_date)
-////        var DataHealth_BP = DataHealth("Blood Pressure",this, R.id.graph_main_BP, -1, R.id.bp_value)
-//        var DataHealth_steps = DataHealth("Steps", this, R.id.steps_graph,-1, R.id.steps_value, R.id.steps_label, R.id.steps_date)
-//        var DataHealth_HR = DataHealth("Heart Rate",  this, R.id.ht_graph,-1, R.id.hr_value, R.id.hr_label, R.id.hr_date)
-////        var DataHealth_sleep = DataHealth("Sleep", this, R.id.graph_main_sleep-1, R.id.steps_value, R.id.steps_label)
-//
-//        // Google fit
-//        DataHealth_steps.connectGFit( this, false, 6)
-////        DataHealth_BP.connectGFit( this, false, 6)
-//        DataHealth_BG.connectGFit( this, false, 2)
-//        DataHealth_HR.connectGFit( this, false, 6)
-
         // Button callback to force get data once app launched
         btnRequest = findViewById(R.id.reload_btn)
         btnRequest!!.setOnClickListener {
-//            var DataHealth_BG = DataHealth("Blood Glucose", this, R.id.graph_main_BG, -1 , R.id.bg_value)
-//            DataHealth_BG.connectXDrip(this, true ,1000)
-//            DataHealth_steps.connectGFit( this, false, 6)
-////            DataHealth_BP.connectGFit( this, false, 6)
-//            DataHealth_BG.connectGFit( this, false, 2)
-//            DataHealth_HR.connectGFit( this, false, 6)
             val adapter = ModuleRecyclerViewAdapter(Module.initModuleList(this))
             recyclerView.adapter = adapter
         }
-
-//
-//
-//        // Start BG activity
-//        btnRequest = findViewById(R.id.bg_btn)
-//        btnRequest!!.setOnClickListener {
-//            val intent = Intent(this, BloodGlucoseActivity::class.java)
-//            startActivity(intent)
-//        }
-//
-//
-//        btnRequest = findViewById(R.id.steps_btn)
-//        btnRequest!!.setOnClickListener {
-//            val intent = Intent(this, StepsActivity::class.java)
-//            startActivity(intent)
-//        }
-
 
         // Push data to GFit
         btnRequest = findViewById(R.id.pushgluco_btn)
@@ -100,12 +58,13 @@ class MainActivity : AppCompatActivity() {
             var DataHealth_BG = DataHealth("Blood Glucose", this, -1, -1, -1, -1,-1  )
             DataHealth_BG.connectXDrip(this, true ,1000)
         }
-
-        btnRequest = findViewById(R.id.sandbox_btn)
-        btnRequest!!.setOnClickListener {
-            val intent = Intent(this, SandboxActivity::class.java)
-            startActivity(intent)
-        }
+//
+//        // Sandbox
+//        btnRequest = findViewById(R.id.sandbox_btn)
+//        btnRequest!!.setOnClickListener {
+//            val intent = Intent(this, SandboxActivity::class.java)
+//            startActivity(intent)
+//        }
 
     }
 

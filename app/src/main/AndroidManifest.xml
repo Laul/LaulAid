@@ -27,7 +27,17 @@
         </activity>
 
         <activity
-            android:name=".BloodGlucoseActivity"
+            android:name=".DetailedModule"
+            android:label="@string/title_activity_bloodglucose">
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+
+        </activity>
+
+        <activity
+            android:name=".Module_BG"
             android:label="@string/title_activity_bloodglucose">
             android:parentActivityName=".MainActivity" >
             <meta-data

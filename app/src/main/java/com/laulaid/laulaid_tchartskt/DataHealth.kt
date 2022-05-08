@@ -2,8 +2,8 @@ package com.laulaid.laulaid_tchartskt
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import co.csadev.kellocharts.gesture.ZoomType
@@ -11,6 +11,7 @@ import co.csadev.kellocharts.listener.ViewportChangeListener
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.AbstractChartView
 import co.csadev.kellocharts.view.LineChartView
+import co.csadev.kellocharts.view.PreviewLineChartView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
@@ -30,7 +31,6 @@ import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
 import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
-import kotlin.Double.Companion.NaN
 
 
 class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int, labelID: Int, dateID : Int)  {
@@ -157,9 +157,13 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     // Views to plot graph and add values
     var kChartView: AbstractChartView? = null
     var kChartPreView: AbstractChartView? = null
-    var kValueView: TextView? = null
-    var kLabelView: TextView? = null
-    var kDateView : TextView? = null
+
+    var mValueView: TextView? = null
+    var mLabelView: TextView? = null
+    var mDateView : TextView? = null
+    var mButton : Button? = null
+    lateinit var mname: String
+    var micon = R.drawable.icn_bg
 
     // Chart variables (Main view)
     var mcolor_primary = ContextCompat.getColor(context, R.color.orange_primary)
@@ -182,11 +186,16 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     //GFit variables
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
-    lateinit var mname: String
-    var micon = R.drawable.icn_bg
+
 
     // Variables initialization for each data type:
     init {
+        if (viewID != -1) {kChartView = (context as Activity).findViewById(viewID)}
+        if (previewID != -1) {kChartPreView = (context as Activity).findViewById(previewID)}
+        if (valueID != -1) {mValueView = (context as Activity).findViewById(valueID)}
+        if (labelID != -1) {mLabelView = (context as Activity).findViewById(labelID)}
+        if (dateID != -1) {mDateView = (context as Activity).findViewById(dateID)}
+
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
             gFitBucketTime = TimeUnit.DAYS
@@ -245,10 +254,10 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
     fun bind(holder: ModuleViewHolder){
         kChartView = holder.moduleChart
-        kValueView = holder.moduleValue
-        kLabelView = holder.moduleLabel
-        kDateView  = holder.moduleDate
-    }
+        mValueView = holder.moduleValue
+        mLabelView = holder.moduleLabel
+        mDateView  = holder.moduleDate
+        mButton  = holder.moduleBtn}
 
 
     /** GFit permissions verification and dispatch
@@ -461,115 +470,99 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
     fun formatLabel() {
 
-        if ((context::class == MainActivity::class ||context::class == SandboxActivity::class ) && kValueView != null) {
+        if (mValueView != null) {
             var latestValueList = getLastValue()
             val latestPointValue = kLine.last().values.last()
 
-            // Display Current Value
-            if (kXAxis.name == "Blood Glucose") {
-                kValueView!!.text = "%.2f".format(latestValueList[0].y)
-            }
-            else if (mname == "Blood Pressure"){
-                kValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)
-            }
-            else if (mname == "Steps"){
-                kValueView!!.text = "%.0f".format(latestValueList[1].y)
-            }
-            else {
-                kValueView!!.text = "%.0f".format(latestValueList[0].y)
-            }
+            if (!latestValueList.isEmpty()) {
+                // Display Current Value
+                if (kXAxis.name == "Blood Glucose") {
+                    mValueView!!.text = "%.2f".format(latestValueList[0].y)
+                } else if (mname == "Blood Pressure") {
+                    mValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)
+                } else if (mname == "Steps") {
+                    mValueView!!.text = "%.0f".format(latestValueList[1].y)
+                } else {
+                    mValueView!!.text = "%.0f".format(latestValueList[0].y)
+                }
 
-            // Display latest date in association to the latest value
-            kDateView!!.text = getDate(latestValueList[0].x.toLong(), "EEE, MMM d - h:mm a")
+                // Display latest date in association to the latest value
+                if (mDateView != null) {
+                    mDateView!!.text = getDate(latestValueList[0].x.toLong(), "EEE, MMM d - h:mm a")
 
-            // Set text colors
-            kValueView!!.setTextColor(mcolor_primary)
-            kDateView!!.setTextColor(mcolor_primary)
+                    // Set text colors
+                    mValueView!!.setTextColor(mcolor_primary)
+                    mDateView!!.setTextColor(mcolor_primary)
+                }
 
+                // Format Label
+                // 1 - Warning
 
-
-            // Format Label
-            // 1 - Warning
-
-            if (
-                (mname == "Blood Glucose" && latestValueList[0].y< 4.0)
-                || (mname == "Steps" && latestValueList[1].y < 1000)
-                || (mname == "Heart Rate" && (latestValueList[0].y > 100 || latestValueList[0].y < 40))
-                || (mname == "Blood Pressure" && (latestValueList[0].y <60 || latestValueList[1].y > 120))
-            )
-
-            {
-                    kLabelView!!.text = "WARNING"
-                    kLabelView!!.setBackgroundColor(
+                if (
+                    (mname == "Blood Glucose" && latestValueList[0].y < 4.0)
+                    || (mname == "Steps" && latestValueList[1].y < 1000)
+                    || (mname == "Heart Rate" && (latestValueList[0].y > 100 || latestValueList[0].y < 40))
+                    || (mname == "Blood Pressure" && (latestValueList[0].y < 60 || latestValueList[1].y > 120))
+                ) {
+                    mLabelView!!.text = "WARNING"
+                    mLabelView!!.setBackgroundColor(
                         (context as Activity).getResources().getColor(state_warning)
                     )
 
                 }
-            // 2- Normal
-            else{
+                // 2- Normal
+                else {
 //            else if ((kXAxis.name == "Blood Glucose" && latestPointValue.y >= 4.0) || (kXAxis.name == "Steps" && latestPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y >= 40))) {
-                kLabelView!!.text = "NORMAL"
-                kLabelView!!.setBackgroundColor((context as Activity).getResources().getColor(state_normal))
+                    mLabelView!!.text = "NORMAL"
+                    mLabelView!!.setBackgroundColor((context as Activity).getResources().getColor(state_normal))
+                }
             }
         }
     }
-
-
-
 
     /** Display Preview graphs using KelloCharts Lib
      * @param kChart: LineChartData of the main chart - used to copy same data to the preview graph
      * @param viewport: temporary viewport to call listener
      */
     fun displayPreviewGraph(kChart: LineChartData, viewPort: Viewport) {
-//        if (kChartPreViewID != -1){
-//
-//            // Declare views
-//            var view_GraphPreview = (context as Activity).findViewById<LineChartView>(kChartPreViewID)
-//            view_GraphPreview.lineChartData = kChart
-//
-//            var view_GraphMain = (context as Activity).findViewById<LineChartView>(kChartViewID)
-//
-//            // Viewport listener for main and preview graphs
-//            view_GraphPreview?.setViewportChangeListener(ChartPreviewPortListener(kChartViewID))
-//            view_GraphMain?.setViewportChangeListener(ChartViewportListener(kChartPreViewID))
-//
-//
-//            view_GraphPreview?.currentViewport = viewPort
-//            view_GraphMain?.currentViewport = viewPort
-//
-//            view_GraphPreview?.zoomType = ZoomType.HORIZONTAL
-//        }
+        // display graph on preview view
+        (kChartPreView as PreviewLineChartView).lineChartData = kChart
+
+        // Viewport listener for main and preview graphs
+        (kChartPreView as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
+        (kChartView as LineChartView)?.setViewportChangeListener(ChartViewportListener())
+
+        (kChartPreView as PreviewLineChartView)?.currentViewport = viewPort
+        (kChartView as LineChartView)?.currentViewport = viewPort
+
+        (kChartPreView as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
     }
 
-
-    private inner class ChartPreviewPortListener(chartMain_ViewID : Int) : ViewportChangeListener {
-
-        var chartMainView = (context as Activity).findViewById<LineChartView>(chartMain_ViewID)
-
+    /** Viewport listener to adapt the Main view depending on preview viewport
+     */
+    private inner class ChartPreviewPortListener() : ViewportChangeListener {
         override fun onViewportChanged(newViewport: Viewport) {
             if (!updatingPreviewViewport) {
                 updatingChartViewport = true
-                chartMainView.zoomType = ZoomType.HORIZONTAL
-                chartMainView.currentViewport = newViewport
+                (kChartView as LineChartView).zoomType = ZoomType.HORIZONTAL
+                (kChartView as LineChartView).currentViewport = newViewport
                 updatingChartViewport = false
             }
         }
     }
 
-    private inner class ChartViewportListener(chartPreview_ViewID : Int) : ViewportChangeListener {
-        var chartPreviewView = (context as Activity).findViewById<LineChartView>(chartPreview_ViewID)
-
+    /** Viewport listener to adapt the Preview view depending on main view viewport
+     */
+    private inner class ChartViewportListener() : ViewportChangeListener {
         override fun onViewportChanged(newViewport: Viewport) {
             if (!updatingChartViewport) {
                 updatingPreviewViewport = true
-                chartPreviewView.zoomType = ZoomType.HORIZONTAL
-                chartPreviewView.currentViewport = newViewport
+                (kChartPreView as LineChartView).zoomType = ZoomType.HORIZONTAL
+                (kChartPreView as LineChartView).currentViewport = newViewport
                 updatingPreviewViewport = false
             }
         }
     }
-
 
 
     /** XDrip permissions verification and dispatch
