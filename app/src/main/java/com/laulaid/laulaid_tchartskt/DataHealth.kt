@@ -442,14 +442,21 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                     kChart.axisYRight = kYaxis
 
                     (kChartView as LineChartView).lineChartData = kChart
-
                     val tempViewport = kChartView?.maximumViewport.copy()
-                    val dx = tempViewport.width() * 2f / 3f
-                    tempViewport.offset(dx, 0f)
+                    val tempPreViewport = tempViewport.copy()
+
+                    // If in main activity, add an inset to have the entire labels for axis
+                    if (this.context::class == MainActivity::class) {
+                        tempViewport.inset(-tempViewport.width() * 0.05f, -tempViewport.height() * 0.05f)
+                        kChartView?.maximumViewport = tempViewport
+                        kChartView?.currentViewport = tempViewport
+                    }
 
                     // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
                     if (this.context::class != MainActivity::class) {
-                        displayPreviewGraph(kChart, tempViewport)
+                        val dx = tempPreViewport.width() * 2f / 3f
+                        tempPreViewport.offset(dx, 0f)
+                        displayPreviewGraph(kChart, tempPreViewport)
                     }
                 }
             }
@@ -470,8 +477,10 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         return mutableListOf()
     }
 
-    fun formatLabel() {
 
+    /** Label formater + date of last value
+     */
+    fun formatLabel() {
         if (mValueView != null) {
             var latestValueList = getLastValue()
 //            val latestPointValue = kLine.last().values.last()
