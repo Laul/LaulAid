@@ -4,14 +4,28 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/border.xml" value="0.425" />
+        <entry key="app/src/main/res/drawable/btn_square.xml" value="0.21" />
+        <entry key="app/src/main/res/drawable/ic_background.xml" value="0.3095" />
+        <entry key="app/src/main/res/drawable/ic_bg.xml" value="0.21" />
+        <entry key="app/src/main/res/drawable/ic_foreground.xml" value="0.1905" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.328" />
+        <entry key="app/src/main/res/drawable/icn_bg_xml.xml" value="0.343" />
         <entry key="app/src/main/res/font/helvetica.xml" value="0.4588541666666667" />
         <entry key="app/src/main/res/layout/1.xml" value="0.16185410334346503" />
         <entry key="app/src/main/res/layout/activity_bloodglucose.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.75" />
+        <entry key="app/src/main/res/layout/activity_detailedmodule.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main1.xml" value="0.14537037037037037" />
+        <entry key="app/src/main/res/layout/activity_sandbox.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_steps.xml" value="0.16574074074074074" />
+        <entry key="app/src/main/res/layout/fragment_module.xml" value="0.20364741641337386" />
+        <entry key="app/src/main/res/layout/main_module.xml" value="0.75" />
+        <entry key="app/src/main/res/layout/main_modulefragment.xml" value="0.5526041666666667" />
         <entry key="app/src/main/res/layout/toolbar.xml" value="0.1" />
         <entry key="app/src/main/res/menu/toolbar.xml" value="0.38177083333333334" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3095" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_custom.xml" value="0.257" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_custom_round.xml" value="0.257" />
       </map>
     </option>
   </component>
