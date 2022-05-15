@@ -48,6 +48,27 @@
 
 
         <activity
+            android:name=".Module_HR"
+            android:label="@string/title_activity_hr">
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+
+        </activity>
+
+        <activity
+            android:name=".Module_Steps"
+            android:label="@string/title_activity_steps">
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+
+        </activity>
+
+
+        <activity
             android:name=".SandboxActivity"
             android:label="@string/title_activity_sandbox">
             android:parentActivityName=".MainActivity" >

@@ -36,11 +36,32 @@ class ModuleRecyclerViewAdapter(private val moduleList: List<Module>) : Recycler
             module.bind(holder)
             module.connectGFit( module.context as Activity, false, 4)
 
-        // Start BG activity
-        holder.moduleBtn!!.setOnClickListener {
-            val intent = Intent(holder.moduleBtn.context, Module_BG::class.java)
-            holder.moduleBtn.context.startActivity(intent)
-        }
+            // Start BG activity
+            if (module.mname == "Blood Glucose"){
+                holder.moduleBtn!!.setOnClickListener {
+                    val intent = Intent(holder.moduleBtn.context, Module_BG::class.java)
+                    holder.moduleBtn.context.startActivity(intent)
+                }
+            }
+            if (module.mname == "Steps"){
+                holder.moduleBtn!!.setOnClickListener {
+                    val intent = Intent(holder.moduleBtn.context, Module_Steps::class.java)
+                    holder.moduleBtn.context.startActivity(intent)
+                }
+            }
+            if (module.mname == "Heart Rate"){
+                holder.moduleBtn!!.setOnClickListener {
+                    val intent = Intent(holder.moduleBtn.context, Module_HR::class.java)
+                    holder.moduleBtn.context.startActivity(intent)
+                }
+            }
+
+//
+//            // Start HR activity
+//            holder.moduleBtn!!.setOnClickListener {
+//                val intent = Intent(holder.moduleBtn.context, Module_HR::class.java)
+//                holder.moduleBtn.context.startActivity(intent)
+//            }
 
         }
     }

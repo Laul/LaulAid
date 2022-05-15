@@ -87,14 +87,13 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                             for (dp in dataSet.dataPoints) {
                                 dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
                                 dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
-                                dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_STEPS).asFloat(), dp.getValue(Field.FIELD_STEPS).asFloat().toString()))
+                                dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_STEPS).asInt().toFloat(), dp.getValue(Field.FIELD_STEPS).asInt().toString()))
                             }
                         }
                     }
 
 
                     else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
-                        Log.i(TAG, "prout")
                         for (dp in dataSet.dataPoints) {
                             dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
@@ -211,7 +210,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
         else if (string === "Steps") {
             gFitDataType = TYPE_STEP_COUNT_DELTA
-            gFitBucketTime = TimeUnit.DAYS
+            if (context::class == MainActivity::class ) {gFitBucketTime = TimeUnit.DAYS}
+            else                                        {gFitBucketTime = TimeUnit.HOURS}
+
             kXAxis.name = string
             kYaxis.name = ""
             kStrokeWidth = 4
@@ -257,7 +258,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         mValueView = holder.moduleValue
         mLabelView = holder.moduleLabel
         mDateView  = holder.moduleDate
-        mButton  = holder.moduleBtn}
+        mButton  = holder.moduleBtn
+    }
 
 
     /** GFit permissions verification and dispatch
@@ -371,7 +373,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                 if (kChartView is LineChartView) {
 
                     // All cases except Blood Pressure: 1 line with Point Values
-                    if (kXAxis.name == "Blood Glucose" || kXAxis.name == "Heart Rate") {
+                    if (mname == "Blood Glucose" || mname == "Heart Rate"|| (mname == "Steps" && context::class != MainActivity::class )) {
                         // Create a line with all PointValues
                         kLine.clear()
                         kLine.add(Line(kLineValues))
@@ -387,7 +389,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                     }
 
                     // Blood Pressure case and steps: x lines with 2 pointvalues
-                    if (kXAxis.name == "Blood Pressure" || kXAxis.name == "Steps") {
+                    if (mname == "Blood Pressure" || (mname == "Steps" && context::class == MainActivity::class ) ) {
                         // sort Lines in chronological order
                         kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
 
@@ -472,11 +474,11 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
         if (mValueView != null) {
             var latestValueList = getLastValue()
-            val latestPointValue = kLine.last().values.last()
+//            val latestPointValue = kLine.last().values.last()
 
             if (!latestValueList.isEmpty()) {
                 // Display Current Value
-                if (kXAxis.name == "Blood Glucose") {
+                if (mname == "Blood Glucose") {
                     mValueView!!.text = "%.2f".format(latestValueList[0].y)
                 } else if (mname == "Blood Pressure") {
                     mValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)

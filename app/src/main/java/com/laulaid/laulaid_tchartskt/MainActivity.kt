@@ -35,15 +35,13 @@ class MainActivity : AppCompatActivity() {
         // Toolbar
         setSupportActionBar(findViewById(R.id.toolbar))
 
-//
-// Set up the RecyclerView
+        // Set up the RecyclerView
         var recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.setHasFixedSize(false)
         recyclerView.layoutManager = LinearLayoutManager(this.applicationContext, RecyclerView.VERTICAL, false)
         val adapter = ModuleRecyclerViewAdapter(Module.initModuleList(this))
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(ModuleDecoration(30,30))
-
 
         // Button callback to force get data once app launched
         btnRequest = findViewById(R.id.reload_btn)

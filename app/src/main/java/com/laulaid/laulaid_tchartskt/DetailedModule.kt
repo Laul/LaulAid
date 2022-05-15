@@ -15,8 +15,12 @@ open class DetailedModule : AppCompatActivity() {
 
         // Get a support ActionBar corresponding to this toolbar and enable the Up button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        var DataHealth_BG = DataHealth(mType, this,R.id.detailedmodule_maingraph, R.id.detailedmodule_previewgraph, R.id.detailedmodule_value, R.id.detailedmodule_label,R.id.detailedmodule_date)
-        DataHealth_BG.connectGFit( DataHealth_BG.context as Activity, false, 4)
+        supportActionBar?.subtitle = mType
+
+
+        var DataHealth = DataHealth(mType, this,R.id.detailedmodule_maingraph, R.id.detailedmodule_previewgraph, R.id.detailedmodule_value, R.id.detailedmodule_label,R.id.detailedmodule_date)
+        DataHealth.connectGFit( DataHealth.context as Activity, false, 4)
+
 
 
     }
