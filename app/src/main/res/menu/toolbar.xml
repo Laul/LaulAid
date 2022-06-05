@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!-- "Mark Favorite", should appear as action button if possible -->
+    <item
+    android:id="@+id/toolbar_back"
+    android:icon="@drawable/icn_back"
+    android:title="Back"
+    android:iconTint="@color/grey_secondary"
+    app:showAsAction="ifRoom"
+ />
+    <item
+        android:id="@+id/reload"
+        android:icon="@drawable/icn_reload"
+        android:title="Reload"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/pushgluco"
+        android:icon="@drawable/icn_cloud"
+        android:title="Push Data"
+        app:showAsAction="always" />
+
+</menu>
