@@ -14,6 +14,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -38,10 +39,21 @@ class MainActivity : AppCompatActivity() {
         // Set up the RecyclerView
         var recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.setHasFixedSize(false)
-        recyclerView.layoutManager = LinearLayoutManager(this.applicationContext, RecyclerView.VERTICAL, false)
+        val layoutManager = LinearLayoutManager(this.applicationContext, RecyclerView.VERTICAL, false)
         val adapter = ModuleRecyclerViewAdapter(Module.initModuleList(this))
+
+        // recycler Attachments
+        recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
+
+        // Add decoration
         recyclerView.addItemDecoration(ModuleDecoration(30,30))
+        recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                baseContext,
+                layoutManager.orientation
+            )
+        )
 
         // Button callback to force get data once app launched
         btnRequest = findViewById(R.id.reload_btn)

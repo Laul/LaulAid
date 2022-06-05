@@ -26,19 +26,19 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".DetailedModule"
-            android:label="@string/title_activity_bloodglucose">
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+<!--        <activity-->
+<!--            android:name=".DetailedModule"-->
+<!--            android:label="@string/title_activity_bloodglucose">-->
+<!--            android:parentActivityName=".MainActivity" >-->
+<!--            <meta-data-->
+<!--                android:name="android.support.PARENT_ACTIVITY"-->
+<!--                android:value=".MainActivity"/>-->
 
-        </activity>
+<!--        </activity>-->
 
         <activity
             android:name=".Module_BG"
-            android:label="@string/title_activity_bloodglucose">
+            android:label="@string/title_activity_bg">
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -66,6 +66,16 @@
                 android:value=".MainActivity"/>
 
         </activity>
+        <activity
+            android:name=".Module_BP"
+            android:label="@string/title_activity_bp">
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+
+        </activity>
+
 
 
         <activity

@@ -3,10 +3,14 @@ package com.laulaid.laulaid_tchartskt
 import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
 
 
 open class DetailedModule : AppCompatActivity() {
     var mType = ""
+    private lateinit var pager: ViewPager // creating object of ViewPager
+    private lateinit var tab: TabLayout  // creating object of TabLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,11 +22,25 @@ open class DetailedModule : AppCompatActivity() {
         supportActionBar?.subtitle = mType
 
 
-        var DataHealth = DataHealth(mType, this,R.id.detailedmodule_maingraph, R.id.detailedmodule_previewgraph, R.id.detailedmodule_value, R.id.detailedmodule_label,R.id.detailedmodule_date)
-        DataHealth.connectGFit( DataHealth.context as Activity, false, 4)
 
 
+        // set the references of the declared objects above
+        pager = findViewById(R.id.viewPager)
 
+        // Initializing the ViewPagerAdapter
+        val adapter = DetailedModule_ViewPagerAdapter(supportFragmentManager)
+        tab = findViewById(R.id.tabs)
+
+        // add fragment to the list
+        adapter.addFragment(DetailedModule_Fragment(mType, this), "Day")
+        adapter.addFragment(DetailedModule_Fragment(mType, this), "Week")
+        adapter.addFragment(DetailedModule_Fragment(mType, this), "Month")
+
+        // Adding the Adapter to the ViewPager
+        pager.adapter = adapter
+
+        // bind the viewPager with the TabLayout.
+        tab.setupWithViewPager(pager)
     }
 
 

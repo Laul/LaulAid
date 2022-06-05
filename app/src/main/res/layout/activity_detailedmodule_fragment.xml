@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".DetailedModule">
+
+
+
+            <co.csadev.kellocharts.view.LineChartView
+                android:id="@+id/detailedmodule_maingraph"
+                android:layout_width="409dp"
+                android:layout_height="419dp"
+                android:layout_marginTop="100dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/detailedmodule_label"
+                android:layout_width="80dp"
+                android:layout_height="22dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/border"
+                android:fontFamily="@font/helveticaneue_normal"
+                android:gravity="center_vertical"
+                android:text="bg_state"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="10dp"
+                android:textStyle="bold"
+                android:translationY="0dp"
+                android:typeface="normal"
+                app:layout_constraintEnd_toEndOf="@+id/detailedmodule_value"
+                app:layout_constraintTop_toBottomOf="@+id/detailedmodule_value" />
+
+            <TextView
+                android:id="@+id/detailedmodule_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/helveticaneue_light"
+                android:gravity="bottom"
+                android:text="Date latest"
+                android:textColor="@color/red_primary"
+                android:textSize="11dp"
+                android:translationX="0dp"
+                android:translationY="0dp"
+                app:layout_constraintEnd_toEndOf="@+id/detailedmodule_value"
+                app:layout_constraintTop_toBottomOf="@+id/detailedmodule_value" />
+
+            <co.csadev.kellocharts.view.PreviewLineChartView
+                android:id="@+id/detailedmodule_previewgraph"
+                android:layout_width="411dp"
+                android:layout_height="152dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detailedmodule_maingraph"
+                app:layout_constraintVertical_bias="0.954"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <TextView
+                android:id="@+id/detailedmodule_value"
+                android:layout_width="78dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="25dp"
+                android:fontFamily="@font/helveticaneue_light"
+                android:gravity="center_vertical"
+
+                android:text="4.5"
+                android:textAlignment="textEnd"
+                android:textSize="40dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+
+
+</LinearLayout>

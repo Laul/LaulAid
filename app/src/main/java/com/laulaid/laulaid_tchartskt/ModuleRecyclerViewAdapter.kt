@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 class ModuleRecyclerViewAdapter(private val moduleList: List<Module>) : RecyclerView.Adapter<ModuleViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleViewHolder {
-        val layoutView = LayoutInflater.from(parent.context).inflate(R.layout.main_module, parent, false)
+        val layoutView = LayoutInflater.from(parent.context).inflate(R.layout.activity_main_submodule, parent, false)
         return ModuleViewHolder(layoutView)
     }
 
@@ -36,22 +36,28 @@ class ModuleRecyclerViewAdapter(private val moduleList: List<Module>) : Recycler
             module.bind(holder)
             module.connectGFit( module.context as Activity, false, 4)
 
-            // Start BG activity
+            // Start detailed activities
             if (module.mname == "Blood Glucose"){
                 holder.moduleBtn!!.setOnClickListener {
                     val intent = Intent(holder.moduleBtn.context, Module_BG::class.java)
                     holder.moduleBtn.context.startActivity(intent)
                 }
             }
-            if (module.mname == "Steps"){
+            else if (module.mname == "Steps"){
                 holder.moduleBtn!!.setOnClickListener {
                     val intent = Intent(holder.moduleBtn.context, Module_Steps::class.java)
                     holder.moduleBtn.context.startActivity(intent)
                 }
             }
-            if (module.mname == "Heart Rate"){
+            else if (module.mname == "Heart Rate"){
                 holder.moduleBtn!!.setOnClickListener {
                     val intent = Intent(holder.moduleBtn.context, Module_HR::class.java)
+                    holder.moduleBtn.context.startActivity(intent)
+                }
+            }
+            else if (module.mname == "Blood Pressure"){
+                holder.moduleBtn!!.setOnClickListener {
+                    val intent = Intent(holder.moduleBtn.context, Module_BP::class.java)
                     holder.moduleBtn.context.startActivity(intent)
                 }
             }
