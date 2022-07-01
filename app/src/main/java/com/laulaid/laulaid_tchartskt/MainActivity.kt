@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Toolbar
-//        setSupportActionBar(findViewById(R.id.toolbar))
+        setSupportActionBar(findViewById(R.id.toolbar))
 
         // Set up the RecyclerView
         var recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
@@ -56,13 +56,13 @@ class MainActivity : AppCompatActivity() {
             var DataHealth_BG = DataHealth("Blood Glucose", this, -1, -1, -1, -1,-1  )
             DataHealth_BG.connectXDrip(this, true ,1000)
         }
-//
-//        // Sandbox
-//        btnRequest = findViewById(R.id.sandbox_btn)
-//        btnRequest!!.setOnClickListener {
-//            val intent = Intent(this, SandboxActivity::class.java)
-//            startActivity(intent)
-//        }
+
+        // Sandbox
+        btnRequest = findViewById(R.id.sandbox_btn)
+        btnRequest!!.setOnClickListener {
+            val intent = Intent(this, SandboxActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 

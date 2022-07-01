@@ -65,6 +65,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                 for (dataSet in bucket.dataSets) {
                     // Steps
                     if (dataSet.dataType==TYPE_STEP_COUNT_DELTA) {
+                        // Data management for Main activity
                         if (dataHealth.context::class == MainActivity::class) {
                             dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
                             dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
@@ -83,12 +84,22 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                                 )
                             )
                         }
+                        // Data Management for Advanced activity
                         else{
+                            // Mngt as lines
                             for (dp in dataSet.dataPoints) {
                                 dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
                                 dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
                                 dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_STEPS).asInt().toFloat(), dp.getValue(Field.FIELD_STEPS).asInt().toString()))
                             }
+//                            // Mngt as col.
+//                            for (dp in dataSet.dataPoints) {
+//
+//                                dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+//                                dataHealth.kCol.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))))
+//
+//                            }
+
                         }
                     }
 
@@ -169,6 +180,11 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var mcolor_secondary = ContextCompat.getColor(context, R.color.orange_secondary)
     var kLine = ArrayList<Line>()
     var kLineValues = ArrayList<PointValue>()
+
+    // Chart variables (detailed views)
+    val numSubcolumns = 1
+    val numColumns = 1
+    // Column can have many subcolumns, here I use 4 subcolumn in each of 8 columns.
 
     var kXAxis = Axis()
     var kYaxis = Axis()
@@ -478,7 +494,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     }
 
 
-    /** Label formater + date of last value
+    /** Label formatter + date of last value
      */
     fun formatLabel() {
         if (mValueView != null) {
@@ -536,17 +552,27 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
      * @param viewport: temporary viewport to call listener
      */
     fun displayPreviewGraph(kChart: LineChartData, viewPort: Viewport) {
-        // display graph on preview view
-        (kChartPreView as PreviewLineChartView).lineChartData = kChart
 
-        // Viewport listener for main and preview graphs
-        (kChartPreView as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
-        (kChartView as LineChartView)?.setViewportChangeListener(ChartViewportListener())
+            // display graph on preview view
+            (kChartPreView as PreviewLineChartView).lineChartData = kChart
 
-        (kChartPreView as PreviewLineChartView)?.currentViewport = viewPort
-        (kChartView as LineChartView)?.currentViewport = viewPort
+            // Viewport listener for main and preview graphs
+            (kChartPreView as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
+            (kChartView as LineChartView)?.setViewportChangeListener(ChartViewportListener())
 
-        (kChartPreView as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
+            (kChartPreView as PreviewLineChartView)?.currentViewport = viewPort
+            (kChartView as LineChartView)?.currentViewport = viewPort
+
+            (kChartPreView as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
+        }
+
+
+    /** Display Preview graphs using KelloCharts Lib
+     * @param kChart: LineChartData of the main chart - used to copy same data to the preview graph
+     * @param viewport: temporary viewport to call listener
+     */
+    fun displayPreviewGraph_Column(kChart: LineChartData, viewPort: Viewport) {
+
     }
 
     /** Viewport listener to adapt the Main view depending on preview viewport
