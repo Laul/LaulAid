@@ -67,22 +67,17 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                     if (dataSet.dataType==TYPE_STEP_COUNT_DELTA) {
                         // Data management for Main activity
                         if (dataHealth.context::class == MainActivity::class) {
-                            dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
                             dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
                             var steps_temp = 0f
 
+
                             for (dp in dataSet.dataPoints) {
                                 steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
+                                dataHealth.dataPoint.value.add(arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat()))
                             }
 
-                            dataHealth.kLine.add(
-                                Line(
-                                    arrayListOf(
-                                        PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(), 0f, ""),
-                                        PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(), steps_temp, steps_temp.toString()),
-                                    )
-                                )
-                            )
+                            dataHealth.dataPoint.dateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
+
                         }
                         // Data Management for Advanced activity
                         else{
@@ -106,56 +101,56 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                     else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+                            dataHealth.dataPoint.dateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+                            dataHealth.dataPoint.value.add(arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat()))
+
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
-                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat().toString()))
                         }
 
                     }
 
                     else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+                            dataHealth.dataPoint.dateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+                            dataHealth.dataPoint.value.add(arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat()))
+
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
-                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_BPM).asFloat(), dp.getValue(Field.FIELD_BPM).asFloat().toString()))
                         }
 
                     }
 
                     // Blood Pressure
                     else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                        dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
                         dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
 
                         // Initialize BP means
                         var dia_temp = 0f
                         var sys_temp = 0f
 
-
                         // Create a new line between systolic and diastolic blood pressureÙ
                         for (dp in dataSet.dataPoints) {
                             dia_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat()
                             sys_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat()
-
-
                         }
 
                         // Calculate averages for systolic and diastolic BP per day
                         dia_temp /= dataSet.dataPoints.size
                         sys_temp /= dataSet.dataPoints.size
-                        dataHealth.kLine.add(Line(
-                            arrayListOf(
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),dia_temp, dia_temp.toString()),
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),sys_temp, sys_temp.toString()),
-                            )
-                        )
-                        )
+                        dataHealth.dataPoint.value.add(arrayListOf(dia_temp, sys_temp))
+                        dataHealth.dataPoint.dateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
+
                     }
                 }
             }
 
             // Display Graph
-            dataHealth.displayMainGraph()
+            if (dataHealth.dataPoint.dateMillis.size > -1  && dataHealth.kChartView != null){
+                if (dataHealth.mname == "Steps" || dataHealth.mname == "Blood Pressure") {dataHealth.formatAsColumn()}
+
+                else if (dataHealth.mname == "Heart Rate" || dataHealth.mname == "Blood Glucose") {dataHealth.formatAsLine()}
+
+            }
+//                if (dataHealth.mname != "Steps") {dataHealth.displayMainGraph()}
         }
     }
 
@@ -201,6 +196,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     //GFit variables
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
+    val dataPoint = LDataPoint(ArrayList(), ArrayList() )
 
 
     // Variables initialization for each data type:
@@ -350,6 +346,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         kDateEEE.clear()
         kLine.clear()
         kLineValues.clear()
+        dataPoint.dateMillis.clear()
+        dataPoint.value.clear()
 
 //        displayCharts = false
         kLine.forEach{it.values.clear()}
@@ -378,36 +376,72 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         return valData.sortedWith(dateComparator) as MutableList<T>
     }
 
+    /** Formatting for datapoint as columns - to be used with ColumnChart.
+     */
+    fun formatAsColumn() {
+        kLine.clear()
+
+        for (i in 0 until dataPoint.value.size) {
+            kLine.add(
+                Line(
+                    arrayListOf(
+                        PointValue(dataPoint.dateMillis[i].toFloat(), dataPoint.value[i][0], ""),
+                        PointValue(dataPoint.dateMillis[i].toFloat(),  dataPoint.value[i][1], dataPoint.value[i][1].toString()),
+                    )
+                )
+            )
+        }
+
+        kDateMillis=ArrayList(dataPoint.dateMillis)
+
+        displayMainGraph()
+    }
+
+    /** Formatting for datapoint as lines - to be used with linechart.
+     */
+    fun formatAsLine() {
+        kLine.clear()
+        kLineValues.clear()
+        for (i in 0 until dataPoint.value.size) {
+            kLineValues.add(PointValue(dataPoint.dateMillis[i].toFloat(), dataPoint.value[i][0], ""))
+
+        }
+
+        kLine.add(Line(kLineValues))
+        kDateMillis=ArrayList(dataPoint.dateMillis)
+
+        displayMainGraph()
+    }
+
     /** Display Main graphs using KelloCharts Lib
      */
     fun displayMainGraph() {
         kXAxisValues.clear()
 
         // Display Graph
-         if (kDateMillis.size > 1 && kChartView != null) {
+         if (dataPoint.dateMillis.size > -1 && kChartView != null) {
 
                 if (kChartView is LineChartView) {
 
                     // All cases except Blood Pressure: 1 line with Point Values
                     if (mname == "Blood Glucose" || mname == "Heart Rate"|| (mname == "Steps" && context::class != MainActivity::class )) {
                         // Create a line with all PointValues
-                        kLine.clear()
-                        kLine.add(Line(kLineValues))
 
                         // sort Point Values in chronological order
                         kLine.forEach {
                             if (it.values != null) {
-                                it.values = sortData(kDateMillis, it.values)
+                                it.values = sortData(dataPoint.dateMillis, it.values)
                             }
                         }
-
-
                     }
 
                     // Blood Pressure case and steps: x lines with 2 pointvalues
                     if (mname == "Blood Pressure" || (mname == "Steps" && context::class == MainActivity::class ) ) {
                         // sort Lines in chronological order
-                        kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
+                        Log.i(TAG, "dataPoint before sorting: " + dataPoint.dateMillis )
+                        Log.i(TAG, "kLine before sorting: " + kLine )
+
+                        kLine = sortData(dataPoint.dateMillis, kLine).toMutableList() as ArrayList
 
 
                     }
