@@ -1,3 +1,3 @@
 package com.laulaid.laulaid_tchartskt
 
-data class LDataPoint(val dateMillis: ArrayList<Long>, var value: ArrayList<ArrayList<Float>>   )
+data class LDataPoint(var dateMillis: Long, var value: ArrayList<Float>   )

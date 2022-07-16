@@ -41,7 +41,6 @@ class DataGeneral {
             return formatter.format(calendar.time)
         }
 
-
     }
 
 

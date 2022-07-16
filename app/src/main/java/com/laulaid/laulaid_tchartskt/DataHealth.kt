@@ -73,10 +73,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                             for (dp in dataSet.dataPoints) {
                                 steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
-                                dataHealth.dataPoint.value.add(arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat()))
+                                dataHealth.dataPoint.add(LDataPoint( bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
                             }
 
-                            dataHealth.dataPoint.dateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
 
                         }
                         // Data Management for Advanced activity
@@ -101,8 +100,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                     else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.dataPoint.dateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.dataPoint.value.add(arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat()))
+                            dataHealth.dataPoint.add(
+                                LDataPoint(dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
 
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
                         }
@@ -111,8 +110,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
                     else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.dataPoint.dateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.dataPoint.value.add(arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat()))
+                            dataHealth.dataPoint.add(LDataPoint(dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
 
                             dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
                         }
@@ -136,19 +134,22 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                         // Calculate averages for systolic and diastolic BP per day
                         dia_temp /= dataSet.dataPoints.size
                         sys_temp /= dataSet.dataPoints.size
-                        dataHealth.dataPoint.value.add(arrayListOf(dia_temp, sys_temp))
-                        dataHealth.dataPoint.dateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
+                        dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dia_temp, sys_temp)))
 
                     }
                 }
             }
 
             // Display Graph
-            if (dataHealth.dataPoint.dateMillis.size > -1  && dataHealth.kChartView != null){
+            if (dataHealth.dataPoint.size > 0  && dataHealth.kChartView != null){
+                dataHealth.kDateMillis.clear()
+                dataHealth.dataPoint.forEach{dataHealth.kDateMillis.add(it.dateMillis)}
+                dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({it.dateMillis})).toCollection(ArrayList<LDataPoint>())
+
+
                 if (dataHealth.mname == "Steps" || dataHealth.mname == "Blood Pressure") {dataHealth.formatAsColumn()}
 
                 else if (dataHealth.mname == "Heart Rate" || dataHealth.mname == "Blood Glucose") {dataHealth.formatAsLine()}
-
             }
 //                if (dataHealth.mname != "Steps") {dataHealth.displayMainGraph()}
         }
@@ -196,7 +197,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     //GFit variables
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
-    val dataPoint = LDataPoint(ArrayList(), ArrayList() )
+    var dataPoint = ArrayList<LDataPoint>()
 
 
     // Variables initialization for each data type:
@@ -327,17 +328,18 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
         if (kXAxis.name == "Steps") {
             // Request for current (non completed) day / hour
-            ReqCurrentTimes = DataReadRequest.Builder()
-                .aggregate(gFitDataType)
-                .bucketByTime(1, gFitBucketTime)
-                .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
-                .build()
+
 
             // Request for past (completed) days / hours
             ReqCompletedTimes = DataReadRequest.Builder()
                 .aggregate(gFitDataType)
                 .bucketByTime(1, gFitBucketTime)
                 .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
+                .build()
+            ReqCurrentTimes = DataReadRequest.Builder()
+                .aggregate(gFitDataType)
+                .bucketByTime(1, gFitBucketTime)
+                .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
                 .build()
         }
 
@@ -346,8 +348,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         kDateEEE.clear()
         kLine.clear()
         kLineValues.clear()
-        dataPoint.dateMillis.clear()
-        dataPoint.value.clear()
+        dataPoint.clear()
+        dataPoint.clear()
 
 //        displayCharts = false
         kLine.forEach{it.values.clear()}
@@ -364,35 +366,24 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
     }
 
-    /** Data sorting based on object data index
-     * @param valMilli: Values in milliseconds - Used to determine the order to sort the sort
-     * @param valData: Values to sort based on valMilli order
-     */
-    fun <T>sortData (valMilli: ArrayList<Long>, valData: MutableList<T>):MutableList<T> {
-        val dateComparator = Comparator { col1: T, col2:T  ->
-            (valMilli[valData.indexOf(col1)] - valMilli[valData.indexOf(col2)]).toInt()
-        }
-
-        return valData.sortedWith(dateComparator) as MutableList<T>
-    }
 
     /** Formatting for datapoint as columns - to be used with ColumnChart.
      */
     fun formatAsColumn() {
         kLine.clear()
 
-        for (i in 0 until dataPoint.value.size) {
+        for (i in 0 until dataPoint.size) {
             kLine.add(
                 Line(
                     arrayListOf(
-                        PointValue(dataPoint.dateMillis[i].toFloat(), dataPoint.value[i][0], ""),
-                        PointValue(dataPoint.dateMillis[i].toFloat(),  dataPoint.value[i][1], dataPoint.value[i][1].toString()),
+                        PointValue(dataPoint[i].dateMillis.toFloat(), dataPoint[i].value[0], ""),
+                        PointValue(dataPoint[i].dateMillis.toFloat(), dataPoint[i].value[1], dataPoint[i].value[1].toString()),
                     )
                 )
             )
         }
 
-        kDateMillis=ArrayList(dataPoint.dateMillis)
+
 
         displayMainGraph()
     }
@@ -402,13 +393,14 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     fun formatAsLine() {
         kLine.clear()
         kLineValues.clear()
-        for (i in 0 until dataPoint.value.size) {
-            kLineValues.add(PointValue(dataPoint.dateMillis[i].toFloat(), dataPoint.value[i][0], ""))
+        for (i in 0 until dataPoint.size) {
+            kLineValues.add(PointValue(dataPoint[i].dateMillis.toFloat(), dataPoint[i].value[0], ""))
 
         }
-
         kLine.add(Line(kLineValues))
-        kDateMillis=ArrayList(dataPoint.dateMillis)
+
+
+
 
         displayMainGraph()
     }
@@ -419,32 +411,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         kXAxisValues.clear()
 
         // Display Graph
-         if (dataPoint.dateMillis.size > -1 && kChartView != null) {
+         if (dataPoint.size > 0 && kChartView != null) {
 
                 if (kChartView is LineChartView) {
-
-                    // All cases except Blood Pressure: 1 line with Point Values
-                    if (mname == "Blood Glucose" || mname == "Heart Rate"|| (mname == "Steps" && context::class != MainActivity::class )) {
-                        // Create a line with all PointValues
-
-                        // sort Point Values in chronological order
-                        kLine.forEach {
-                            if (it.values != null) {
-                                it.values = sortData(dataPoint.dateMillis, it.values)
-                            }
-                        }
-                    }
-
-                    // Blood Pressure case and steps: x lines with 2 pointvalues
-                    if (mname == "Blood Pressure" || (mname == "Steps" && context::class == MainActivity::class ) ) {
-                        // sort Lines in chronological order
-                        Log.i(TAG, "dataPoint before sorting: " + dataPoint.dateMillis )
-                        Log.i(TAG, "kLine before sorting: " + kLine )
-
-                        kLine = sortData(dataPoint.dateMillis, kLine).toMutableList() as ArrayList
-
-
-                    }
 
                     // Last value to fill textfield + Label update depending on the last value
                     formatLabel()
@@ -524,6 +493,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         else {
             return mutableListOf(kLine.last().values.last())
         }
+
         return mutableListOf()
     }
 
