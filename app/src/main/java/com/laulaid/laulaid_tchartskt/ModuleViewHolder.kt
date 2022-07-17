@@ -14,6 +14,7 @@ class ModuleViewHolder(itemView: View) //TODO: Find and store views from itemVie
     var moduleUnit: TextView = itemView.findViewById(R.id.module_unit)
     var moduleDate: TextView = itemView.findViewById(R.id.module_date)
     var moduleLabel: TextView = itemView.findViewById(R.id.module_label)
-    var moduleChart: AbstractChartView = itemView.findViewById(R.id.module_chart)
+    var moduleChartLine: AbstractChartView = itemView.findViewById(R.id.module_chart)
+    var moduleChartColumn: AbstractChartView = itemView.findViewById(R.id.module_chart_column)
 
 }
