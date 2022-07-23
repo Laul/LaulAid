@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SandboxActivity">
+    android:orientation="vertical"
+    tools:context=".DetailedModule">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/detailedmodule_toolbar"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:background="@color/grey_primary"
@@ -17,28 +16,43 @@
         android:outlineAmbientShadowColor="@color/grey_secondary"
         android:outlineSpotShadowColor="@color/grey_primary"
         android:theme="?attr/actionBarTheme"
-        app:subtitle="Sandbox"
+        app:subtitle=""
         app:subtitleTextColor="@color/red_secondary"
         app:title="LaulAid"
         app:titleTextColor="@color/grey_secondary"
         tools:layout_editor_absoluteX="1dp"
         android:elevation="4dp"
         android:layout = "@menu/toolbar"
+        >
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <co.csadev.kellocharts.view.LineChartView
+            android:id="@+id/sandbox_maingraph"
+            android:layout_width="match_parent"
+            android:layout_height="419dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sandbox_previewgraph" />
+
         />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        <co.csadev.kellocharts.view.PreviewColumnChartView
+            android:id="@+id/sandbox_previewgraph"
+            android:layout_width="match_parent"
+            android:layout_height="152dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:listitem="@layout/main_module" />
-    </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
 
+
+
+</LinearLayout>

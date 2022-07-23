@@ -27,8 +27,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
+        android:layout_width="166dp"
+        android:layout_height="55dp"
         app:layout_constraintEnd_toEndOf="@+id/toolbar">
 
         <Button
@@ -80,7 +80,7 @@
             app:iconGravity="start"
             app:iconSize="25dp"
             app:iconTint="@color/grey_secondary"
-            app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
+            app:layout_constraintEnd_toStartOf="@+id/reload_btn"
             tools:layout_editor_absoluteY="0dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

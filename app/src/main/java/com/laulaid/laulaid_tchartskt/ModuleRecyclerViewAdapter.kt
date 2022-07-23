@@ -34,7 +34,7 @@ class ModuleRecyclerViewAdapter(private val moduleList: List<Module>) : Recycler
             holder.moduleBtn.setCompoundDrawablesWithIntrinsicBounds(module.micon, 0,0,0)
 
             module.bind(holder)
-            module.connectGFit( module.context as Activity, false, 4)
+            module.connectGFit( module.context as Activity, false, 5)
 
             // Start BG activity
             if (module.mname == "Blood Glucose"){
