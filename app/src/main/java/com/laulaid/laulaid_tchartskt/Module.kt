@@ -22,7 +22,7 @@ class Module(dataHealth: DataHealth ) {
             var DataHealth_HR = DataHealth("Heart Rate", context, -1, -1, -1, -1, -1)
             var DataHealth_BP = DataHealth("Blood Pressure", context, -1, -1, -1, -1, -1)
 
-
+//
             list.add(Module(DataHealth_BG))
             list.add(Module(DataHealth_Steps))
             list.add(Module(DataHealth_HR))

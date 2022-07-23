@@ -59,92 +59,83 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         * @param response: Google fit response
         * @param dataHealth: structure containing all class variables to display graphs
          */
-        fun parseGFitData(response: DataReadResponse, dataHealth: DataHealth){
+        fun formatAsDatapoint(response: DataReadResponse, dataHealth: DataHealth){
             for (bucket in response.buckets) {
 
                 for (dataSet in bucket.dataSets) {
                     // Steps
                     if (dataSet.dataType==TYPE_STEP_COUNT_DELTA) {
+                        // Data management for Main activity
                         if (dataHealth.context::class == MainActivity::class) {
-                            dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
-                            dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
                             var steps_temp = 0f
-
                             for (dp in dataSet.dataPoints) {
                                 steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
+                                dataHealth.dataPoint.add(LDataPoint( bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
                             }
-
-                            dataHealth.kLine.add(
-                                Line(
-                                    arrayListOf(
-                                        PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(), 0f, ""),
-                                        PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(), steps_temp, steps_temp.toString()),
-                                    )
-                                )
-                            )
                         }
+
+                        // Data Management for Advanced activity
                         else{
+                            // Mngt as lines
                             for (dp in dataSet.dataPoints) {
                                 dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                                dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
                                 dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_STEPS).asInt().toFloat(), dp.getValue(Field.FIELD_STEPS).asInt().toString()))
                             }
+//                            // Mngt as col.
+//                            for (dp in dataSet.dataPoints) {
+//
+//                                dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
+//                                dataHealth.kCol.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))))
+//
+//                            }
                         }
                     }
 
-
                     else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
-                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat().toString()))
+                            dataHealth.dataPoint.add(
+                                LDataPoint(dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
                         }
-
                     }
 
                     else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
                         for (dp in dataSet.dataPoints) {
-                            dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                            dataHealth.kDateEEE.add(getDate(dp.getTimestamp(TimeUnit.MILLISECONDS), "EEE"))
-                            dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_BPM).asFloat(), dp.getValue(Field.FIELD_BPM).asFloat().toString()))
+                            dataHealth.dataPoint.add(LDataPoint(dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
                         }
-
                     }
 
                     // Blood Pressure
                     else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                        dataHealth.kDateMillis.add(bucket.getStartTime(TimeUnit.MILLISECONDS))
-                        dataHealth.kDateEEE.add(getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"))
-
                         // Initialize BP means
                         var dia_temp = 0f
                         var sys_temp = 0f
-
 
                         // Create a new line between systolic and diastolic blood pressureÙ
                         for (dp in dataSet.dataPoints) {
                             dia_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat()
                             sys_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat()
-
-
                         }
 
                         // Calculate averages for systolic and diastolic BP per day
                         dia_temp /= dataSet.dataPoints.size
                         sys_temp /= dataSet.dataPoints.size
-                        dataHealth.kLine.add(Line(
-                            arrayListOf(
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),dia_temp, dia_temp.toString()),
-                                PointValue(bucket.getStartTime(TimeUnit.MILLISECONDS).toFloat(),sys_temp, sys_temp.toString()),
-                            )
-                        )
-                        )
+                        dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dia_temp, sys_temp)))
+
                     }
                 }
             }
 
             // Display Graph
-            dataHealth.displayMainGraph()
+            if (dataHealth.dataPoint.size > 0  && dataHealth.kChartView != null){
+                dataHealth.kDateMillis.clear()
+                dataHealth.dataPoint.forEach{dataHealth.kDateMillis.add(it.dateMillis)}
+                dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({it.dateMillis})).toCollection(ArrayList<LDataPoint>())
+
+                if (dataHealth.mname == "Steps" || dataHealth.mname == "Blood Pressure") {DisplayData.formatAsColumn(dataHealth)}
+
+                else if (dataHealth.mname == "Heart Rate" || dataHealth.mname == "Blood Glucose") {DisplayData.formatAsLine(dataHealth, )}
+            }
+
         }
     }
 
@@ -185,6 +176,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     //GFit variables
     lateinit var gFitDataType: DataType
     lateinit var gFitBucketTime: TimeUnit
+    var dataPoint = ArrayList<LDataPoint>()
 
 
     // Variables initialization for each data type:
@@ -315,17 +307,18 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
         if (kXAxis.name == "Steps") {
             // Request for current (non completed) day / hour
-            ReqCurrentTimes = DataReadRequest.Builder()
-                .aggregate(gFitDataType)
-                .bucketByTime(1, gFitBucketTime)
-                .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
-                .build()
+
 
             // Request for past (completed) days / hours
             ReqCompletedTimes = DataReadRequest.Builder()
                 .aggregate(gFitDataType)
                 .bucketByTime(1, gFitBucketTime)
                 .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
+                .build()
+            ReqCurrentTimes = DataReadRequest.Builder()
+                .aggregate(gFitDataType)
+                .bucketByTime(1, gFitBucketTime)
+                .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
                 .build()
         }
 
@@ -334,6 +327,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         kDateEEE.clear()
         kLine.clear()
         kLineValues.clear()
+        dataPoint.clear()
+        dataPoint.clear()
 
 //        displayCharts = false
         kLine.forEach{it.values.clear()}
@@ -341,126 +336,15 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         // History request and go to parse data
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
             .readData(ReqCurrentTimes)
-            .addOnSuccessListener { response -> parseGFitData(response, this)}
+            .addOnSuccessListener { response -> formatAsDatapoint(response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
 
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
             .readData(ReqCompletedTimes)
-            .addOnSuccessListener { response -> parseGFitData(response, this)}
+            .addOnSuccessListener { response -> formatAsDatapoint(response, this)}
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
     }
 
-    /** Data sorting based on object data index
-     * @param valMilli: Values in milliseconds - Used to determine the order to sort the sort
-     * @param valData: Values to sort based on valMilli order
-     */
-    fun <T>sortData (valMilli: ArrayList<Long>, valData: MutableList<T>):MutableList<T> {
-        val dateComparator = Comparator { col1: T, col2:T  ->
-            (valMilli[valData.indexOf(col1)] - valMilli[valData.indexOf(col2)]).toInt()
-        }
-
-        return valData.sortedWith(dateComparator) as MutableList<T>
-    }
-
-    /** Display Main graphs using KelloCharts Lib
-     */
-    fun displayMainGraph() {
-        kXAxisValues.clear()
-
-        // Display Graph
-         if (kDateMillis.size > 1 && kChartView != null) {
-
-                if (kChartView is LineChartView) {
-
-                    // All cases except Blood Pressure: 1 line with Point Values
-                    if (mname == "Blood Glucose" || mname == "Heart Rate"|| (mname == "Steps" && context::class != MainActivity::class )) {
-                        // Create a line with all PointValues
-                        kLine.clear()
-                        kLine.add(Line(kLineValues))
-
-                        // sort Point Values in chronological order
-                        kLine.forEach {
-                            if (it.values != null) {
-                                it.values = sortData(kDateMillis, it.values)
-                            }
-                        }
-
-
-                    }
-
-                    // Blood Pressure case and steps: x lines with 2 pointvalues
-                    if (mname == "Blood Pressure" || (mname == "Steps" && context::class == MainActivity::class ) ) {
-                        // sort Lines in chronological order
-                        kLine = sortData(kDateMillis, kLine).toMutableList() as ArrayList
-
-
-                    }
-
-                    // Last value to fill textfield + Label update depending on the last value
-                    formatLabel()
-                    kYaxis = Axis(hasLines = true, maxLabels = 4)
-
-                    // get each distinct value of date in the list of string dates
-                    val kXAxisLabels = kDateEEE.distinct()
-
-                    // Get index of each distinct value in the list of string dates
-                    var kXAxisIndex = ArrayList<Int>()
-                    kXAxisLabels.forEach {
-                        kXAxisIndex.add(kDateEEE.indexOf(it))
-                    }
-
-                    // Create axis values
-                    for (i in 0 until kXAxisIndex.size) {
-                        kXAxisValues.add(
-                            AxisValue(
-                                kDateMillis[kXAxisIndex[i]].toFloat(),
-                                kXAxisLabels[i].toCharArray()
-                            )
-                        )
-                    }
-
-                    // Add values for x Axis
-                    kXAxis.values = kXAxisValues
-
-                    // Lines formatting
-                    kLine.forEach {
-                        it.hasLabelsOnlyForSelected = true
-                        it.isFilled = true
-                        it.hasPoints = false
-                        it.strokeWidth = kStrokeWidth
-                        it.color = mcolor_primary
-                        it.pointRadius = 1
-                        it.hasLabels = true
-
-                    }
-
-                    // Create a LineChartData using time and Line data
-                    var kChart = LineChartData(kLine)
-
-                    // Add axis values and push it in the chart
-                    kChart.axisXBottom = kXAxis
-                    kChart.axisYRight = kYaxis
-
-                    (kChartView as LineChartView).lineChartData = kChart
-                    val tempViewport = kChartView?.maximumViewport.copy()
-                    val tempPreViewport = tempViewport.copy()
-
-                    // If in main activity, add an inset to have the entire labels for axis
-                    if (this.context::class == MainActivity::class) {
-                        tempViewport.inset(-tempViewport.width() * 0.05f, -tempViewport.height() * 0.05f)
-                        kChartView?.maximumViewport = tempViewport
-                        kChartView?.currentViewport = tempViewport
-                    }
-
-                    // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
-                    if (this.context::class != MainActivity::class) {
-                        val dx = tempPreViewport.width() * 2f / 3f
-                        tempPreViewport.offset(dx, 0f)
-                        displayPreviewGraph(kChart, tempPreViewport)
-                    }
-                }
-            }
-    }
 
 
     fun getLastValue(): MutableList<PointValue> {
@@ -474,11 +358,12 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         else {
             return mutableListOf(kLine.last().values.last())
         }
+
         return mutableListOf()
     }
 
 
-    /** Label formater + date of last value
+    /** Label formatter + date of last value
      */
     fun formatLabel() {
         if (mValueView != null) {
@@ -536,17 +421,27 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
      * @param viewport: temporary viewport to call listener
      */
     fun displayPreviewGraph(kChart: LineChartData, viewPort: Viewport) {
-        // display graph on preview view
-        (kChartPreView as PreviewLineChartView).lineChartData = kChart
 
-        // Viewport listener for main and preview graphs
-        (kChartPreView as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
-        (kChartView as LineChartView)?.setViewportChangeListener(ChartViewportListener())
+            // display graph on preview view
+            (kChartPreView as PreviewLineChartView).lineChartData = kChart
 
-        (kChartPreView as PreviewLineChartView)?.currentViewport = viewPort
-        (kChartView as LineChartView)?.currentViewport = viewPort
+            // Viewport listener for main and preview graphs
+            (kChartPreView as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
+            (kChartView as LineChartView)?.setViewportChangeListener(ChartViewportListener())
 
-        (kChartPreView as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
+            (kChartPreView as PreviewLineChartView)?.currentViewport = viewPort
+            (kChartView as LineChartView)?.currentViewport = viewPort
+
+            (kChartPreView as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
+        }
+
+
+    /** Display Preview graphs using KelloCharts Lib
+     * @param kChart: LineChartData of the main chart - used to copy same data to the preview graph
+     * @param viewport: temporary viewport to call listener
+     */
+    fun displayPreviewGraph_Column(kChart: LineChartData, viewPort: Viewport) {
+
     }
 
     /** Viewport listener to adapt the Main view depending on preview viewport
