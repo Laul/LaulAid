@@ -13,14 +13,16 @@
         <entry key="app/src/main/res/font/helvetica.xml" value="0.4588541666666667" />
         <entry key="app/src/main/res/layout/1.xml" value="0.16185410334346503" />
         <entry key="app/src/main/res/layout/activity_bloodglucose.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/activity_detailedmodule.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_detailedmodule.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_main1.xml" value="0.14537037037037037" />
         <entry key="app/src/main/res/layout/activity_sandbox.xml" value="0.27808988764044945" />
         <entry key="app/src/main/res/layout/activity_steps.xml" value="0.16574074074074074" />
+        <entry key="app/src/main/res/layout/detailed_module.xml" value="0.2562814070351759" />
         <entry key="app/src/main/res/layout/fragment_module.xml" value="0.20364741641337386" />
-        <entry key="app/src/main/res/layout/main_module.xml" value="0.5871446229913473" />
+        <entry key="app/src/main/res/layout/main_module.xml" value="0.1" />
         <entry key="app/src/main/res/layout/main_modulefragment.xml" value="0.5526041666666667" />
+        <entry key="app/src/main/res/layout/module_detailed.xml" value="0.22" />
         <entry key="app/src/main/res/layout/toolbar.xml" value="0.1" />
         <entry key="app/src/main/res/menu/toolbar.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3095" />

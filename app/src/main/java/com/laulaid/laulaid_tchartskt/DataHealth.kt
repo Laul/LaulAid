@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import co.csadev.kellocharts.gesture.ZoomType
+import co.csadev.kellocharts.listener.LineChartOnValueSelectListener
 import co.csadev.kellocharts.listener.ViewportChangeListener
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.AbstractChartView
@@ -33,7 +34,7 @@ import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
 
-class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, valueID : Int, labelID: Int, dateID : Int)  {
+class DataHealth(string: String, context: Context, WeekID :Int, DayID: Int, PreviewDayID: Int, valueID : Int, labelID: Int, dateID : Int)  {
 
     /** Companion object to access variables and function of the class outside
      * @param fitnessOptions: authorization to all data types to retrieve from Google Fit
@@ -70,24 +71,16 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
                             var steps_temp = 0f
                             for (dp in dataSet.dataPoints) {
                                 steps_temp += dp.getValue(Field.FIELD_STEPS).asInt().toFloat()
-                                dataHealth.dataPoint.add(LDataPoint( bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
                             }
                         }
 
                         // Data Management for Advanced activity
-                        else{
-                            // Mngt as lines
+                        else if (dataHealth.context::class != MainActivity::class) {
                             for (dp in dataSet.dataPoints) {
-                                dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-                                dataHealth.kLineValues.add(PointValue(dp.getTimestamp(TimeUnit.MILLISECONDS).toFloat(),dp.getValue(Field.FIELD_STEPS).asInt().toFloat(), dp.getValue(Field.FIELD_STEPS).asInt().toString()))
+                                dataHealth.dataPoint.add(
+                                    LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
                             }
-//                            // Mngt as col.
-//                            for (dp in dataSet.dataPoints) {
-//
-//                                dataHealth.kDateMillis.add(dp.getTimestamp(TimeUnit.MILLISECONDS))
-//                                dataHealth.kCol.add(Column(arrayListOf(SubcolumnValue(dp.getValue(Field.FIELD_STEPS).asInt().toFloat(),ChartUtils.pickColor() ))))
-//
-//                            }
                         }
                     }
 
@@ -126,7 +119,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             }
 
             // Display Graph
-            if (dataHealth.dataPoint.size > 0  && dataHealth.kChartView != null){
+            if (dataHealth.dataPoint.size > 0  && dataHealth.kChartView_Week != null){
                 dataHealth.kDateMillis.clear()
                 dataHealth.dataPoint.forEach{dataHealth.kDateMillis.add(it.dateMillis)}
                 dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({it.dateMillis})).toCollection(ArrayList<LDataPoint>())
@@ -145,8 +138,9 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     var context = context
 
     // Views to plot graph and add values
-    var kChartView: AbstractChartView? = null
-    var kChartPreView: AbstractChartView? = null
+    var kChartView_Week: AbstractChartView? = null
+    var kChartView_Day: AbstractChartView? = null
+    var kChartView_PreviewWeek: AbstractChartView? = null
 
     var mValueView: TextView? = null
     var mLabelView: TextView? = null
@@ -181,12 +175,26 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
     // Variables initialization for each data type:
     init {
-        if (viewID != -1) {kChartView = (context as Activity).findViewById(viewID)}
-        if (previewID != -1) {kChartPreView = (context as Activity).findViewById(previewID)}
-        if (valueID != -1) {mValueView = (context as Activity).findViewById(valueID)}
-        if (labelID != -1) {mLabelView = (context as Activity).findViewById(labelID)}
-        if (dateID != -1) {mDateView = (context as Activity).findViewById(dateID)}
-
+        if (context::class == MainActivity::class){
+            if (WeekID != -1) {
+                kChartView_Week = (context as Activity).findViewById(WeekID)
+            }
+            if (DayID != -1) {
+                kChartView_Day = (context as Activity).findViewById(DayID)
+            }
+            if (PreviewDayID != -1) {
+                kChartView_PreviewWeek = (context as Activity).findViewById(PreviewDayID)
+            }
+            if (valueID != -1) {
+                mValueView = (context as Activity).findViewById(valueID)
+            }
+            if (labelID != -1) {
+                mLabelView = (context as Activity).findViewById(labelID)
+            }
+            if (dateID != -1) {
+                mDateView = (context as Activity).findViewById(dateID)
+            }
+        }
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
             gFitBucketTime = TimeUnit.DAYS
@@ -202,6 +210,7 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
         else if (string === "Steps") {
             gFitDataType = TYPE_STEP_COUNT_DELTA
+//            gFitBucketTime = TimeUnit.DAYS
             if (context::class == MainActivity::class ) {gFitBucketTime = TimeUnit.DAYS}
             else                                        {gFitBucketTime = TimeUnit.HOURS}
 
@@ -245,12 +254,18 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
 
     }
 
-    fun bind(holder: ModuleViewHolder){
-        kChartView = holder.moduleChart
+    fun bind(holder: Main_ViewHolder){
+        kChartView_Week = holder.moduleChart
         mValueView = holder.moduleValue
         mLabelView = holder.moduleLabel
         mDateView  = holder.moduleDate
         mButton  = holder.moduleBtn
+    }
+
+    fun bind(holder: Detailed_ViewHolder){
+        kChartView_Week = holder.chart_week
+        kChartView_Day = holder.chart_day
+        kChartView_PreviewWeek = holder.chart_previewweek
     }
 
 
@@ -270,7 +285,13 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         // If permission -> get Data
         else {
             if (!isPush) {
-                this.getGFitData(duration)
+                var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
+//                this.getGFitData(Time_Now, Time_Start, Time_End)
+
+                // Request for current day
+                this.getGFitData(Time_Start, Time_End)
+                // Request for other day(s)
+                this.getGFitData(Time_End, Time_Now)
             }
             else{
                 pushGlucoData()
@@ -287,57 +308,30 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
     /** GFit connection to retrieve fit data
     * @param duration: duration to cover (default: last 7 days)
      */
-    fun getGFitData(duration: Int) {
-        var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
-
-        // Request for current (non completed) day / hour
-        var ReqCurrentTimes = DataReadRequest.Builder()
-            .read(gFitDataType)
-            .bucketByTime(1, gFitBucketTime)
-            .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
-            .build()
-
+    fun getGFitData(time_start : Long, time_end: Long) {
         // Default request using ".read" - For steps, we need to use ".aggregate"
         // Request for past (completed) days / hours
         var ReqCompletedTimes = DataReadRequest.Builder()
             .read(gFitDataType)
             .bucketByTime(1, gFitBucketTime)
-            .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
+            .setTimeRange(time_start, time_end, TimeUnit.MILLISECONDS)
             .build()
 
         if (kXAxis.name == "Steps") {
-            // Request for current (non completed) day / hour
-
-
             // Request for past (completed) days / hours
             ReqCompletedTimes = DataReadRequest.Builder()
                 .aggregate(gFitDataType)
                 .bucketByTime(1, gFitBucketTime)
-                .setTimeRange(Time_Start, Time_End, TimeUnit.MILLISECONDS)
-                .build()
-            ReqCurrentTimes = DataReadRequest.Builder()
-                .aggregate(gFitDataType)
-                .bucketByTime(1, gFitBucketTime)
-                .setTimeRange(Time_End, Time_Now, TimeUnit.MILLISECONDS)
+                .setTimeRange(time_start, time_end, TimeUnit.MILLISECONDS)
                 .build()
         }
 
         // Clear Data before retrieving other data from GFit
         kDateMillis.clear()
-        kDateEEE.clear()
         kLine.clear()
         kLineValues.clear()
         dataPoint.clear()
-        dataPoint.clear()
-
-//        displayCharts = false
         kLine.forEach{it.values.clear()}
-
-        // History request and go to parse data
-        Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
-            .readData(ReqCurrentTimes)
-            .addOnSuccessListener { response -> formatAsDatapoint(response, this)}
-            .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
 
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
             .readData(ReqCompletedTimes)
@@ -345,23 +339,22 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
     }
 
-
-
+    /** Get last value to be displayed as label
+     */
     fun getLastValue(): MutableList<PointValue> {
-        if (mname == "Steps" || mname == "Blood Pressure"){
-            for (i in kLine.size-1 downTo 0) {
-                if (!kLine[i].values.last().y.isNaN()) {
-                    return kLine[i].values
+        if (kLine.size >0) {
+            if (mname == "Steps" || mname == "Blood Pressure") {
+                for (i in kLine.size - 1 downTo 0) {
+                    if (!kLine[i].values.last().y.isNaN()) {
+                        return kLine[i].values
+                    }
                 }
+            } else {
+                return mutableListOf(kLine.last().values.last())
             }
         }
-        else {
-            return mutableListOf(kLine.last().values.last())
-        }
-
         return mutableListOf()
     }
-
 
     /** Label formatter + date of last value
      */
@@ -421,18 +414,20 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
      * @param viewport: temporary viewport to call listener
      */
     fun displayPreviewGraph(kChart: LineChartData, viewPort: Viewport) {
-
             // display graph on preview view
-            (kChartPreView as PreviewLineChartView).lineChartData = kChart
+            (kChartView_PreviewWeek as PreviewLineChartView).lineChartData = kChart
 
             // Viewport listener for main and preview graphs
-            (kChartPreView as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
-            (kChartView as LineChartView)?.setViewportChangeListener(ChartViewportListener())
+            (kChartView_PreviewWeek as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
+            (kChartView_Week as LineChartView)?.setViewportChangeListener(ChartViewportListener())
 
-            (kChartPreView as PreviewLineChartView)?.currentViewport = viewPort
-            (kChartView as LineChartView)?.currentViewport = viewPort
+            (kChartView_PreviewWeek as PreviewLineChartView)?.currentViewport = viewPort
+            (kChartView_Week as LineChartView)?.currentViewport = viewPort
 
-            (kChartPreView as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
+            (kChartView_PreviewWeek as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
+
+
+            (kChartView_Week as LineChartView).onValueTouchListener = ValueTouchListener()
         }
 
 
@@ -450,8 +445,8 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         override fun onViewportChanged(newViewport: Viewport) {
             if (!updatingPreviewViewport) {
                 updatingChartViewport = true
-                (kChartView as LineChartView).zoomType = ZoomType.HORIZONTAL
-                (kChartView as LineChartView).currentViewport = newViewport
+                (kChartView_Week as LineChartView).zoomType = ZoomType.HORIZONTAL
+                (kChartView_Week as LineChartView).currentViewport = newViewport
                 updatingChartViewport = false
             }
         }
@@ -463,14 +458,35 @@ class DataHealth(string: String, context: Context, viewID :Int, previewID: Int, 
         override fun onViewportChanged(newViewport: Viewport) {
             if (!updatingChartViewport) {
                 updatingPreviewViewport = true
-                (kChartPreView as LineChartView).zoomType = ZoomType.HORIZONTAL
-                (kChartPreView as LineChartView).currentViewport = newViewport
+                (kChartView_PreviewWeek as LineChartView).zoomType = ZoomType.HORIZONTAL
+                (kChartView_PreviewWeek as LineChartView).currentViewport = newViewport
                 updatingPreviewViewport = false
             }
         }
     }
 
+    /** Touch listener to get the selected date and display corresponding detailed data .
+     */
 
+    private inner class ValueTouchListener() : LineChartOnValueSelectListener {
+
+        override fun onValueSelected(lineIndex: Int, pointIndex: Int, value: PointValue) {
+            // Get Current day
+            var current_day = value.x.toLong()
+
+            var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(1)
+            Time_Start = current_day
+//            getGFitData(Time_Now, Time_Start, Time_End)
+//
+//
+//            Toast.makeText(context, "Selected: " + value, Toast.LENGTH_SHORT).show()
+        }
+
+        override fun onValueDeselected() {
+
+
+        }
+    }
     /** XDrip permissions verification and dispatch
     * @param count: number of data to retrieve from XDrip. Max is 1000, XDrip does neither allow nor to specify time interval, nor more than the last 1000 values (~3.5 days of data)
     * @param context: App Context (typically main activity)

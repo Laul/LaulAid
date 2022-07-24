@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".DetailedModule">
+    tools:context=".Detailed_Activity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/detailedmodule_toolbar"
@@ -45,7 +45,7 @@
         android:layout_height="match_parent">
 
         <co.csadev.kellocharts.view.LineChartView
-            android:id="@+id/detailedmodule_maingraph"
+            android:id="@+id/detailedmodule_Graph_Week"
             android:layout_width="409dp"
             android:layout_height="419dp"
             android:layout_marginTop="100dp"
@@ -73,11 +73,11 @@
             app:layout_constraintTop_toBottomOf="@+id/detailedmodule_value" />
 
         <co.csadev.kellocharts.view.PreviewLineChartView
-            android:id="@+id/detailedmodule_previewgraph"
+            android:id="@+id/detailedmodule_Graph_PreviewWeek"
             android:layout_width="411dp"
             android:layout_height="152dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/detailedmodule_maingraph"
+            app:layout_constraintTop_toBottomOf="@+id/detailedmodule_Graph_Week"
             app:layout_constraintVertical_bias="0.954"
             tools:layout_editor_absoluteX="0dp" />
 

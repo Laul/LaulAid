@@ -103,7 +103,7 @@
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            tools:listitem="@layout/main_module" />
+            tools:listitem="@layout/module_main" />
 
     </ScrollView>
 

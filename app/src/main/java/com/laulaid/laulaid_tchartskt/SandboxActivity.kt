@@ -38,7 +38,7 @@ class SandboxActivity : AppCompatActivity() {
 //        var recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
 //        recyclerView.setHasFixedSize(false)
 //        recyclerView.layoutManager = LinearLayoutManager(this.applicationContext, RecyclerView.VERTICAL, false)
-//        val adapter = ModuleRecyclerViewAdapter(Module.initModuleList(this))
+//        val adapter = Main_RecyclerViewAdapter(Main_Module.initModuleList(this))
 //        recyclerView.adapter = adapter
 //        val smallPadding = 30
 //        val largePadding = 200

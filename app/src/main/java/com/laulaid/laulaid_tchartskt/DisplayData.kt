@@ -1,10 +1,8 @@
 package com.laulaid.laulaid_tchartskt
 
-import android.content.Context
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.LineChartView
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
-import com.laulaid.laulaid_tchartskt.R.color.*
 
 
 class DisplayData {
@@ -22,11 +20,9 @@ class DisplayData {
 
             }
             dH.kLine.add(Line(dH.kLineValues))
-
-
-
-
-            displayMainGraph(dH)
+//            if (dH.context::class == MainActivity::class) {
+                displayMainGraph(dH)
+//            }
         }
         /** Formatting for datapoint as columns - to be used with ColumnChart.
          */
@@ -43,13 +39,10 @@ class DisplayData {
                     )
                 )
             }
-
-
-
-            displayMainGraph(dH)
+//            if (dH.context::class == MainActivity::class) {
+                displayMainGraph(dH)
+//            }
         }
-
-
 
         /** Display Main graphs using KelloCharts Lib
          */
@@ -57,9 +50,9 @@ class DisplayData {
             dH.kXAxisValues.clear()
 
             // Display Graph
-            if (dH.dataPoint.size > 0 && dH.kChartView != null) {
+            if (dH.dataPoint.size > 0 && dH.kChartView_Week != null) {
 
-                if (dH.kChartView is LineChartView) {
+                if (dH.kChartView_Week is LineChartView) {
 
                     // Last value to fill textfield + Label update depending on the last value
                     dH.formatLabel()
@@ -78,13 +71,15 @@ class DisplayData {
                     }
 
                     // Create axis values
-                    for (i in 0 until kXAxisIndex.size) {
-                        dH.kXAxisValues.add(
-                            AxisValue(
-                                dH.kDateMillis[kXAxisIndex[i]].toFloat(),
-                                kXAxisLabels[i].toCharArray()
+                    if (dH.context::class != MainActivity::class) {
+                        for (i in 0 until kXAxisIndex.size) {
+                            dH.kXAxisValues.add(
+                                AxisValue(
+                                    dH.kDateMillis[kXAxisIndex[i]].toFloat(),
+                                    kXAxisLabels[i].toCharArray()
+                                )
                             )
-                        )
+                        }
                     }
 
                     // Add values for x Axis
@@ -94,37 +89,42 @@ class DisplayData {
                     dH.kLine.forEach {
                         it.hasLabelsOnlyForSelected = true
                         it.isFilled = true
-                        it.hasPoints = false
+                        it.hasPoints = true
                         it.strokeWidth = dH.kStrokeWidth
                         it.color = dH.mcolor_primary
                         it.pointRadius = 1
-                        it.hasLabels = true
+                        it.hasLabels = false
 
                     }
 
                     // Create a LineChartData using time and Line data
-                    var kChart = LineChartData(dH.kLine)
+                    var kChart_Week = LineChartData(dH.kLine)
 
                     // Add axis values and push it in the chart
-                    kChart.axisXBottom = dH.kXAxis
-                    kChart.axisYRight = dH.kYaxis
+                    kChart_Week.axisXBottom = dH.kXAxis
+                    kChart_Week.axisYRight = dH.kYaxis
 
-                    (dH.kChartView as LineChartView).lineChartData = kChart
-                    val tempViewport = dH.kChartView?.maximumViewport.copy()
+                    (dH.kChartView_Week as LineChartView).lineChartData = kChart_Week
+                    val tempViewport = dH.kChartView_Week?.maximumViewport.copy()
                     val tempPreViewport = tempViewport.copy()
 
                     // If in main activity, add an inset to have the entire labels for axis
                     if (dH.context::class == MainActivity::class) {
                         tempViewport.inset(-tempViewport.width() * 0.05f, -tempViewport.height() * 0.05f)
-                        dH.kChartView?.maximumViewport = tempViewport
-                        dH.kChartView?.currentViewport = tempViewport
+                        dH.kChartView_Week?.maximumViewport = tempViewport
+                        dH.kChartView_Week?.currentViewport = tempViewport
                     }
 
                     // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
                     if (dH.context::class != MainActivity::class) {
+                        var kChart_Day = LineChartData(dH.kLine)
+                        (dH.kChartView_Day as LineChartView).lineChartData = kChart_Day
+
                         val dx = tempPreViewport.width() * 2f / 3f
                         tempPreViewport.offset(dx, 0f)
-                        dH.displayPreviewGraph(kChart, tempPreViewport)
+                        dH.displayPreviewGraph(kChart_Week, tempPreViewport)
+
+
                     }
                 }
             }

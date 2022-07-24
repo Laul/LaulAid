@@ -27,7 +27,7 @@
         </activity>
 
         <activity
-            android:name=".DetailedModule"
+            android:name=".Detailed_Module"
             android:label="@string/title_activity_bloodglucose">
             android:parentActivityName=".MainActivity" >
             <meta-data
@@ -37,7 +37,7 @@
         </activity>
 
         <activity
-            android:name=".Module_BG"
+            android:name=".Activity_BG"
             android:label="@string/title_activity_bloodglucose">
             android:parentActivityName=".MainActivity" >
             <meta-data
@@ -48,7 +48,7 @@
 
 
         <activity
-            android:name=".Module_HR"
+            android:name=".Activity_HR"
             android:label="@string/title_activity_hr">
             android:parentActivityName=".MainActivity" >
             <meta-data
@@ -58,7 +58,7 @@
         </activity>
 
         <activity
-            android:name=".Module_Steps"
+            android:name=".Activity_Steps"
             android:label="@string/title_activity_steps">
             android:parentActivityName=".MainActivity" >
             <meta-data
