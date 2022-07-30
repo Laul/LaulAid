@@ -13,10 +13,10 @@ class Main_Module(dataHealth: DataHealth ) {
          */
         fun initModuleList(context: Context): List<Main_Module> {
             val list = ArrayList<Main_Module>()
-            var DataHealth_BG = DataHealth("Blood Glucose", context, -1, -1, -1,-1, -1, -1)
-            var DataHealth_Steps = DataHealth("Steps", context, -1, -1, -1,-1, -1, -1)
-            var DataHealth_HR = DataHealth("Heart Rate", context, -1, -1, -1,-1, -1, -1)
-            var DataHealth_BP = DataHealth("Blood Pressure", context, -1, -1,-1, -1, -1, -1)
+            var DataHealth_BG = DataHealth("Blood Glucose", context)
+            var DataHealth_Steps = DataHealth("Steps", context)
+            var DataHealth_HR = DataHealth("Heart Rate", context)
+            var DataHealth_BP = DataHealth("Blood Pressure", context)
 
 //
             list.add(Main_Module(DataHealth_BG))

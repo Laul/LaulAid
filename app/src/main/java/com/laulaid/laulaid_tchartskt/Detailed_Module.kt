@@ -14,7 +14,7 @@ class Detailed_Module(dataHealth: DataHealth ) {
         fun initModuleList(context: Context, mType: String): List<Detailed_Module> {
             val list = ArrayList<Detailed_Module>()
 
-            var DataHealth_BG = DataHealth(mType,  context, -1, -1, -1,-1, -1, -1)
+            var DataHealth_BG = DataHealth(mType,  context)
 
             list.add(Detailed_Module(DataHealth_BG))
 

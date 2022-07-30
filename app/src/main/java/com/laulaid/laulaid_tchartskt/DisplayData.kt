@@ -1,9 +1,12 @@
 package com.laulaid.laulaid_tchartskt
 
+import android.app.Activity
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.LineChartView
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
-
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DisplayData {
 
@@ -21,32 +24,114 @@ class DisplayData {
             }
             dH.kLine.add(Line(dH.kLineValues))
 //            if (dH.context::class == MainActivity::class) {
-                displayMainGraph(dH)
+                displayWeek(dH)
 //            }
         }
-        /** Formatting for datapoint as columns - to be used with ColumnChart.
+        /** Formatting for datapoint as columns - to display aggregate data per day for the week view`
          */
         fun formatAsColumn(dH: DataHealth){
             dH.kLine.clear()
 
-            for (i in 0 until dH.dataPoint.size) {
+
+            // Group data per Day
+
+            var currentDayMilli = dH.dataPoint[0].dateMillis
+            var currentDay = getDate(currentDayMilli, "EEE")
+
+            var tempVal = arrayListOf(dH.dataPoint[0].value)
+
+            for (i in 1 until dH.dataPoint.size) {
+                var tempDate = getDate(dH.dataPoint[i].dateMillis, "EEE" )
+                if (currentDay !=  tempDate){
+
+                    // if steps: we aggregate data for a day
+                    if (dH.mname == "Steps"){computeStepsData(dH, tempVal, currentDayMilli)}
+                    // else: calculate the mean, max, and min per day
+                    else{ computeOtherData(dH, tempVal, currentDayMilli)}
+                    currentDay = tempDate
+                    currentDayMilli =  dH.dataPoint[i].dateMillis
+                    tempVal = arrayListOf(dH.dataPoint[i].value)
+                }
+                else{
+                    tempVal.add(dH.dataPoint[i].value)
+                }
+            }
+
+            if (dH.mname == "Steps"){computeStepsData(dH, tempVal, currentDayMilli)}
+            else{ computeOtherData(dH, tempVal, currentDayMilli)}
+
+            displayWeek(dH)
+        }
+
+        fun computeStepsData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long){
+            var tempValDay = 0f
+            for (j in 0 until tempVal.size){
+                tempValDay += tempVal[j][0]
+            }
+            dH.kLine.add(
+                Line(
+                    arrayListOf(
+                        PointValue(currentDayMilli.toFloat(), 0f, ""),
+                        PointValue(currentDayMilli.toFloat(),tempValDay, tempValDay.toString()),
+                    )
+                )
+            )
+        }
+
+            fun computeOtherData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long){
+            var tempValMean = ArrayList<Float>()
+            var tempValMin = ArrayList<Float>()
+            var tempValMax = ArrayList<Float>()
+            for (k in 0 until tempVal[0].size){
+                tempValMean.add(0f)
+                tempValMin.add(10000f)
+                tempValMax.add(0f)
+
+                var sizeDay = 0
+
+                for (j in 0 until tempVal.size){
+                    tempValMean[k] += tempVal[j][k]
+                    if (tempValMin[k]  > tempVal[j][k]){
+                        tempValMin[k]  = tempVal[j][k]
+                    }
+                    if (tempValMax[k]  < tempVal[j][k]){
+                        tempValMax[k]  = tempVal[j][k]
+                    }
+                    sizeDay += 1
+                }
+
+                tempValMean[k] = tempValMean[k]/sizeDay
+            }
+            // Create a line for a given day
+            if (dH.mname == "Blood Glucose" || dH.mname == "Heart Rate") {
                 dH.kLine.add(
                     Line(
                         arrayListOf(
-                            PointValue(dH.dataPoint[i].dateMillis.toFloat(), dH.dataPoint[i].value[0], ""),
-                            PointValue(dH.dataPoint[i].dateMillis.toFloat(), dH.dataPoint[i].value[1], dH.dataPoint[i].value[1].toString()),
+                            PointValue(currentDayMilli.toFloat(), tempValMin[0], tempValMin[0].toString()),
+                            PointValue(currentDayMilli.toFloat(), tempValMax[0], tempValMax[0].toString()),
                         )
                     )
                 )
             }
-//            if (dH.context::class == MainActivity::class) {
-                displayMainGraph(dH)
-//            }
+            if (dH.mname == "Blood Pressure") {
+                dH.kLine.add(
+                    Line(
+                        arrayListOf(
+                            PointValue(currentDayMilli.toFloat(), tempValMean[0], tempValMean[0].toString()),
+                            PointValue(currentDayMilli.toFloat(), tempValMean[1], tempValMean[1].toString()),
+                        )
+                    )
+                )
+            }
+
         }
+
+
+
 
         /** Display Main graphs using KelloCharts Lib
          */
-        fun displayMainGraph(dH: DataHealth) {
+        fun displayWeek(dH: DataHealth) {
             dH.kXAxisValues.clear()
 
             // Display Graph
@@ -117,6 +202,8 @@ class DisplayData {
 
                     // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
                     if (dH.context::class != MainActivity::class) {
+//                        dH.gFitBucketTime = TimeUnit.HOURS
+//                        dH.connectGFit(dH.context as Activity, false, 7)
                         var kChart_Day = LineChartData(dH.kLine)
                         (dH.kChartView_Day as LineChartView).lineChartData = kChart_Day
 

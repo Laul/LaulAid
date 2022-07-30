@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         // Push data to GFit
         btnRequest = findViewById(R.id.pushgluco_btn)
         btnRequest!!.setOnClickListener {
-            var DataHealth_BG = DataHealth("Blood Glucose", this, -1, -1, -1,-1, -1,-1  )
+            var DataHealth_BG = DataHealth("Blood Glucose", this )
             DataHealth_BG.connectXDrip(this, true ,1000)
         }
 
