@@ -27,7 +27,7 @@ class DisplayData {
                 displayWeek(dH)
 //            }
         }
-        /** Formatting for datapoint as columns - to display aggregate data per day for the week view`
+        /** Formatting for datapoint as columns - to display aggregate data per day for the week chart`
          */
         fun formatAsColumn(dH: DataHealth){
             dH.kLine.clear()
@@ -36,7 +36,10 @@ class DisplayData {
             // Group data per Day
 
             var currentDayMilli = dH.dataPoint[0].dateMillis
-            var currentDay = getDate(currentDayMilli, "EEE")
+            var currentDay = getDate(dH.dataPoint[0].dateMillis, "EEE")
+//
+//            var idEEE = 0
+//            dH.dataAxis.add(LDataAxis(currentDayMilli, currentDay, idEEE))
 
             var tempVal = arrayListOf(dH.dataPoint[0].value)
 
@@ -45,7 +48,12 @@ class DisplayData {
                 if (currentDay !=  tempDate){
 
                     // if steps: we aggregate data for a day
-                    if (dH.mname == "Steps"){computeStepsData(dH, tempVal, currentDayMilli)}
+                    if (dH.mname == "Steps"){
+                        computeStepsData(dH, tempVal, currentDayMilli)
+//                        idEEE += 1
+//                        dH.dataAxis.add(LDataAxis(currentDayMilli, getDate(currentDayMilli, "EEE"), idEEE))
+
+                    }
                     // else: calculate the mean, max, and min per day
                     else{ computeOtherData(dH, tempVal, currentDayMilli)}
                     currentDay = tempDate
@@ -68,6 +76,7 @@ class DisplayData {
             for (j in 0 until tempVal.size){
                 tempValDay += tempVal[j][0]
             }
+
             dH.kLine.add(
                 Line(
                     arrayListOf(
@@ -137,82 +146,82 @@ class DisplayData {
             // Display Graph
             if (dH.dataPoint.size > 0 && dH.kChartView_Week != null) {
 
-                if (dH.kChartView_Week is LineChartView) {
 
-                    // Last value to fill textfield + Label update depending on the last value
-                    dH.formatLabel()
-                    dH.kYaxis = Axis(hasLines = true, maxLabels = 4)
+                // Last value to fill textfield + Label update depending on the last value
+//                dH.formatLabel()
+                dH.kYaxis = Axis(hasLines = true, maxLabels = 4)
 
-                    // Create distinct Xaxis value based on the date
-                    for (i in 0 until dH.dataPoint.size) {
-                        dH.kDateEEE.add(getDate(dH.dataPoint[i].dateMillis.toLong(), "EEE"))
-                    }
-                    val kXAxisLabels = dH.kDateEEE.distinct()
+                // Create distinct Xaxis value based on the date
+                for (i in 0 until dH.dataPoint.size) {
+                    dH.kDateEEE.add(getDate(dH.dataPoint[i].dateMillis.toLong(), "EEE"))
+                }
+                val kXAxisLabels = dH.kDateEEE.distinct()
 
-                    // Get index of each distinct value in the list of string dates
-                    var kXAxisIndex = ArrayList<Int>()
+                // Get index of each distinct value in the list of string dates
+                var kXAxisIndex = ArrayList<Int>()
+                if (kXAxisLabels.size>1) {
                     kXAxisLabels.forEach {
                         kXAxisIndex.add(dH.kDateEEE.indexOf(it))
                     }
+                }
 
-                    // Create axis values
-                    if (dH.context::class != MainActivity::class) {
-                        for (i in 0 until kXAxisIndex.size) {
-                            dH.kXAxisValues.add(
-                                AxisValue(
-                                    dH.kDateMillis[kXAxisIndex[i]].toFloat(),
-                                    kXAxisLabels[i].toCharArray()
-                                )
+//                // Create axis values
+//                if (dH.context::class != MainActivity::class) {
+                    for (i in 0 until kXAxisIndex.size) {
+                        dH.kXAxisValues.add(
+                            AxisValue(
+                                dH.dataPoint[kXAxisIndex[i]].dateMillis.toFloat(),
+                                kXAxisLabels[i].toCharArray()
                             )
-                        }
+                        )
                     }
+//                }
 
-                    // Add values for x Axis
-                    dH.kXAxis.values = dH.kXAxisValues
+                // Add values for x Axis
+                dH.kXAxis.values = dH.kXAxisValues
 
-                    // Lines formatting
-                    dH.kLine.forEach {
-                        it.hasLabelsOnlyForSelected = true
-                        it.isFilled = true
-                        it.hasPoints = true
-                        it.strokeWidth = dH.kStrokeWidth
-                        it.color = dH.mcolor_primary
-                        it.pointRadius = 1
-                        it.hasLabels = false
+                // Lines formatting
+                dH.kLine.forEach {
+                    it.hasLabelsOnlyForSelected = true
+                    it.isFilled = true
+                    it.hasPoints = true
+                    it.strokeWidth = dH.kStrokeWidth
+                    it.color = dH.mcolor_primary
+                    it.pointRadius = 1
+                    it.hasLabels = false
 
-                    }
+                }
 
-                    // Create a LineChartData using time and Line data
-                    var kChart_Week = LineChartData(dH.kLine)
+                // Create a LineChartData using time and Line data
+                var kChart_Week = LineChartData(dH.kLine)
 
-                    // Add axis values and push it in the chart
-                    kChart_Week.axisXBottom = dH.kXAxis
-                    kChart_Week.axisYRight = dH.kYaxis
+                // Add axis values and push it in the chart
+                kChart_Week.axisXBottom = dH.kXAxis
+                kChart_Week.axisYRight = dH.kYaxis
 
-                    (dH.kChartView_Week as LineChartView).lineChartData = kChart_Week
-                    val tempViewport = dH.kChartView_Week?.maximumViewport.copy()
-                    val tempPreViewport = tempViewport.copy()
+                (dH.kChartView_Week as LineChartView).lineChartData = kChart_Week
+                val tempViewport = dH.kChartView_Week?.maximumViewport.copy()
+                val tempPreViewport = tempViewport.copy()
 
-                    // If in main activity, add an inset to have the entire labels for axis
-                    if (dH.context::class == MainActivity::class) {
-                        tempViewport.inset(-tempViewport.width() * 0.05f, -tempViewport.height() * 0.05f)
-                        dH.kChartView_Week?.maximumViewport = tempViewport
-                        dH.kChartView_Week?.currentViewport = tempViewport
-                    }
+                // If in main activity, add an inset to have the entire labels for axis
+                if (dH.context::class == MainActivity::class) {
+                    tempViewport.inset(-tempViewport.width() * 0.05f, -tempViewport.height() * 0.05f)
+                    dH.kChartView_Week?.maximumViewport = tempViewport
+                    dH.kChartView_Week?.currentViewport = tempViewport
+                }
 
-                    // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
-                    if (dH.context::class != MainActivity::class) {
+                // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
+                if (dH.context::class != MainActivity::class) {
 //                        dH.gFitBucketTime = TimeUnit.HOURS
 //                        dH.connectGFit(dH.context as Activity, false, 7)
-                        var kChart_Day = LineChartData(dH.kLine)
-                        (dH.kChartView_Day as LineChartView).lineChartData = kChart_Day
+                    var kChart_Day = LineChartData(dH.kLine)
+                    (dH.kChartView_Day as LineChartView).lineChartData = kChart_Day
 
-                        val dx = tempPreViewport.width() * 2f / 3f
-                        tempPreViewport.offset(dx, 0f)
-                        dH.displayPreviewGraph(kChart_Week, tempPreViewport)
+                    val dx = tempPreViewport.width() * 2f / 3f
+                    tempPreViewport.offset(dx, 0f)
+                    dH.displayPreviewGraph(kChart_Week, tempPreViewport)
 
 
-                    }
                 }
             }
         }

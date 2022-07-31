@@ -65,7 +65,7 @@ class DataHealth(string: String, context: Context)  {
 
                 for (dataSet in bucket.dataSets) {
 
-
+                    // data == 0 if no data is available for a given bucket
                     if (dataSet.dataPoints.size == 0){
                         if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
                             dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, 0f)))
@@ -74,12 +74,13 @@ class DataHealth(string: String, context: Context)  {
                             dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f)))
                         }
                     }
-                    // Datapoint as the sum of steps
 
+                    // Get data for each bucket and type
                     for (dp in dataSet.dataPoints) {
-
                         if (dataSet.dataType == TYPE_STEP_COUNT_DELTA) {
                             dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
+//                            dataHealth.dataAxis.add(LDataAxis(bucket.getStartTime(TimeUnit.MILLISECONDS), getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"), ))
+
                         }
                         else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
                             dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
@@ -92,61 +93,19 @@ class DataHealth(string: String, context: Context)  {
 
                         }
                     }
-//
-
-//                    // In Main view: display as the average for the day.
-//                    // TODO: display as column with mean, min, max -> dataPoint with 3 values rather than 2...
-//
-//                        var val_temp = 0f
-//
-//                        for (dp in dataSet.dataPoints) {
-//                            val_temp += dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat()
-//                        }
-//                        val_temp /= dataSet.dataPoints.size
-//                        dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f,val_temp)))
-//                    }
-//
-//                    // In Main view: display as the average for the day.
-//                    else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
-//                        var val_temp = 0f
-//
-//                        for (dp in dataSet.dataPoints) {
-//                            val_temp += dp.getValue(Field.FIELD_BPM).asFloat()
-//                        }
-//                        val_temp /= dataSet.dataPoints.size
-//                        dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f,val_temp)))
-//                    }
-
-//                    else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
-//                        for (dp in dataSet.dataPoints) {
-//                            dataHealth.dataPoint.add(LDataPoint(dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
-//                        }
-//                    }
-
-                    // Blood Pressure
-//                    else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-//                        // Initialize BP means
-//                        var dia_temp = 0f
-//                        var sys_temp = 0f
-//
-//                        // Create a new line between systolic and diastolic blood pressureÙ
-//                        for (dp in dataSet.dataPoints) {
-//                            dia_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat()
-//                            sys_temp += dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat()
-//                        }
-//
-//                        // Calculate averages for systolic and diastolic BP per day
-//                        dia_temp /= dataSet.dataPoints.size
-//                        sys_temp /= dataSet.dataPoints.size
-//                        dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dia_temp, sys_temp)))
-//                    }
                 }
             }
 
+            var tempDate = ArrayList<String>()
+            dataHealth.dataPoint.forEach{
+                tempDate.add(getDate(it.dateMillis, "EEE"))
+            }
+            val distinctDate = tempDate.distinct()
+
+
+
             // Display Graph
-            if (dataHealth.dataPoint.size > 0  && dataHealth.kChartView_Week != null) {
-                dataHealth.kDateMillis.clear()
-                dataHealth.dataPoint.forEach { dataHealth.kDateMillis.add(it.dateMillis) }
+            if (distinctDate.size > 1 && dataHealth.dataPoint.size > 0  && dataHealth.kChartView_Week != null) {
                 dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({ it.dateMillis })).toCollection(ArrayList<LDataPoint>())
 
                 // Main View: display everything as columns
@@ -193,7 +152,6 @@ class DataHealth(string: String, context: Context)  {
     var kYaxis = Axis()
 
     var kXAxisValues = ArrayList<AxisValue>()
-    var kDateMillis = ArrayList<Long>()
     var kDateEEE = ArrayList<String>()
     var kStrokeWidth = 1
 
@@ -205,6 +163,7 @@ class DataHealth(string: String, context: Context)  {
     lateinit var gFitDataType: DataType
     var gFitBucketTime = TimeUnit.DAYS
     var dataPoint = ArrayList<LDataPoint>()
+    var dataAxis = ArrayList<LDataAxis>()
 
 
     // Variables initialization for each data type:
@@ -213,7 +172,7 @@ class DataHealth(string: String, context: Context)  {
             gFitDataType = TYPE_BLOOD_GLUCOSE
             kXAxis.name = string
             kYaxis.name = "mmol/L"
-            kStrokeWidth = 1
+            kStrokeWidth = 4
             mname = "Blood Glucose"
             mcolor_primary = ContextCompat.getColor(context, red_primary)
             mcolor_secondary = ContextCompat.getColor(context, red_secondary)
@@ -223,7 +182,7 @@ class DataHealth(string: String, context: Context)  {
         else if (string === "Steps") {
             gFitDataType = TYPE_STEP_COUNT_DELTA
             kXAxis.name = string
-            kYaxis.name = ""
+            kYaxis.name = "steps"
             kStrokeWidth = 4
             mname = "Steps"
             mcolor_primary = ContextCompat.getColor(context, orange_primary)
@@ -235,7 +194,7 @@ class DataHealth(string: String, context: Context)  {
             gFitDataType = TYPE_HEART_RATE_BPM
             kXAxis.name = string
             kYaxis.name = "bpm"
-            kStrokeWidth = 1
+            kStrokeWidth = 4
             mname = "Heart Rate"
             mcolor_primary = ContextCompat.getColor(context, blue_primary)
             mcolor_secondary = ContextCompat.getColor(context, blue_secondary)
@@ -285,13 +244,21 @@ class DataHealth(string: String, context: Context)  {
         // If permission -> get Data
         else {
             if (!isPush) {
+
+                // Clear Data before retrieving other data from GFit
+                kLine.clear()
+                kLineValues.clear()
+                dataPoint.clear()
+                kLine.forEach{it.values.clear()}
+
                 var (Time_Now, Time_Start, Time_End) = DataGeneral.getTimes(duration)
 //                this.getGFitData(Time_Now, Time_Start, Time_End)
-
-                // Request for current day
-                this.getGFitData(Time_Start, Time_End, gFitBucketTime)
                 // Request for other day(s)
+                this.getGFitData(Time_Start, Time_End, gFitBucketTime)
+                // Request for current day
                 this.getGFitData(Time_End, Time_Now, gFitBucketTime)
+
+
             }
             else{
                 pushGlucoData()
@@ -325,13 +292,6 @@ class DataHealth(string: String, context: Context)  {
                 .setTimeRange(time_start, time_end, TimeUnit.MILLISECONDS)
                 .build()
         }
-
-        // Clear Data before retrieving other data from GFit
-        kDateMillis.clear()
-        kLine.clear()
-        kLineValues.clear()
-        dataPoint.clear()
-        kLine.forEach{it.values.clear()}
 
         Fitness.getHistoryClient(context, GoogleSignIn.getAccountForExtension(context, DataHealth.fitnessOptions))
             .readData(gFitReq)
@@ -526,10 +486,6 @@ class DataHealth(string: String, context: Context)  {
         for (i in 0 until json.length()) {
             // Get one set of data from JSON
             var measure = json.getJSONObject(i)
-
-            // Get dates in millis and in strings
-            kDateMillis.add(measure.getLong("date"))
-            kDateEEE.add(getDate(measure.getLong("date"), "EEE"))
 
             // Get BG values and create associated PointValue
             val sgv = measure.getDouble("sgv")/18
