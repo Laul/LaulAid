@@ -4,6 +4,7 @@ import android.app.Activity
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.LineChartView
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -29,46 +30,53 @@ class DisplayData {
         }
         /** Formatting for datapoint as columns - to display aggregate data per day for the week chart`
          */
-        fun formatAsColumn(dH: DataHealth){
-            dH.kLine.clear()
+        fun formatAsColumn(dH: DataHealth) {
+
+                dH.kLine.clear()
 
 
-            // Group data per Day
+                // Group data per Day
 
-            var currentDayMilli = dH.dataPoint[0].dateMillis
-            var currentDay = getDate(dH.dataPoint[0].dateMillis, "EEE")
+                var currentDayMilli = dH.dataPoint[0].dateMillis
+                var currentDay = getDate(dH.dataPoint[0].dateMillis, "EEE")
 //
 //            var idEEE = 0
 //            dH.dataAxis.add(LDataAxis(currentDayMilli, currentDay, idEEE))
 
-            var tempVal = arrayListOf(dH.dataPoint[0].value)
+                var tempVal = arrayListOf(dH.dataPoint[0].value)
 
-            for (i in 1 until dH.dataPoint.size) {
-                var tempDate = getDate(dH.dataPoint[i].dateMillis, "EEE" )
-                if (currentDay !=  tempDate){
+                for (i in 1 until dH.dataPoint.size) {
+                    var tempDate = getDate(dH.dataPoint[i].dateMillis, "EEE")
+                    if (currentDay != tempDate) {
 
-                    // if steps: we aggregate data for a day
-                    if (dH.mname == "Steps"){
-                        computeStepsData(dH, tempVal, currentDayMilli)
+                        // if steps: we aggregate data for a day
+                        if (dH.mname == "Steps") {
+                            computeStepsData(dH, tempVal, currentDayMilli)
 //                        idEEE += 1
 //                        dH.dataAxis.add(LDataAxis(currentDayMilli, getDate(currentDayMilli, "EEE"), idEEE))
 
+                        }
+                        // else: calculate the mean, max, and min per day
+                        else {
+                            computeOtherData(dH, tempVal, currentDayMilli)
+                        }
+                        currentDay = tempDate
+                        currentDayMilli = dH.dataPoint[i].dateMillis
+                        tempVal = arrayListOf(dH.dataPoint[i].value)
+                    } else {
+                        tempVal.add(dH.dataPoint[i].value)
                     }
-                    // else: calculate the mean, max, and min per day
-                    else{ computeOtherData(dH, tempVal, currentDayMilli)}
-                    currentDay = tempDate
-                    currentDayMilli =  dH.dataPoint[i].dateMillis
-                    tempVal = arrayListOf(dH.dataPoint[i].value)
                 }
-                else{
-                    tempVal.add(dH.dataPoint[i].value)
+
+                if (dH.mname == "Steps") {
+                    computeStepsData(dH, tempVal, currentDayMilli)
+                } else {
+                    computeOtherData(dH, tempVal, currentDayMilli)
                 }
-            }
 
-            if (dH.mname == "Steps"){computeStepsData(dH, tempVal, currentDayMilli)}
-            else{ computeOtherData(dH, tempVal, currentDayMilli)}
+                displayWeek(dH)
 
-            displayWeek(dH)
+
         }
 
         fun computeStepsData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long){
@@ -141,6 +149,7 @@ class DisplayData {
         /** Display Main graphs using KelloCharts Lib
          */
         fun displayWeek(dH: DataHealth) {
+//            Thread.sleep(1000);
             dH.kXAxisValues.clear()
 
             // Display Graph
@@ -148,7 +157,7 @@ class DisplayData {
 
 
                 // Last value to fill textfield + Label update depending on the last value
-//                dH.formatLabel()
+                dH.formatLabel()
                 dH.kYaxis = Axis(hasLines = true, maxLabels = 4)
 
                 // Create distinct Xaxis value based on the date

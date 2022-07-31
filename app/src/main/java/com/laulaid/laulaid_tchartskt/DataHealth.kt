@@ -32,7 +32,9 @@ import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
 import com.laulaid.laulaid_tchartskt.R.color.*
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
-
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.*
+import kotlin.system.*
 
 class DataHealth(string: String, context: Context)  {
 
@@ -61,67 +63,68 @@ class DataHealth(string: String, context: Context)  {
         * @param dataHealth: structure containing all class variables to display graphs
          */
         fun formatAsDatapoint(response: DataReadResponse, dataHealth: DataHealth){
-            for (bucket in response.buckets) {
+            runBlocking {
+                dataHealth.dataMutex.lock()
+                for (bucket in response.buckets) {
 
-                for (dataSet in bucket.dataSets) {
+                    for (dataSet in bucket.dataSets) {
 
-                    // data == 0 if no data is available for a given bucket
-                    if (dataSet.dataPoints.size == 0){
-                        if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                            dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, 0f)))
+                        // data == 0 if no data is available for a given bucket
+                        if (dataSet.dataPoints.size == 0) {
+                            if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, 0f)))
+                            } else {
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f)))
+                            }
                         }
-                        else {
-                            dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f)))
-                        }
-                    }
 
-                    // Get data for each bucket and type
-                    for (dp in dataSet.dataPoints) {
-                        if (dataSet.dataType == TYPE_STEP_COUNT_DELTA) {
-                            dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
-//                            dataHealth.dataAxis.add(LDataAxis(bucket.getStartTime(TimeUnit.MILLISECONDS), getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"), ))
+                        // Get data for each bucket and type
+                        for (dp in dataSet.dataPoints) {
+                            if (dataSet.dataType == TYPE_STEP_COUNT_DELTA) {
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
+            //                            dataHealth.dataAxis.add(LDataAxis(bucket.getStartTime(TimeUnit.MILLISECONDS), getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"), ))
 
-                        }
-                        else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
-                            dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
-                        }
-                        else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
-                            dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
-                        }
-                        else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                            dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())))
+                            } else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
+                            } else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
+                            } else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())))
 
+                            }
                         }
                     }
                 }
-            }
 
-            var tempDate = ArrayList<String>()
-            dataHealth.dataPoint.forEach{
-                tempDate.add(getDate(it.dateMillis, "EEE"))
-            }
-            val distinctDate = tempDate.distinct()
-
-
-
-            // Display Graph
-            if (distinctDate.size > 1 && dataHealth.dataPoint.size > 0  && dataHealth.kChartView_Week != null) {
-                dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({ it.dateMillis })).toCollection(ArrayList<LDataPoint>())
-
-                // Main View: display everything as columns
-                if (dataHealth.context::class == MainActivity::class) {
-                    DisplayData.formatAsColumn(dataHealth)
+                var tempDate = ArrayList<String>()
+                dataHealth.dataPoint.forEach {
+                    tempDate.add(getDate(it.dateMillis, "EEE"))
                 }
+                val distinctDate = tempDate.distinct()
 
-                // Detailed view: display week chart as columns and day + preview as lines
-                else {
-//                    if (dataHealth.mname == "Steps" || dataHealth.mname == "Blood Pressure") {
+
+                // Display Graph
+                if (distinctDate.size > 1 && dataHealth.dataPoint.size > 0 && dataHealth.kChartView_Week != null) {
+                    dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({ it.dateMillis })).toCollection(ArrayList<LDataPoint>())
+
+                    // Main View: display everything as columns
+                    if (dataHealth.context::class == MainActivity::class) {
                         DisplayData.formatAsColumn(dataHealth)
-//                    } else if (dataHealth.mname == "Heart Rate" || dataHealth.mname == "Blood Glucose") {
+                    }
+
+                    // Detailed view: display week chart as columns and day + preview as lines
+                    else {
+            //                    if (dataHealth.mname == "Steps" || dataHealth.mname == "Blood Pressure") {
+                        DisplayData.formatAsColumn(dataHealth)
+            //                    } else if (dataHealth.mname == "Heart Rate" || dataHealth.mname == "Blood Glucose") {
                         DisplayData.formatAsLine(dataHealth)
-//                    }
+            //                    }
+                    }
                 }
+
+            dataHealth.dataMutex.unlock()
             }
+
         }
     }
 
@@ -164,7 +167,7 @@ class DataHealth(string: String, context: Context)  {
     var gFitBucketTime = TimeUnit.DAYS
     var dataPoint = ArrayList<LDataPoint>()
     var dataAxis = ArrayList<LDataAxis>()
-
+    val dataMutex = Mutex()
 
     // Variables initialization for each data type:
     init {
@@ -299,21 +302,38 @@ class DataHealth(string: String, context: Context)  {
             .addOnFailureListener { response -> Log.i(TAG, response.toString()) }
     }
 
+
+    /** Get Datapoint
+     */
+    fun safeGetDataPoint(): ArrayList<LDataPoint>{
+        return this.dataPoint
+    }
+
     /** Get last value to be displayed as label
      */
-    fun getLastValue(): MutableList<PointValue> {
-        if (kLine.size >0) {
-            if (mname == "Steps" || mname == "Blood Pressure") {
-                for (i in kLine.size - 1 downTo 0) {
-                    if (!kLine[i].values.last().y.isNaN() && kLine[i].values[0].y>0 ) {
-                        return kLine[i].values
-                    }
+    fun getLastValue(): ArrayList<Float> {
+
+        if (dataPoint.size > 0) {
+            for (i in dataPoint.size - 1 downTo 0) {
+                if (!dataPoint[i].value.last().isNaN() && dataPoint[i].value.sum() > 0) {
+                    return dataPoint[i].value
                 }
-            } else {
-                return mutableListOf(kLine.last().values.last())
             }
         }
-        return mutableListOf()
+//
+//        if (kLine.size >0) {
+//
+//            if (mname == "Steps" || mname == "Blood Pressure") {
+//                for (i in kLine.size - 1 downTo 0) {
+//                    if (!kLine[i].values.last().y.isNaN() && kLine[i].values[0].y>0 ) {
+//                        return kLine[i].values
+//                    }
+//                }
+//            } else {
+//                return mutableListOf(kLine.last().values.last())
+//            }
+//        }
+        return ArrayList<Float>()
     }
 
     /** Label formatter + date of last value
@@ -321,44 +341,47 @@ class DataHealth(string: String, context: Context)  {
     fun formatLabel() {
         if (mValueView != null) {
             var latestValueList = getLastValue()
+
 //            val latestPointValue = kLine.last().values.last()
+
 
             if (!latestValueList.isEmpty()) {
                 // Display Current Value
-                if (mname == "Blood Glucose") {
-                    mValueView!!.text = "%.2f".format(latestValueList[0].y)
-                } else if (mname == "Blood Pressure") {
-                    mValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)
-                } else if (mname == "Steps") {
-                    mValueView!!.text = "%.0f".format(latestValueList[1].y)
-                } else {
-                    mValueView!!.text = "%.0f".format(latestValueList[0].y)
+                if (mname == "Blood Glucose" || mname == "Steps" || mname == "Heart Rate") {
+                    mValueView!!.text = "%.2f".format(latestValueList[0])
                 }
+//                else if (mname == "Blood Pressure") {
+//                    mValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)
+//                } else if (mname == "Steps") {
+//                    mValueView!!.text = "%.0f".format(latestValueList[1].y)
+//                } else {
+//                    mValueView!!.text = "%.0f".format(latestValueList[0].y)
+//                }
 
                 // Display latest date in association to the latest value
-                if (mDateView != null) {
-                    mDateView!!.text = getDate(latestValueList[0].x.toLong(), "EEE, MMM d - h:mm a")
-
-                    // Set text colors
-                    mValueView!!.setTextColor(mcolor_primary)
-                    mDateView!!.setTextColor(mcolor_primary)
-                }
-
-                // Format Label
-                // 1 - Warning
-
-                if (
-                    (mname == "Blood Glucose" && latestValueList[0].y < 4.0)
-                    || (mname == "Steps" && latestValueList[1].y < 1000)
-                    || (mname == "Heart Rate" && (latestValueList[0].y > 100 || latestValueList[0].y < 40))
-                    || (mname == "Blood Pressure" && (latestValueList[0].y < 60 || latestValueList[1].y > 120))
-                ) {
-                    mLabelView!!.text = "WARNING"
-                    mLabelView!!.setBackgroundColor(
-                        (context as Activity).getResources().getColor(state_warning)
-                    )
-
-                }
+//                if (mDateView != null) {
+//                    mDateView!!.text = getDate(latestValueList[0].x.toLong(), "EEE, MMM d - h:mm a")
+//
+//                    // Set text colors
+//                    mValueView!!.setTextColor(mcolor_primary)
+//                    mDateView!!.setTextColor(mcolor_primary)
+//                }
+//
+//                // Format Label
+//                // 1 - Warning
+//
+//                if (
+//                    (mname == "Blood Glucose" && latestValueList[0].y < 4.0)
+//                    || (mname == "Steps" && latestValueList[1].y < 1000)
+//                    || (mname == "Heart Rate" && (latestValueList[0].y > 100 || latestValueList[0].y < 40))
+//                    || (mname == "Blood Pressure" && (latestValueList[0].y < 60 || latestValueList[1].y > 120))
+//                ) {
+//                    mLabelView!!.text = "WARNING"
+//                    mLabelView!!.setBackgroundColor(
+//                        (context as Activity).getResources().getColor(state_warning)
+//                    )
+//
+//                }
                 // 2- Normal
                 else {
 //            else if ((kXAxis.name == "Blood Glucose" && latestPointValue.y >= 4.0) || (kXAxis.name == "Steps" && latestPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y >= 40))) {
