@@ -144,25 +144,25 @@ class DisplayData {
         }
 
 
-
-
         /** Display Main graphs using KelloCharts Lib
          */
         fun displayWeek(dH: DataHealth) {
-//            Thread.sleep(1000);
+            var dataPointCopy = ArrayList<LDataPoint>(dH.dataPoint)
+
             dH.kXAxisValues.clear()
 
             // Display Graph
-            if (dH.dataPoint.size > 0 && dH.kChartView_Week != null) {
+            if (dataPointCopy.size > 0 && dH.kChartView_Week != null) {
 
 
                 // Last value to fill textfield + Label update depending on the last value
                 dH.formatLabel()
                 dH.kYaxis = Axis(hasLines = true, maxLabels = 4)
+                dH.kDateEEE.clear()
 
                 // Create distinct Xaxis value based on the date
-                for (i in 0 until dH.dataPoint.size) {
-                    dH.kDateEEE.add(getDate(dH.dataPoint[i].dateMillis.toLong(), "EEE"))
+                for (i in 0 until dataPointCopy.size) {
+                    dH.kDateEEE.add(getDate(dataPointCopy[i].dateMillis.toLong(), "EEE"))
                 }
                 val kXAxisLabels = dH.kDateEEE.distinct()
 
@@ -179,7 +179,7 @@ class DisplayData {
                     for (i in 0 until kXAxisIndex.size) {
                         dH.kXAxisValues.add(
                             AxisValue(
-                                dH.dataPoint[kXAxisIndex[i]].dateMillis.toFloat(),
+                                dataPointCopy[kXAxisIndex[i]].dateMillis.toFloat(),
                                 kXAxisLabels[i].toCharArray()
                             )
                         )
@@ -198,7 +198,6 @@ class DisplayData {
                     it.color = dH.mcolor_primary
                     it.pointRadius = 1
                     it.hasLabels = false
-
                 }
 
                 // Create a LineChartData using time and Line data

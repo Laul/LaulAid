@@ -63,8 +63,6 @@ class DataHealth(string: String, context: Context)  {
         * @param dataHealth: structure containing all class variables to display graphs
          */
         fun formatAsDatapoint(response: DataReadResponse, dataHealth: DataHealth){
-            runBlocking {
-                dataHealth.dataMutex.lock()
                 for (bucket in response.buckets) {
 
                     for (dataSet in bucket.dataSets) {
@@ -122,8 +120,7 @@ class DataHealth(string: String, context: Context)  {
                     }
                 }
 
-            dataHealth.dataMutex.unlock()
-            }
+
 
         }
     }
@@ -340,6 +337,7 @@ class DataHealth(string: String, context: Context)  {
      */
     fun formatLabel() {
         if (mValueView != null) {
+
             var latestValueList = getLastValue()
 
 //            val latestPointValue = kLine.last().values.last()
