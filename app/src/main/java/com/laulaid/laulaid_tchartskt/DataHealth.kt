@@ -311,34 +311,48 @@ class DataHealth(string: String, context: Context)  {
     fun getLastValue(): ArrayList<Float> {
 
         if (dataPoint.size > 0) {
-            for (i in dataPoint.size - 1 downTo 0) {
-                if (!dataPoint[i].value.last().isNaN() && dataPoint[i].value.sum() > 0) {
-                    return dataPoint[i].value
+
+            // For steps: get total of current day
+            if (this.mname == "Steps") {
+                for (i in kLine.size - 1 downTo 0) {
+                    if (!kLine[i].values.last().y.isNaN() && kLine[i].values[1].y>0 ) {
+                      return arrayListOf(kLine[i].values.last().y)
+                    }
+                }
+            }
+
+            // For everything except steps: get last value
+            else {
+                for (i in dataPoint.size - 1 downTo 0) {
+                    if (!dataPoint[i].value.last().isNaN() && dataPoint[i].value.sum() > 0) {
+                        return dataPoint[i].value
+                    }
                 }
             }
         }
-//
-//        if (kLine.size >0) {
-//
-//            if (mname == "Steps" || mname == "Blood Pressure") {
-//                for (i in kLine.size - 1 downTo 0) {
-//                    if (!kLine[i].values.last().y.isNaN() && kLine[i].values[0].y>0 ) {
-//                        return kLine[i].values
-//                    }
-//                }
-//            } else {
-//                return mutableListOf(kLine.last().values.last())
-//            }
-//        }
+
         return ArrayList<Float>()
     }
 
-    /** Label formatter + date of last value
+
+    /** Get last time / date / hour to be displayed with the last value
+     */
+    fun getLastTime(): Long {
+        for (i in dataPoint.size - 1 downTo 0) {
+            if (!dataPoint[i].value.last().isNaN() && dataPoint[i].value.sum() > 0) {
+                return dataPoint[i].dateMillis
+            }
+        }
+        return 0
+    }
+
+        /** Label formatter + date of last value
      */
     fun formatLabel() {
         if (mValueView != null) {
 
             var latestValueList = getLastValue()
+            var latestTime = getLastTime()
 
 //            val latestPointValue = kLine.last().values.last()
 
@@ -348,38 +362,34 @@ class DataHealth(string: String, context: Context)  {
                 if (mname == "Blood Glucose" || mname == "Steps" || mname == "Heart Rate") {
                     mValueView!!.text = "%.2f".format(latestValueList[0])
                 }
-//                else if (mname == "Blood Pressure") {
-//                    mValueView!!.text = "%.0f-%.0f".format(latestValueList[1].y, latestValueList[0].y)
-//                } else if (mname == "Steps") {
-//                    mValueView!!.text = "%.0f".format(latestValueList[1].y)
-//                } else {
-//                    mValueView!!.text = "%.0f".format(latestValueList[0].y)
-//                }
+                else if (mname == "Blood Pressure") {
+                    mValueView!!.text = "%.0f-%.0f".format(latestValueList[1], latestValueList[0])
+                }
+
 
                 // Display latest date in association to the latest value
-//                if (mDateView != null) {
-//                    mDateView!!.text = getDate(latestValueList[0].x.toLong(), "EEE, MMM d - h:mm a")
-//
-//                    // Set text colors
-//                    mValueView!!.setTextColor(mcolor_primary)
-//                    mDateView!!.setTextColor(mcolor_primary)
-//                }
-//
-//                // Format Label
-//                // 1 - Warning
-//
-//                if (
-//                    (mname == "Blood Glucose" && latestValueList[0].y < 4.0)
-//                    || (mname == "Steps" && latestValueList[1].y < 1000)
-//                    || (mname == "Heart Rate" && (latestValueList[0].y > 100 || latestValueList[0].y < 40))
-//                    || (mname == "Blood Pressure" && (latestValueList[0].y < 60 || latestValueList[1].y > 120))
-//                ) {
-//                    mLabelView!!.text = "WARNING"
-//                    mLabelView!!.setBackgroundColor(
-//                        (context as Activity).getResources().getColor(state_warning)
-//                    )
-//
-//                }
+                if (mDateView != null) {
+                    mDateView!!.text = getDate(latestTime, "EEE, MMM d - h:mm a")
+
+                    // Set text colors
+                    mValueView!!.setTextColor(mcolor_primary)
+                    mDateView!!.setTextColor(mcolor_primary)
+                }
+
+                // Format Label
+                // 1 - Warning
+
+                if (
+                    (mname == "Blood Glucose" && latestValueList[0]  < 4.0)
+                    || (mname == "Steps" && latestValueList[0] < 1000)
+                    || (mname == "Heart Rate" && (latestValueList[0] > 100 || latestValueList[0]  < 40))
+                    || (mname == "Blood Pressure" && (latestValueList[0] < 60 || latestValueList[1]  > 120))
+                ) {
+                    mLabelView!!.text = "WARNING"
+                    mLabelView!!.setBackgroundColor(
+                        (context as Activity).getResources().getColor(state_warning)
+                    )
+                }
                 // 2- Normal
                 else {
 //            else if ((kXAxis.name == "Blood Glucose" && latestPointValue.y >= 4.0) || (kXAxis.name == "Steps" && latestPointValue.y >= 1000) || ((kXAxis.name == "Heart Rate" && latestPointValue.y <= 100) || (kXAxis.name == "Heart Rate" && latestPointValue.y >= 40))) {

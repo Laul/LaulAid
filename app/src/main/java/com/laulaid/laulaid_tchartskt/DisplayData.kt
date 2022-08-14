@@ -25,63 +25,67 @@ class DisplayData {
             }
             dH.kLine.add(Line(dH.kLineValues))
 //            if (dH.context::class == MainActivity::class) {
-                displayWeek(dH)
+            displayWeek(dH)
 //            }
         }
+
         /** Formatting for datapoint as columns - to display aggregate data per day for the week chart`
          */
         fun formatAsColumn(dH: DataHealth) {
 
-                dH.kLine.clear()
+            dH.kLine.clear()
 
 
-                // Group data per Day
+            // Group data per Day
 
-                var currentDayMilli = dH.dataPoint[0].dateMillis
-                var currentDay = getDate(dH.dataPoint[0].dateMillis, "EEE")
+            var currentDayMilli = dH.dataPoint[0].dateMillis
+            var currentDay = getDate(dH.dataPoint[0].dateMillis, "EEE")
 //
 //            var idEEE = 0
 //            dH.dataAxis.add(LDataAxis(currentDayMilli, currentDay, idEEE))
 
-                var tempVal = arrayListOf(dH.dataPoint[0].value)
+            var tempVal = arrayListOf(dH.dataPoint[0].value)
 
-                for (i in 1 until dH.dataPoint.size) {
-                    var tempDate = getDate(dH.dataPoint[i].dateMillis, "EEE")
-                    if (currentDay != tempDate) {
+            for (i in 1 until dH.dataPoint.size) {
+                var tempDate = getDate(dH.dataPoint[i].dateMillis, "EEE")
+                if (currentDay != tempDate) {
 
-                        // if steps: we aggregate data for a day
-                        if (dH.mname == "Steps") {
-                            computeStepsData(dH, tempVal, currentDayMilli)
+                    // if steps: we aggregate data for a day
+                    if (dH.mname == "Steps") {
+                        computeStepsData(dH, tempVal, currentDayMilli)
 //                        idEEE += 1
 //                        dH.dataAxis.add(LDataAxis(currentDayMilli, getDate(currentDayMilli, "EEE"), idEEE))
 
-                        }
-                        // else: calculate the mean, max, and min per day
-                        else {
-                            computeOtherData(dH, tempVal, currentDayMilli)
-                        }
-                        currentDay = tempDate
-                        currentDayMilli = dH.dataPoint[i].dateMillis
-                        tempVal = arrayListOf(dH.dataPoint[i].value)
-                    } else {
-                        tempVal.add(dH.dataPoint[i].value)
                     }
-                }
-
-                if (dH.mname == "Steps") {
-                    computeStepsData(dH, tempVal, currentDayMilli)
+                    // else: calculate the mean, max, and min per day
+                    else {
+                        computeOtherData(dH, tempVal, currentDayMilli)
+                    }
+                    currentDay = tempDate
+                    currentDayMilli = dH.dataPoint[i].dateMillis
+                    tempVal = arrayListOf(dH.dataPoint[i].value)
                 } else {
-                    computeOtherData(dH, tempVal, currentDayMilli)
+                    tempVal.add(dH.dataPoint[i].value)
                 }
+            }
 
-                displayWeek(dH)
+            if (dH.mname == "Steps") {
+                computeStepsData(dH, tempVal, currentDayMilli)
+            } else {
+                computeOtherData(dH, tempVal, currentDayMilli)
+            }
+
+            displayWeek(dH)
 
 
         }
 
-        fun computeStepsData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long){
+
+        /** Create lines to display steps. Must be the total of steps per day
+         */
+        fun computeStepsData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long) {
             var tempValDay = 0f
-            for (j in 0 until tempVal.size){
+            for (j in 0 until tempVal.size) {
                 tempValDay += tempVal[j][0]
             }
 
@@ -89,35 +93,40 @@ class DisplayData {
                 Line(
                     arrayListOf(
                         PointValue(currentDayMilli.toFloat(), 0f, ""),
-                        PointValue(currentDayMilli.toFloat(),tempValDay, tempValDay.toString()),
+                        PointValue(currentDayMilli.toFloat(), tempValDay, tempValDay.toString()),
                     )
                 )
             )
         }
 
-            fun computeOtherData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long){
+        /** Create lines to display everything except steps.
+         * 2 cases:
+         *      - Blood Glucose + Heart Rate : min, max,mean - we display min and max
+         *      - Blood Pressure : display mean of diastol + systol
+         */
+        fun computeOtherData(dH: DataHealth, tempVal: ArrayList<ArrayList<Float>>, currentDayMilli: Long) {
             var tempValMean = ArrayList<Float>()
             var tempValMin = ArrayList<Float>()
             var tempValMax = ArrayList<Float>()
-            for (k in 0 until tempVal[0].size){
+            for (k in 0 until tempVal[0].size) {
                 tempValMean.add(0f)
                 tempValMin.add(10000f)
                 tempValMax.add(0f)
 
                 var sizeDay = 0
 
-                for (j in 0 until tempVal.size){
+                for (j in 0 until tempVal.size) {
                     tempValMean[k] += tempVal[j][k]
-                    if (tempValMin[k]  > tempVal[j][k]){
-                        tempValMin[k]  = tempVal[j][k]
+                    if (tempValMin[k] > tempVal[j][k]) {
+                        tempValMin[k] = tempVal[j][k]
                     }
-                    if (tempValMax[k]  < tempVal[j][k]){
-                        tempValMax[k]  = tempVal[j][k]
+                    if (tempValMax[k] < tempVal[j][k]) {
+                        tempValMax[k] = tempVal[j][k]
                     }
                     sizeDay += 1
                 }
 
-                tempValMean[k] = tempValMean[k]/sizeDay
+                tempValMean[k] = tempValMean[k] / sizeDay
             }
             // Create a line for a given day
             if (dH.mname == "Blood Glucose" || dH.mname == "Heart Rate") {
@@ -168,7 +177,7 @@ class DisplayData {
 
                 // Get index of each distinct value in the list of string dates
                 var kXAxisIndex = ArrayList<Int>()
-                if (kXAxisLabels.size>1) {
+                if (kXAxisLabels.size > 1) {
                     kXAxisLabels.forEach {
                         kXAxisIndex.add(dH.kDateEEE.indexOf(it))
                     }
@@ -176,14 +185,14 @@ class DisplayData {
 
 //                // Create axis values
 //                if (dH.context::class != MainActivity::class) {
-                    for (i in 0 until kXAxisIndex.size) {
-                        dH.kXAxisValues.add(
-                            AxisValue(
-                                dataPointCopy[kXAxisIndex[i]].dateMillis.toFloat(),
-                                kXAxisLabels[i].toCharArray()
-                            )
+                for (i in 0 until kXAxisIndex.size) {
+                    dH.kXAxisValues.add(
+                        AxisValue(
+                            dataPointCopy[kXAxisIndex[i]].dateMillis.toFloat(),
+                            kXAxisLabels[i].toCharArray()
                         )
-                    }
+                    )
+                }
 //                }
 
                 // Add values for x Axis
