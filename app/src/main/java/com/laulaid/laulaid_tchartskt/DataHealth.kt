@@ -70,24 +70,24 @@ class DataHealth(string: String, context: Context)  {
                         // data == 0 if no data is available for a given bucket
                         if (dataSet.dataPoints.size == 0) {
                             if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, 0f)))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS),bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f, 0f)))
                             } else {
-                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f)))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS),bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(0f)))
                             }
                         }
 
                         // Get data for each bucket and type
                         for (dp in dataSet.dataPoints) {
                             if (dataSet.dataType == TYPE_STEP_COUNT_DELTA) {
-                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS),dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_STEPS).asInt().toFloat())))
             //                            dataHealth.dataAxis.add(LDataAxis(bucket.getStartTime(TimeUnit.MILLISECONDS), getDate(bucket.getStartTime(TimeUnit.MILLISECONDS), "EEE"), ))
 
                             } else if (dataSet.dataType == TYPE_BLOOD_GLUCOSE) {
-                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), dp.getTimestamp(TimeUnit.MILLISECONDS),arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_GLUCOSE_LEVEL).asFloat())))
                             } else if (dataSet.dataType == TYPE_HEART_RATE_BPM) {
-                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), dp.getTimestamp(TimeUnit.MILLISECONDS),arrayListOf(dp.getValue(Field.FIELD_BPM).asFloat())))
                             } else if (dataSet.dataType == TYPE_BLOOD_PRESSURE) {
-                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())))
+                                dataHealth.dataPoint.add(LDataPoint(bucket.getStartTime(TimeUnit.MILLISECONDS), dp.getTimestamp(TimeUnit.MILLISECONDS), arrayListOf(dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_DIASTOLIC).asFloat(), dp.getValue(HealthFields.FIELD_BLOOD_PRESSURE_SYSTOLIC).asFloat())))
 
                             }
                         }
@@ -96,14 +96,14 @@ class DataHealth(string: String, context: Context)  {
 
                 var tempDate = ArrayList<String>()
                 dataHealth.dataPoint.forEach {
-                    tempDate.add(getDate(it.dateMillis, "EEE"))
+                    tempDate.add(getDate(it.dateMillis_bucket, "EEE"))
                 }
                 val distinctDate = tempDate.distinct()
 
 
                 // Display Graph
                 if (distinctDate.size > 1 && dataHealth.dataPoint.size > 0 && dataHealth.kChartView_Week != null) {
-                    dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({ it.dateMillis })).toCollection(ArrayList<LDataPoint>())
+                    dataHealth.dataPoint = dataHealth.dataPoint.sortedWith(compareBy({ it.dateMillis_bucket })).toCollection(ArrayList<LDataPoint>())
 
                     // Main View: display everything as columns
                     if (dataHealth.context::class == MainActivity::class) {
@@ -340,7 +340,7 @@ class DataHealth(string: String, context: Context)  {
     fun getLastTime(): Long {
         for (i in dataPoint.size - 1 downTo 0) {
             if (!dataPoint[i].value.last().isNaN() && dataPoint[i].value.sum() > 0) {
-                return dataPoint[i].dateMillis
+                return dataPoint[i].dateMillis_bucket
             }
         }
         return 0
@@ -410,15 +410,15 @@ class DataHealth(string: String, context: Context)  {
 
             // Viewport listener for main and preview graphs
             (kChartView_PreviewWeek as PreviewLineChartView)?.setViewportChangeListener(ChartPreviewPortListener())
-            (kChartView_Week as LineChartView)?.setViewportChangeListener(ChartViewportListener())
+            (kChartView_Day as LineChartView)?.setViewportChangeListener(ChartViewportListener())
 
             (kChartView_PreviewWeek as PreviewLineChartView)?.currentViewport = viewPort
-            (kChartView_Week as LineChartView)?.currentViewport = viewPort
+            (kChartView_Day as LineChartView)?.currentViewport = viewPort
 
             (kChartView_PreviewWeek as PreviewLineChartView)?.zoomType = ZoomType.HORIZONTAL
 
 
-            (kChartView_Week as LineChartView).onValueTouchListener = ValueTouchListener()
+            (kChartView_Day as LineChartView).onValueTouchListener = ValueTouchListener()
         }
 
 
@@ -436,8 +436,8 @@ class DataHealth(string: String, context: Context)  {
         override fun onViewportChanged(newViewport: Viewport) {
             if (!updatingPreviewViewport) {
                 updatingChartViewport = true
-                (kChartView_Week as LineChartView).zoomType = ZoomType.HORIZONTAL
-                (kChartView_Week as LineChartView).currentViewport = newViewport
+                (kChartView_Day as LineChartView).zoomType = ZoomType.HORIZONTAL
+                (kChartView_Day as LineChartView).currentViewport = newViewport
                 updatingChartViewport = false
             }
         }

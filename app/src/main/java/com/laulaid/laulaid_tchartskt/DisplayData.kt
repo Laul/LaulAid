@@ -1,12 +1,8 @@
 package com.laulaid.laulaid_tchartskt
 
-import android.app.Activity
 import co.csadev.kellocharts.model.*
 import co.csadev.kellocharts.view.LineChartView
 import com.laulaid.laulaid_tchartskt.DataGeneral.Companion.getDate
-import kotlinx.coroutines.runBlocking
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 
 class DisplayData {
@@ -20,13 +16,12 @@ class DisplayData {
             dH.kLine.clear()
             dH.kLineValues.clear()
             for (i in 0 until dH.dataPoint.size) {
-                dH.kLineValues.add(PointValue(dH.dataPoint[i].dateMillis.toFloat(), dH.dataPoint[i].value[0], ""))
+                dH.kLineValues.add(PointValue(dH.dataPoint[i].dateMillis_point.toFloat(), dH.dataPoint[i].value[0], ""))
 
             }
             dH.kLine.add(Line(dH.kLineValues))
-//            if (dH.context::class == MainActivity::class) {
-            displayWeek(dH)
-//            }
+            displayCharts(dH, false)
+
         }
 
         /** Formatting for datapoint as columns - to display aggregate data per day for the week chart`
@@ -38,31 +33,26 @@ class DisplayData {
 
             // Group data per Day
 
-            var currentDayMilli = dH.dataPoint[0].dateMillis
-            var currentDay = getDate(dH.dataPoint[0].dateMillis, "EEE")
-//
-//            var idEEE = 0
-//            dH.dataAxis.add(LDataAxis(currentDayMilli, currentDay, idEEE))
+            var currentDayMilli = dH.dataPoint[0].dateMillis_bucket
+            var currentDay = getDate(dH.dataPoint[0].dateMillis_bucket, "EEE")
 
             var tempVal = arrayListOf(dH.dataPoint[0].value)
 
             for (i in 1 until dH.dataPoint.size) {
-                var tempDate = getDate(dH.dataPoint[i].dateMillis, "EEE")
+                var tempDate = getDate(dH.dataPoint[i].dateMillis_bucket, "EEE")
                 if (currentDay != tempDate) {
 
                     // if steps: we aggregate data for a day
                     if (dH.mname == "Steps") {
                         computeStepsData(dH, tempVal, currentDayMilli)
-//                        idEEE += 1
-//                        dH.dataAxis.add(LDataAxis(currentDayMilli, getDate(currentDayMilli, "EEE"), idEEE))
-
                     }
+
                     // else: calculate the mean, max, and min per day
                     else {
                         computeOtherData(dH, tempVal, currentDayMilli)
                     }
                     currentDay = tempDate
-                    currentDayMilli = dH.dataPoint[i].dateMillis
+                    currentDayMilli = dH.dataPoint[i].dateMillis_bucket
                     tempVal = arrayListOf(dH.dataPoint[i].value)
                 } else {
                     tempVal.add(dH.dataPoint[i].value)
@@ -75,11 +65,10 @@ class DisplayData {
                 computeOtherData(dH, tempVal, currentDayMilli)
             }
 
-            displayWeek(dH)
-
-
+            // Main Activity: display as week only
+            // Detailed Activity: display as week for the top graph
+            displayCharts(dH, true)
         }
-
 
         /** Create lines to display steps. Must be the total of steps per day
          */
@@ -155,7 +144,7 @@ class DisplayData {
 
         /** Display Main graphs using KelloCharts Lib
          */
-        fun displayWeek(dH: DataHealth) {
+        fun displayCharts(dH: DataHealth, isWeek: Boolean) {
             var dataPointCopy = ArrayList<LDataPoint>(dH.dataPoint)
 
             dH.kXAxisValues.clear()
@@ -171,7 +160,7 @@ class DisplayData {
 
                 // Create distinct Xaxis value based on the date
                 for (i in 0 until dataPointCopy.size) {
-                    dH.kDateEEE.add(getDate(dataPointCopy[i].dateMillis.toLong(), "EEE"))
+                    dH.kDateEEE.add(getDate(dataPointCopy[i].dateMillis_bucket.toLong(), "EEE"))
                 }
                 val kXAxisLabels = dH.kDateEEE.distinct()
 
@@ -184,16 +173,15 @@ class DisplayData {
                 }
 
 //                // Create axis values
-//                if (dH.context::class != MainActivity::class) {
-                for (i in 0 until kXAxisIndex.size) {
-                    dH.kXAxisValues.add(
-                        AxisValue(
-                            dataPointCopy[kXAxisIndex[i]].dateMillis.toFloat(),
-                            kXAxisLabels[i].toCharArray()
+                    for (i in 0 until kXAxisIndex.size) {
+                        dH.kXAxisValues.add(
+                            AxisValue(
+                                dataPointCopy[kXAxisIndex[i]].dateMillis_bucket.toFloat(),
+                                kXAxisLabels[i].toCharArray()
+                            )
                         )
-                    )
-                }
-//                }
+                    }
+
 
                 // Add values for x Axis
                 dH.kXAxis.values = dH.kXAxisValues
@@ -210,35 +198,32 @@ class DisplayData {
                 }
 
                 // Create a LineChartData using time and Line data
-                var kChart_Week = LineChartData(dH.kLine)
+                var kChart_Data = LineChartData(ArrayList<Line>(dH.kLine))
 
                 // Add axis values and push it in the chart
-                kChart_Week.axisXBottom = dH.kXAxis
-                kChart_Week.axisYRight = dH.kYaxis
+                kChart_Data.axisXBottom = dH.kXAxis
+                kChart_Data.axisYRight = dH.kYaxis
 
-                (dH.kChartView_Week as LineChartView).lineChartData = kChart_Week
+
+                if (isWeek){
+                    (dH.kChartView_Week as LineChartView).lineChartData = kChart_Data
+                }
+                else{
+                    (dH.kChartView_Day as LineChartView).lineChartData = kChart_Data
+                }
                 val tempViewport = dH.kChartView_Week?.maximumViewport.copy()
                 val tempPreViewport = tempViewport.copy()
 
                 // If in main activity, add an inset to have the entire labels for axis
-                if (dH.context::class == MainActivity::class) {
                     tempViewport.inset(-tempViewport.width() * 0.05f, -tempViewport.height() * 0.05f)
                     dH.kChartView_Week?.maximumViewport = tempViewport
                     dH.kChartView_Week?.currentViewport = tempViewport
-                }
 
-                // If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
-                if (dH.context::class != MainActivity::class) {
-//                        dH.gFitBucketTime = TimeUnit.HOURS
-//                        dH.connectGFit(dH.context as Activity, false, 7)
-                    var kChart_Day = LineChartData(dH.kLine)
-                    (dH.kChartView_Day as LineChartView).lineChartData = kChart_Day
-
+//                 If a preview view is available, displayPreviewChart(), i.e. we are not in the main activity view
+                if (!isWeek){
                     val dx = tempPreViewport.width() * 2f / 3f
                     tempPreViewport.offset(dx, 0f)
-                    dH.displayPreviewGraph(kChart_Week, tempPreViewport)
-
-
+                    dH.displayPreviewGraph(kChart_Data, tempPreViewport)
                 }
             }
         }
