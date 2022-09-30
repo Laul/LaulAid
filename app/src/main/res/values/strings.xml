@@ -6,4 +6,6 @@
     <string name="title_activity_sandbox">SandBoxActivity</string>
 
     <string name="httpText" />
+    <string name="greeting">"greeting phrase ! "</string>
+    <string name="title_activity_test">testActivity</string>
 </resources>

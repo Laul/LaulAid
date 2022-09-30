@@ -13,9 +13,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LaulAid_TChartskt"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".testActivity"
+            android:exported="false"
+            android:label="@string/title_activity_test"
+            android:theme="@style/Theme.LaulAid_TChartskt" />
+
         <meta-data
             android:name="com.google.android.actions"
             android:resource="@menu/toolbar" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -25,59 +32,46 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Detailed_Module"
-            android:label="@string/title_activity_bloodglucose">
-            android:parentActivityName=".MainActivity" >
+            android:label="@string/title_activity_bloodglucose"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-
+                android:value=".MainActivity" />
         </activity>
-
         <activity
             android:name=".Activity_BG"
             android:label="@string/title_activity_bloodglucose">
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-
+                android:value=".MainActivity" />
         </activity>
-
-
         <activity
             android:name=".Activity_HR"
             android:label="@string/title_activity_hr">
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-
+                android:value=".MainActivity" />
         </activity>
-
         <activity
             android:name=".Activity_Steps"
             android:label="@string/title_activity_steps">
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-
+                android:value=".MainActivity" />
         </activity>
-
-
         <activity
             android:name=".SandboxActivity"
             android:label="@string/title_activity_sandbox">
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-
+                android:value=".MainActivity" />
         </activity>
-
     </application>
 
 </manifest>

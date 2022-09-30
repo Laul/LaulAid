@@ -12,8 +12,10 @@ package com.laulaid.laulaid_tchartskt
 
 import android.content.Intent
 import android.os.Bundle
+
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -66,8 +68,4 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-
-
 }
-

@@ -22,6 +22,17 @@ class DisplayData {
             dH.kLine.add(Line(dH.kLineValues))
             displayCharts(dH, false)
 
+            // Format Chart
+            dH.kLine.forEach {
+                it.hasLabelsOnlyForSelected = true
+                it.isFilled = true
+                it.hasPoints = false
+                it.strokeWidth = 1
+                it.color = dH.mcolor_primary
+                it.hasLabels = true
+                it.areaTransparency = 56
+            }
+
         }
 
         /** Formatting for datapoint as columns - to display aggregate data per day for the week chart`
@@ -29,7 +40,6 @@ class DisplayData {
         fun formatAsColumn(dH: DataHealth) {
 
             dH.kLine.clear()
-
 
             // Group data per Day
 
@@ -68,6 +78,19 @@ class DisplayData {
             // Main Activity: display as week only
             // Detailed Activity: display as week for the top graph
             displayCharts(dH, true)
+
+            // Format Chart
+            dH.kLine.forEach {
+                it.hasLabelsOnlyForSelected = true
+                it.isFilled = true
+                it.hasPoints = true
+                it.strokeWidth = 5
+                it.color = dH.mcolor_primary
+                it.pointRadius = 1
+                it.hasLabels = false
+            }
+
+
         }
 
         /** Create lines to display steps. Must be the total of steps per day
@@ -155,7 +178,7 @@ class DisplayData {
 
                 // Last value to fill textfield + Label update depending on the last value
                 dH.formatLabel()
-                dH.kYaxis = Axis(hasLines = true, maxLabels = 4)
+                dH.kYAxis = Axis(hasLines = true, maxLabels = 4)
                 dH.kDateEEE.clear()
 
                 // Create distinct Xaxis value based on the date
@@ -172,37 +195,35 @@ class DisplayData {
                     }
                 }
 
-//                // Create axis values
-                    for (i in 0 until kXAxisIndex.size) {
-                        dH.kXAxisValues.add(
-                            AxisValue(
-                                dataPointCopy[kXAxisIndex[i]].dateMillis_bucket.toFloat(),
-                                kXAxisLabels[i].toCharArray()
-                            )
+                // Create axis values
+                for (i in 0 until kXAxisIndex.size) {
+                    dH.kXAxisValues.add(
+                        AxisValue(
+                            dataPointCopy[kXAxisIndex[i]].dateMillis_bucket.toFloat(),
+                            kXAxisLabels[i].toCharArray()
                         )
-                    }
-
-
+                    )
+                }
                 // Add values for x Axis
                 dH.kXAxis.values = dH.kXAxisValues
-
-                // Lines formatting
-                dH.kLine.forEach {
-                    it.hasLabelsOnlyForSelected = true
-                    it.isFilled = true
-                    it.hasPoints = true
-                    it.strokeWidth = dH.kStrokeWidth
-                    it.color = dH.mcolor_primary
-                    it.pointRadius = 1
-                    it.hasLabels = false
-                }
 
                 // Create a LineChartData using time and Line data
                 var kChart_Data = LineChartData(ArrayList<Line>(dH.kLine))
 
-                // Add axis values and push it in the chart
+                // Add axis values and push it in the chart + formatting
+                dH.kXAxis.textColor = dH.mcolor_primary
+                dH.kYAxis.textColor = dH.mcolor_primary
+
+                if( dH.context::class == MainActivity::class) {
+                    dH.kXAxis.name = dH.mname
+                    kChart_Data.axisYRight = dH.kYAxis
+                }
+                else{
+                    dH.kXAxis.name = ""
+                    kChart_Data.axisYLeft = dH.kYAxis
+                }
+
                 kChart_Data.axisXBottom = dH.kXAxis
-                kChart_Data.axisYRight = dH.kYaxis
 
 
                 if (isWeek){

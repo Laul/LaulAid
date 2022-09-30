@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import co.csadev.kellocharts.gesture.ZoomType
@@ -139,6 +140,7 @@ class DataHealth(string: String, context: Context)  {
     var mLabelView: TextView? = null
     var mDateView : TextView? = null
     var mButton : Button? = null
+    var mCard : LinearLayout? = null
     lateinit var mname: String
     var micon = R.drawable.icn_bg
 
@@ -149,7 +151,7 @@ class DataHealth(string: String, context: Context)  {
     var kLineValues = ArrayList<PointValue>()
 
     var kXAxis = Axis()
-    var kYaxis = Axis()
+    var kYAxis = Axis()
 
     var kXAxisValues = ArrayList<AxisValue>()
     var kDateEEE = ArrayList<String>()
@@ -171,7 +173,7 @@ class DataHealth(string: String, context: Context)  {
         if (string === "Blood Glucose") {
             gFitDataType = TYPE_BLOOD_GLUCOSE
             kXAxis.name = string
-            kYaxis.name = "mmol/L"
+            kYAxis.name = "mmol/L"
             kStrokeWidth = 4
             mname = "Blood Glucose"
             mcolor_primary = ContextCompat.getColor(context, red_primary)
@@ -182,7 +184,7 @@ class DataHealth(string: String, context: Context)  {
         else if (string === "Steps") {
             gFitDataType = TYPE_STEP_COUNT_DELTA
             kXAxis.name = string
-            kYaxis.name = "steps"
+            kYAxis.name = "steps"
             kStrokeWidth = 4
             mname = "Steps"
             mcolor_primary = ContextCompat.getColor(context, orange_primary)
@@ -193,7 +195,7 @@ class DataHealth(string: String, context: Context)  {
         else if (string === "Heart Rate") {
             gFitDataType = TYPE_HEART_RATE_BPM
             kXAxis.name = string
-            kYaxis.name = "bpm"
+            kYAxis.name = "bpm"
             kStrokeWidth = 4
             mname = "Heart Rate"
             mcolor_primary = ContextCompat.getColor(context, blue_primary)
@@ -204,7 +206,7 @@ class DataHealth(string: String, context: Context)  {
         else if (string === "Blood Pressure") {
             gFitDataType = TYPE_BLOOD_PRESSURE
             kXAxis.name = string
-            kYaxis.name = "mmHg"
+            kYAxis.name = "mmHg"
             kStrokeWidth = 4
             mname = "Blood Pressure"
             mcolor_primary = ContextCompat.getColor(context, pink_primary)
@@ -219,12 +221,16 @@ class DataHealth(string: String, context: Context)  {
         mLabelView = holder.moduleLabel
         mDateView  = holder.moduleDate
         mButton  = holder.moduleBtn
+        mCard = holder.moduleCard
     }
 
     fun bind(holder: Detailed_ViewHolder){
         kChartView_Week = holder.chart_week
         kChartView_Day = holder.chart_day
         kChartView_PreviewWeek = holder.chart_previewweek
+        mValueView = holder.moduleValue
+        mLabelView = holder.moduleLabel
+        mDateView  = holder.moduleDate
     }
 
 

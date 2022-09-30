@@ -16,18 +16,6 @@ class Detailed_RecyclerViewAdapter(private val moduleList: List<Detailed_Module>
     override fun onBindViewHolder(holder: Detailed_ViewHolder, position: Int) {
         if (position < moduleList.size) {
             val module = moduleList[position].dataHealth
-//
-//            // Set Title text and color
-//            holder.moduleTitle.text = module.mname
-//            holder.moduleTitle.setTextColor(module.mcolor_primary)
-//
-//            // Set Unit text and color
-//            holder.moduleUnit.text = module.kYaxis.name
-//            holder.moduleUnit.setTextColor(module.mcolor_primary)
-//
-//            // Set Button color
-//            holder.moduleBtn.setBackgroundColor(module.mcolor_secondary)
-//            holder.moduleBtn.setCompoundDrawablesWithIntrinsicBounds(module.micon, 0,0,0)
 
             module.bind(holder)
             module.connectGFit( module.context as Activity, false, 5)
